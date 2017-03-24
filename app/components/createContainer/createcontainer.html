@@ -206,30 +206,9 @@
               <!-- environment-variables -->
               <div class="form-group">
                 <label for="container_env" class="col-sm-1 control-label text-left">Environment variables</label>
-                <div class="col-sm-11">
-                  <span class="label label-default interactive" ng-click="addEnvironmentVariable()">
-                    <i class="fa fa-plus-circle" aria-hidden="true"></i> environment variable
-                  </span>
+                <div class="col-sm-9">
+                  <textarea class="form-control" id="container_env" placeholder="FOO=bar" rows="5" ng-model="config.Env" ng-list="&#10;" ng-trim="false"></textarea>
                 </div>
-                <!-- environment-variable-input-list -->
-                <div class="col-sm-offset-1 col-sm-11 form-inline" style="margin-top: 10px;">
-                  <div ng-repeat="variable in config.Env" style="margin-top: 2px;">
-                    <div class="input-group col-sm-5 input-group-sm">
-                      <span class="input-group-addon">name</span>
-                      <input type="text" class="form-control" ng-model="variable.name" placeholder="e.g. FOO">
-                    </div>
-                    <div class="input-group col-sm-5 input-group-sm">
-                      <span class="input-group-addon">value</span>
-                      <input type="text" class="form-control" ng-model="variable.value" placeholder="e.g. bar">
-                      <span class="input-group-btn">
-                        <button class="btn btn-default" type="button" ng-click="removeEnvironmentVariable($index)">
-                          <i class="fa fa-minus" aria-hidden="true"></i>
-                        </button>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <!-- !environment-variable-input-list -->
               </div>
               <!-- !environment-variables -->
             </form>

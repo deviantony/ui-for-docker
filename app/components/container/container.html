@@ -155,12 +155,9 @@
             <tr>
               <td>ENV</td>
               <td>
-                <table class="table table-bordered table-condensed">
-                  <tr ng-repeat="var in container.Config.Env">
-                    <td>{{ var|key: '=' }}</td>
-                    <td>{{ var|value: '=' }}</td>
-                  </tr>
-                </table>
+                <div ng-repeat="line in container.Config.Env">
+                  <div>{{line}}</div>
+                </div>
               </td>
             </tr>
             <tr ng-if="!(container.Config.Labels | emptyobject)">
