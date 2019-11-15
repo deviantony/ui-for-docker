@@ -6,7 +6,7 @@ angular.module('portainer.app')
 
   helper.getRegistryByURL = function(registries, url) {
     for (var i = 0; i < registries.length; i++) {
-      if (registries[i].URL === url) {
+      if (registries[i].URL.indexOf(url) === 0) {
         return registries[i];
       }
     }

@@ -83,20 +83,25 @@ angular.module('portainer.app')
     var deferred = $q.defer();
 
     var imageDetails = ImageHelper.extractImageAndRegistryFromRepository(repository);
-    $q.when(imageDetails.registry ? service.registries() : DockerHubService.dockerhub())
-    .then(function success(data) {
-      var registry = data;
-      if (imageDetails.registry) {
-        registry = RegistryHelper.getRegistryByURL(data, imageDetails.registry);
-      }
+
+    var registryPromise = imageDetails.registry ? loadRegistryDetails() : DockerHubService.dockerhub();
+    registryPromise.then(function (registry) {
       deferred.resolve(registry);
-    })
-    .catch(function error(err) {
+    }).catch(function error(err) {
       deferred.reject({ msg: 'Unable to retrieve the registry associated to the repository', err: err });
     });
 
+
     return deferred.promise;
+
+    function loadRegistryDetails() {
+      return service.registries().then(function onLoadRegisteries(registries) {
+        return RegistryHelper.getRegistryByURL(registries, imageDetails.registry);
+      });
+    }
   };
 
   return service;
+
+
 }]);
