@@ -52,8 +52,13 @@ angular.module('portainer').config([
       },
     ]);
 
-    AnalyticsProvider.setAccount({ tracker: __CONFIG_GA_ID, set: { anonymizeIp: true } });
-    AnalyticsProvider.startOffline(true);
+    // $analyticsProvider.withBase(false);
+    // $analyticsProvider.withAutoBase(true);
+
+    // need to set trackRelativePath
+
+    // AnalyticsProvider.setAccount({ tracker: __CONFIG_GA_ID, set: { anonymizeIp: true } });
+    // AnalyticsProvider.startOffline(true);
 
     toastr.options.timeOut = 3000;
 

@@ -15,15 +15,15 @@ async function initAuthentication(authManager, Authentication, $rootScope, $stat
   await Authentication.init();
 }
 
-function initAnalytics(Analytics, $rootScope) {
-  Analytics.offline(false);
-  Analytics.registerScriptTags();
-  Analytics.registerTrackers();
-  $rootScope.$on('$stateChangeSuccess', function (event, toState) {
-    Analytics.trackPage(toState.url);
-    Analytics.pageView();
-  });
-}
+// function initAnalytics(Analytics, $rootScope) {
+//   Analytics.offline(false);
+//   Analytics.registerScriptTags();
+//   Analytics.registerTrackers();
+//   $rootScope.$on('$stateChangeSuccess', function (event, toState) {
+//     Analytics.trackPage(toState.url);
+//     Analytics.pageView();
+//   });
+// }
 
 angular.module('portainer.app', ['portainer.oauth']).config([
   '$stateRegistryProvider',
@@ -51,10 +51,10 @@ angular.module('portainer.app', ['portainer.oauth']).config([
               deferred.resolve();
             } else {
               StateManager.initialize()
-                .then(function success(state) {
-                  if (state.application.analytics) {
-                    initAnalytics(Analytics, $rootScope);
-                  }
+                .then(function success() {
+                  // if (state.application.analytics) {
+                  //   initAnalytics(Analytics, $rootScope);
+                  // }
                   return $async(initAuthentication, authManager, Authentication, $rootScope, $state);
                 })
                 .then(() => deferred.resolve())

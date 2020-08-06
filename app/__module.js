@@ -37,6 +37,8 @@ angular.module('portainer', [
   'portainer.integrations',
   'rzModule',
   'moment-picker',
+  'angulartics',
+  'angulartics.piwik',
 ]);
 
 if (require) {

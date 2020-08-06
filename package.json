@@ -71,6 +71,8 @@
     "angular-utils-pagination": "~0.11.1",
     "angularjs-scroll-glue": "^2.2.0",
     "angularjs-slider": "^6.4.0",
+    "angulartics": "^1.6.0",
+    "angulartics-piwik": "^1.0.6",
     "babel-plugin-angularjs-annotate": "^0.10.0",
     "bootbox": "^5.4.0",
     "bootstrap": "^3.4.0",
