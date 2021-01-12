@@ -82,6 +82,7 @@
     "lodash-es": "^4.17.15",
     "moment": "^2.21.0",
     "ng-file-upload": "~12.2.13",
+    "simple-duration": "^1.0.1",
     "spinkit": "^2.0.1",
     "splitargs": "github:deviantony/splitargs#semver:~0.2.0",
     "strip-ansi": "^6.0.0",

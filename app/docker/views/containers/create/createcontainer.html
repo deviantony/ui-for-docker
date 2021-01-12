@@ -189,6 +189,7 @@
           <li class="interactive"><a data-target="#volumes" data-toggle="tab">Volumes</a></li>
           <li class="interactive"><a data-target="#network" data-toggle="tab">Network</a></li>
           <li class="interactive"><a data-target="#env" data-toggle="tab">Env</a></li>
+          <li class="interactive"><a data-target="#healthcheck" data-toggle="tab">Healthcheck</a></li>
           <li class="interactive"><a data-target="#labels" data-toggle="tab">Labels</a></li>
           <li class="interactive"><a data-target="#restart-policy" data-toggle="tab">Restart policy</a></li>
           <li class="interactive"><a data-target="#runtime-resources" ng-click="refreshSlider()" data-toggle="tab">Runtime & Resources</a></li>
@@ -541,6 +542,116 @@
             </form>
           </div>
           <!-- !tab-network -->
+
+          <!-- tab-healthcheck -->
+          <div class="tab-pane" id="healthcheck">
+            <form name="healthcheck" class="form-horizontal" style="margin-top: 15px;">
+              <!-- reset-input -->
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <label for="healthcheck_reset">Reset to container default</label>
+                  <button id="healthcheck_reset" class="btn btn-sm btn-danger" type="button" ng-click="removeHealthcheck()">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+              <!-- !reset-input -->
+              <!-- command-input -->
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <label class="control-label text-left">
+                    Healthcheck Type
+                  </label>
+                  <div class="btn-group btn-group-sm" style="margin-left: 20px;">
+                    <label class="btn btn-primary" ng-model="formValues.Healthcheck.Type" uib-btn-radio="'NONE'">
+                      Disabled
+                    </label>
+                    <label class="btn btn-primary" ng-model="formValues.Healthcheck.Type" uib-btn-radio="'CMD'">
+                      Command
+                    </label>
+                    <label class="btn btn-primary" ng-model="formValues.Healthcheck.Type" uib-btn-radio="'CMD-SHELL'">
+                      Shell
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <!-- !command-input -->
+              <!-- test-input -->
+              <div class="form-group">
+                <label for="healthcheck_test" class="col-sm-2 col-lg-1 control-label text-left">Test</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" ng-model="formValues.Healthcheck.Test" id="healthcheck_test" placeholder="e.g. curl -sf http://localhost || exit 1" />
+                </div>
+              </div>
+              <!-- !test-input -->
+              <!-- start-input -->
+              <div class="form-group">
+                <label for="healthcheck_start" class="col-sm-2 col-lg-1 control-label text-left">Start Period</label>
+                <div class="col-sm-9">
+                  <input
+                    type="text"
+                    class="form-control"
+                    ng-model="formValues.Healthcheck.StartPeriod"
+                    id="healthcheck_start"
+                    placeholder="e.g. 30s, default is 0s"
+                    title="Use a duration format: 1h 2m 3s 4ms"
+                    ng-pattern="durationRx"
+                  />
+                </div>
+              </div>
+              <!-- !start-input -->
+              <!-- interval-input -->
+              <div class="form-group">
+                <label for="healthcheck_interval" class="col-sm-2 col-lg-1 control-label text-left">Interval</label>
+                <div class="col-sm-9">
+                  <input
+                    type="text"
+                    class="form-control"
+                    ng-model="formValues.Healthcheck.Interval"
+                    id="healthcheck_interval"
+                    placeholder="e.g. 1m, default is 30s"
+                    title="Use a duration format: 1h 2m 3s 4ms"
+                    ng-pattern="durationRx"
+                  />
+                </div>
+              </div>
+              <!-- !interval-input -->
+              <!-- timeout-input -->
+              <div class="form-group">
+                <label for="healthcheck_timeout" class="col-sm-2 col-lg-1 control-label text-left">Timeout</label>
+                <div class="col-sm-9">
+                  <input
+                    type="text"
+                    class="form-control"
+                    ng-model="formValues.Healthcheck.Timeout"
+                    id="healthcheck_timeout"
+                    placeholder="e.g. 10s, default is 30s"
+                    title="Use a duration format: 1h 2m 3s 4ms"
+                    ng-pattern="durationRx"
+                  />
+                </div>
+              </div>
+              <!-- !timeout-input -->
+              <!-- retries-input -->
+              <div class="form-group">
+                <label for="healthcheck_retries" class="col-sm-2 col-lg-1 control-label text-left">Retries</label>
+                <div class="col-sm-9">
+                  <input
+                    type="number"
+                    class="form-control"
+                    ng-model="formValues.Healthcheck.Retries"
+                    id="healthcheck_retries"
+                    placeholder="e.g. 5, default is 3"
+                    min="1"
+                    max="100"
+                  />
+                </div>
+              </div>
+              <!-- !retries-input -->
+            </form>
+          </div>
+          <!-- !tab-labels -->
+
           <!-- tab-labels -->
           <div class="tab-pane" id="labels">
             <form class="form-horizontal" style="margin-top: 15px;">

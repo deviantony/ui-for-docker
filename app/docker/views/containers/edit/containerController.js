@@ -1,5 +1,6 @@
 import moment from 'moment';
 import _ from 'lodash-es';
+import * as simpleDuration from 'simple-duration';
 import { PorImageRegistryModel } from 'Docker/models/porImageRegistry';
 
 angular.module('portainer.docker').controller('ContainerController', [
@@ -46,6 +47,8 @@ angular.module('portainer.docker').controller('ContainerController', [
     $scope.activityTime = 0;
     $scope.portBindings = [];
     $scope.displayRecreateButton = false;
+
+    $scope.healthcheck = {};
 
     $scope.config = {
       RegistryModel: new PorImageRegistryModel(),
@@ -114,6 +117,32 @@ angular.module('portainer.docker').controller('ContainerController', [
             !allowPrivilegedModeForRegularUsers;
 
           $scope.displayRecreateButton = !inSwarm && !autoRemove && (admin || !settingRestrictsRegularUsers);
+
+          // Convert healthcheck to human-readable
+          if (container.Config.Healthcheck.Test) {
+            // TODO: Change to select between NONE, CMD, CMD-SHELL
+            if (container.Config.Healthcheck.Test[0] == 'NONE') {
+              $scope.healthcheck.type = 'Disabled';
+            } else {
+              $scope.healthcheck.type = container.Config.Healthcheck.Test[0];
+              if (container.Config.Healthcheck.Test.length > 1) {
+                $scope.healthcheck.test = container.Config.Healthcheck.Test[1];
+              }
+
+              $scope.healthcheck.retries = container.Config.Healthcheck.Retries;
+
+              // Docker uses nanos
+              if (!isNaN(container.Config.Healthcheck.StartPeriod)) {
+                $scope.healthcheck.startPeriod = simpleDuration.stringify(container.Config.Healthcheck.StartPeriod / 1e9, 'ms');
+              }
+              if (!isNaN(container.Config.Healthcheck.Interval)) {
+                $scope.healthcheck.interval = simpleDuration.stringify(container.Config.Healthcheck.Interval / 1e9, 'ms');
+              }
+              if (!isNaN(container.Config.Healthcheck.Timeout)) {
+                $scope.healthcheck.timeout = simpleDuration.stringify(container.Config.Healthcheck.Timeout / 1e9, 'ms');
+              }
+            }
+          }
         })
         .catch(function error(err) {
           Notifications.error('Failure', err, 'Unable to retrieve container info');

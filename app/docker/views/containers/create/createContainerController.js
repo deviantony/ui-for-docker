@@ -1,4 +1,5 @@
 import _ from 'lodash-es';
+import * as simpleDuration from 'simple-duration';
 import { PorImageRegistryModel } from 'Docker/models/porImageRegistry';
 import { ContainerCapabilities, ContainerCapability } from '../../../models/containerCapabilities';
 import { AccessControlFormData } from '../../../../portainer/components/accessControlForm/porAccessControlFormModel';
@@ -82,6 +83,7 @@ angular.module('portainer.docker').controller('CreateContainerController', [
       LogDriverName: '',
       LogDriverOpts: [],
       RegistryModel: new PorImageRegistryModel(),
+      Healthcheck: {},
     };
 
     $scope.extraNetworks = {};
@@ -131,6 +133,7 @@ angular.module('portainer.docker').controller('CreateContainerController', [
         EndpointsConfig: {},
       },
       Labels: {},
+      Healthcheck: {},
     };
 
     $scope.addVolume = function () {
@@ -187,6 +190,10 @@ angular.module('portainer.docker').controller('CreateContainerController', [
 
     $scope.removeLogDriverOpt = function (index) {
       $scope.formValues.LogDriverOpts.splice(index, 1);
+    };
+
+    $scope.removeHealthcheck = function () {
+      $scope.formValues.Healthcheck = {};
     };
 
     $scope.fromContainerMultipleNetworks = false;
@@ -387,6 +394,40 @@ angular.module('portainer.docker').controller('CreateContainerController', [
       config.HostConfig.CapDrop = notAllowed.map(getCapName);
     }
 
+    $scope.durationRx = /((\d+(\.\d+)?)(ms|[smhdy]))/gi;
+
+    function prepareHealthcheck(config) {
+      config.Healthcheck = {};
+
+      if (!$scope.formValues.Healthcheck.Type) return;
+
+      config.Healthcheck.Test = [$scope.formValues.Healthcheck.Type];
+      if ($scope.formValues.Healthcheck.Test) {
+        config.Healthcheck.Test.push($scope.formValues.Healthcheck.Test);
+      }
+
+      if (!isNaN($scope.formValues.Healthcheck.Retries)) {
+        config.Healthcheck.Retries = parseInt($scope.formValues.Healthcheck.Retries, 10);
+      }
+
+      // Docker uses nanos
+      var duration = $scope.formValues.Healthcheck.StartPeriod.match($scope.durationRx);
+      if (duration) {
+        var startPeriodS = simpleDuration.parse(duration.join('').toLowerCase());
+        config.Healthcheck.StartPeriod = startPeriodS * 1e9;
+      }
+      duration = $scope.formValues.Healthcheck.Interval.match($scope.durationRx);
+      if (duration) {
+        var intervalS = simpleDuration.parse(duration.join('').toLowerCase());
+        config.Healthcheck.Interval = intervalS * 1e9;
+      }
+      duration = $scope.formValues.Healthcheck.Timeout.match($scope.durationRx);
+      if (duration) {
+        var timeoutS = simpleDuration.parse(duration.join('').toLowerCase());
+        config.Healthcheck.Timeout = timeoutS * 1e9;
+      }
+    }
+
     function prepareConfiguration() {
       var config = angular.copy($scope.config);
       prepareCmd(config);
@@ -402,6 +443,7 @@ angular.module('portainer.docker').controller('CreateContainerController', [
       prepareResources(config);
       prepareLogDriver(config);
       prepareCapabilities(config);
+      prepareHealthcheck(config);
       return config;
     }
 
@@ -598,6 +640,40 @@ angular.module('portainer.docker').controller('CreateContainerController', [
       });
     }
 
+    // Convert healthcheck to human-readable
+    function loadConfigHealthcheck() {
+      if ($scope.config.Healthcheck.Test) {
+        $scope.formValues.Healthcheck.Type = $scope.config.Healthcheck.Test[0];
+        if ($scope.config.Healthcheck.Test.length > 1) {
+          $scope.formValues.Healthcheck.Test = $scope.config.Healthcheck.Test[1];
+        }
+
+        $scope.formValues.Healthcheck.Retries = $scope.config.Healthcheck.Retries;
+
+        // Docker uses nanos
+        if (!isNaN($scope.config.Healthcheck.StartPeriod)) {
+          $scope.formValues.Healthcheck.StartPeriod = simpleDuration.stringify($scope.config.Healthcheck.StartPeriod / 1e9, 'ms');
+        }
+        if (!isNaN($scope.config.Healthcheck.Interval)) {
+          $scope.formValues.Healthcheck.Interval = simpleDuration.stringify($scope.config.Healthcheck.Interval / 1e9, 'ms');
+        }
+        if (!isNaN($scope.config.Healthcheck.Timeout)) {
+          $scope.formValues.Healthcheck.Timeout = simpleDuration.stringify($scope.config.Healthcheck.Timeout / 1e9, 'ms');
+        }
+      }
+    }
+
+    function loadFromContainerLogging(config) {
+      var logConfig = config.HostConfig.LogConfig;
+      $scope.formValues.LogDriverName = logConfig.Type;
+      $scope.formValues.LogDriverOpts = _.map(logConfig.Config, function (value, name) {
+        return {
+          name: name,
+          value: value,
+        };
+      });
+    }
+
     function loadFromContainerSpec() {
       // Get container
       Container.get({ id: $transition$.params().from })
@@ -622,21 +698,11 @@ angular.module('portainer.docker').controller('CreateContainerController', [
           loadFromContainerImageConfig(d);
           loadFromContainerResources(d);
           loadFromContainerCapabilities(d);
+          loadConfigHealthcheck();
         })
         .catch(function error(err) {
           Notifications.error('Failure', err, 'Unable to retrieve container');
         });
-    }
-
-    function loadFromContainerLogging(config) {
-      var logConfig = config.HostConfig.LogConfig;
-      $scope.formValues.LogDriverName = logConfig.Type;
-      $scope.formValues.LogDriverOpts = _.map(logConfig.Config, function (value, name) {
-        return {
-          name: name,
-          value: value,
-        };
-      });
     }
 
     async function initView() {

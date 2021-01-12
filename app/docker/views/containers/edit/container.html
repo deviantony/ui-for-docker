@@ -164,8 +164,29 @@
             </tr>
             <tr>
               <td>Last output</td>
-              <td>{{ container.State.Health.Log[container.State.Health.Log.length - 1].Output }}</td>
+              <td>
+                <pre>{{ container.State.Health.Log[container.State.Health.Log.length - 1].Output }}</pre>
+              </td>
             </tr>
+
+            <tr
+              ><td>Test</td
+              ><td
+                >{{ healthcheck.type }} <code>{{ healthcheck.test }}</code></td
+              ></tr
+            >
+            <tr ng-if="healthcheck.startPeriod"
+              ><td>Start Period</td><td>{{ healthcheck.startPeriod }}</td></tr
+            >
+            <tr ng-if="healthcheck.interval"
+              ><td>Interval</td><td>{{ healthcheck.interval }}</td></tr
+            >
+            <tr ng-if="healthcheck.timeout"
+              ><td>Timeout</td><td>{{ healthcheck.timeout }}</td></tr
+            >
+            <tr ng-if="healthcheck.retries"
+              ><td>Retries</td><td>{{ healthcheck.retries }}</td></tr
+            >
           </tbody>
         </table>
       </rd-widget-body>
@@ -251,6 +272,7 @@
                 </table>
               </td>
             </tr>
+
             <tr ng-if="!(container.Config.Labels | emptyobject)">
               <td>Labels</td>
               <td>
