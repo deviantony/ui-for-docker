@@ -19,7 +19,7 @@ module.exports = function (grunt) {
     binaries: {
       dockerLinuxVersion: '19.03.13',
       dockerWindowsVersion: '19-03-12',
-      dockerLinuxComposeVersion: '1.27.4',
+      dockerLinuxComposeVersion: '1.28.2',
       dockerWindowsComposeVersion: '1.28.0',
       komposeVersion: 'v1.22.0',
       kubectlVersion: 'v1.18.0',
@@ -211,15 +211,12 @@ function shell_download_docker_binary(p, a) {
 }
 
 function shell_download_docker_compose_binary(p, a) {
-  console.log('request docker compose for ' + p + ':' + a);
   var ps = { windows: 'win', darwin: 'mac' };
   var as = { arm: 'armhf', arm64: 'aarch64' };
   var ip = ps[p] || p;
   var ia = as[a] || a;
-  console.log('download docker compose for ' + ip + ':' + ia);
   var linuxBinaryVersion = '<%= binaries.dockerLinuxComposeVersion %>';
   var windowsBinaryVersion = '<%= binaries.dockerWindowsComposeVersion %>';
-  console.log('download docker compose versions; Linux: ' + linuxBinaryVersion + ' Windows: ' + windowsBinaryVersion);
 
   if (ip === 'linux' || ip === 'mac') {
     return [
@@ -239,7 +236,6 @@ function shell_download_docker_compose_binary(p, a) {
       '}}"',
     ].join(' ');
   }
-  console.log('docker compose is downloaded');
 }
 
 function shell_download_kompose_binary(p, a) {
