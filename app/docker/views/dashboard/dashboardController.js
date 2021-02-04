@@ -1,7 +1,10 @@
 import angular from 'angular';
 import _ from 'lodash';
 
+import { getEndpointTags } from '@/portainer/helpers/tagHelper';
+
 angular.module('portainer.docker').controller('DashboardController', [
+  'endpoint',
   '$scope',
   '$q',
   'Authentication',
@@ -17,7 +20,9 @@ angular.module('portainer.docker').controller('DashboardController', [
   'EndpointProvider',
   'StateManager',
   'TagService',
+  'GroupService',
   function (
+    endpoint,
     $scope,
     $q,
     Authentication,
@@ -32,7 +37,8 @@ angular.module('portainer.docker').controller('DashboardController', [
     Notifications,
     EndpointProvider,
     StateManager,
-    TagService
+    TagService,
+    GroupService
   ) {
     $scope.dismissInformationPanel = function (id) {
       StateManager.dismissInformationPanel(id);
@@ -40,7 +46,7 @@ angular.module('portainer.docker').controller('DashboardController', [
 
     $scope.offlineMode = false;
     $scope.showStacks = false;
-
+    $scope.endpoint = endpoint;
     async function initView() {
       const endpointMode = $scope.applicationState.endpoint.mode;
       const endpointId = EndpointProvider.endpointID();
@@ -56,7 +62,7 @@ angular.module('portainer.docker').controller('DashboardController', [
         services: endpointMode.provider === 'DOCKER_SWARM_MODE' && endpointMode.role === 'MANAGER' ? ServiceService.services() : [],
         stacks: StackService.stacks(true, endpointMode.provider === 'DOCKER_SWARM_MODE' && endpointMode.role === 'MANAGER', endpointId),
         info: SystemService.info(),
-        endpoint: EndpointService.endpoint(endpointId),
+        endpointGroup: GroupService.group(endpoint.GroupId),
         tags: TagService.tags(),
       })
         .then(function success(data) {
@@ -67,19 +73,10 @@ angular.module('portainer.docker').controller('DashboardController', [
           $scope.serviceCount = data.services.length;
           $scope.stackCount = data.stacks.length;
           $scope.info = data.info;
-          $scope.endpoint = data.endpoint;
-          $scope.endpointTags = $scope.endpoint.TagIds.length
-            ? _.join(
-                _.filter(
-                  _.map($scope.endpoint.TagIds, (id) => {
-                    const tag = data.tags.find((tag) => tag.Id === id);
-                    return tag ? tag.Name : '';
-                  }),
-                  Boolean
-                ),
-                ', '
-              )
-            : '-';
+
+          const tags = getEndpointTags(endpoint, data.endpointGroup, data.tags);
+          $scope.endpointTags = _.map(tags, 'Name').join(', ') || '-';
+
           $scope.offlineMode = EndpointProvider.offlineMode();
         })
         .catch(function error(err) {

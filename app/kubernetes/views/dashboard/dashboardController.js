@@ -1,14 +1,15 @@
 import angular from 'angular';
 import _ from 'lodash-es';
+
 import KubernetesConfigurationHelper from 'Kubernetes/helpers/configurationHelper';
+import { getEndpointTags } from '@/portainer/helpers/tagHelper';
 
 class KubernetesDashboardController {
   /* @ngInject */
   constructor(
     $async,
     Notifications,
-    EndpointService,
-    EndpointProvider,
+    GroupService,
     KubernetesResourcePoolService,
     KubernetesApplicationService,
     KubernetesConfigurationService,
@@ -19,8 +20,7 @@ class KubernetesDashboardController {
   ) {
     this.$async = $async;
     this.Notifications = Notifications;
-    this.EndpointService = EndpointService;
-    this.EndpointProvider = EndpointProvider;
+    this.GroupService = GroupService;
     this.KubernetesResourcePoolService = KubernetesResourcePoolService;
     this.KubernetesApplicationService = KubernetesApplicationService;
     this.KubernetesConfigurationService = KubernetesConfigurationService;
@@ -38,31 +38,19 @@ class KubernetesDashboardController {
     const isAdmin = this.Authentication.isAdmin();
 
     try {
-      const endpointId = this.EndpointProvider.endpointID();
-      const [endpoint, pools, applications, configurations, volumes, tags] = await Promise.all([
-        this.EndpointService.endpoint(endpointId),
+      const [endpointGroup, pools, applications, configurations, volumes, tags] = await Promise.all([
+        this.GroupService.group(this.endpoint.GroupId),
         this.KubernetesResourcePoolService.get(),
         this.KubernetesApplicationService.get(),
         this.KubernetesConfigurationService.get(),
         this.KubernetesVolumeService.get(),
         this.TagService.tags(),
       ]);
-      this.endpoint = endpoint;
       this.applications = applications;
       this.volumes = volumes;
 
-      this.endpointTags = this.endpoint.TagIds.length
-        ? _.join(
-            _.filter(
-              _.map(this.endpoint.TagIds, (id) => {
-                const tag = tags.find((tag) => tag.Id === id);
-                return tag ? tag.Name : '';
-              }),
-              Boolean
-            ),
-            ', '
-          )
-        : '-';
+      const endpointTags = getEndpointTags(this.endpoint, endpointGroup, tags);
+      this.endpointTags = _.map(endpointTags, 'Name').join(', ') || '-';
 
       if (!isAdmin) {
         this.pools = _.filter(pools, (pool) => {

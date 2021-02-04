@@ -11,13 +11,10 @@ angular.module('portainer.app').factory('EndpointHelper', [
       });
     }
 
-    helper.mapGroupNameToEndpoint = function (endpoints, groups) {
+    helper.mapGroupToEndpoint = function (endpoints, groups) {
       for (var i = 0; i < endpoints.length; i++) {
         var endpoint = endpoints[i];
-        var group = findAssociatedGroup(endpoint, groups);
-        if (group) {
-          endpoint.GroupName = group.Name;
-        }
+        endpoint.Group = findAssociatedGroup(endpoint, groups);
       }
     };
 

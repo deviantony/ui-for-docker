@@ -52,10 +52,10 @@
                 </a>
               </th>
               <th>
-                <a ng-click="$ctrl.changeOrderBy('GroupName')">
+                <a ng-click="$ctrl.changeOrderBy('Group.Name')">
                   Group
-                  <i class="fa fa-sort-alpha-down" aria-hidden="true" ng-if="$ctrl.state.orderBy === 'GroupName' && !$ctrl.state.reverseOrder"></i>
-                  <i class="fa fa-sort-alpha-up" aria-hidden="true" ng-if="$ctrl.state.orderBy === 'GroupName' && $ctrl.state.reverseOrder"></i>
+                  <i class="fa fa-sort-alpha-down" aria-hidden="true" ng-if="$ctrl.state.orderBy === 'Group.Name' && !$ctrl.state.reverseOrder"></i>
+                  <i class="fa fa-sort-alpha-up" aria-hidden="true" ng-if="$ctrl.state.orderBy === 'Group.Name' && $ctrl.state.reverseOrder"></i>
                 </a>
               </th>
               <th>Actions</th>
@@ -84,7 +84,7 @@
                 <span ng-if="item.Type !== 4">{{ item.URL | stripprotocol }}</span>
                 <span ng-if="item.Type === 4">-</span>
               </td>
-              <td>{{ item.GroupName }}</td>
+              <td>{{ item.Group.Name }}</td>
               <td>
                 <a ui-sref="portainer.endpoints.endpoint.access({id: item.Id})"> <i class="fa fa-users" aria-hidden="true"></i> Manage access </a>
               </td>

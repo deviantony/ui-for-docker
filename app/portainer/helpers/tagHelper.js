@@ -7,3 +7,9 @@ export default class PortainerEndpointTagHelper {
     return tagNames;
   }
 }
+
+export function getEndpointTags(endpoint, endpointGroup, tags = []) {
+  const union = _.union(endpoint.TagIds, endpointGroup.TagIds);
+  const endpointTags = _.map(union, (id) => tags.find((t) => t.Id === id));
+  return _.compact(endpointTags);
+}

@@ -80,7 +80,7 @@ angular
         .then(function success(data) {
           var endpoints = data.endpoints.value;
           var groups = data.groups;
-          EndpointHelper.mapGroupNameToEndpoint(endpoints, groups);
+          EndpointHelper.mapGroupToEndpoint(endpoints, groups);
           EndpointProvider.setEndpoints(endpoints);
           deferred.resolve({ endpoints: endpoints, totalCount: data.endpoints.totalCount });
         })

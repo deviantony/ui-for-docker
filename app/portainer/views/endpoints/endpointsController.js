@@ -33,7 +33,7 @@ function EndpointsController($q, $scope, $state, $async, EndpointService, GroupS
       .then(function success(data) {
         var endpoints = data.endpoints.value;
         var groups = data.groups;
-        EndpointHelper.mapGroupNameToEndpoint(endpoints, groups);
+        EndpointHelper.mapGroupToEndpoint(endpoints, groups);
         deferred.resolve({ endpoints: endpoints, totalCount: data.endpoints.totalCount });
       })
       .catch(function error(err) {
