@@ -1,6 +1,7 @@
 package stacks
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
@@ -91,7 +92,7 @@ func (handler *Handler) stackStop(w http.ResponseWriter, r *http.Request) *httpe
 func (handler *Handler) stopStack(stack *portainer.Stack, endpoint *portainer.Endpoint) error {
 	switch stack.Type {
 	case portainer.DockerComposeStack:
-		return handler.ComposeStackManager.Down(stack, endpoint)
+		return handler.ComposeStackManager.Down(context.TODO(), stack, endpoint)
 	case portainer.DockerSwarmStack:
 		return handler.SwarmStackManager.Remove(stack, endpoint)
 	}

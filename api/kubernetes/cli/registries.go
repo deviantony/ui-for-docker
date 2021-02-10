@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -29,7 +30,7 @@ type (
 )
 
 func (kcl *KubeClient) DeleteRegistrySecret(registry *portainer.Registry, namespace string) error {
-	err := kcl.cli.CoreV1().Secrets(namespace).Delete(registrySecretName(registry), &metav1.DeleteOptions{})
+	err := kcl.cli.CoreV1().Secrets(namespace).Delete(context.TODO(), registrySecretName(registry), metav1.DeleteOptions{})
 	if err != nil && !k8serrors.IsNotFound(err) {
 		return errors.Wrap(err, "failed removing secret")
 	}
@@ -66,7 +67,7 @@ func (kcl *KubeClient) CreateRegistrySecret(registry *portainer.Registry, namesp
 		Type: v1.SecretTypeDockerConfigJson,
 	}
 
-	_, err = kcl.cli.CoreV1().Secrets(namespace).Create(secret)
+	_, err = kcl.cli.CoreV1().Secrets(namespace).Create(context.TODO(), secret, metav1.CreateOptions{})
 	if err != nil && !k8serrors.IsAlreadyExists(err) {
 		return errors.Wrap(err, "failed saving secret")
 	}
@@ -76,7 +77,7 @@ func (kcl *KubeClient) CreateRegistrySecret(registry *portainer.Registry, namesp
 }
 
 func (cli *KubeClient) IsRegistrySecret(namespace, secretName string) (bool, error) {
-	secret, err := cli.cli.CoreV1().Secrets(namespace).Get(secretName, metav1.GetOptions{})
+	secret, err := cli.cli.CoreV1().Secrets(namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
 	if err != nil {
 		if k8serrors.IsNotFound(err) {
 			return false, nil

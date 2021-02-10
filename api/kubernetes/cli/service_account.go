@@ -1,7 +1,9 @@
 package cli
 
 import (
-	"k8s.io/api/core/v1"
+	"context"
+
+	v1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -62,8 +64,7 @@ func (kcl *KubeClient) createUserServiceAccount(namespace, serviceAccountName st
 			Name: serviceAccountName,
 		},
 	}
-
-	_, err := kcl.cli.CoreV1().ServiceAccounts(namespace).Create(serviceAccount)
+	_, err := kcl.cli.CoreV1().ServiceAccounts(namespace).Create(context.TODO(), serviceAccount, metav1.CreateOptions{})
 	if err != nil && !k8serrors.IsAlreadyExists(err) {
 		return err
 	}
@@ -72,7 +73,7 @@ func (kcl *KubeClient) createUserServiceAccount(namespace, serviceAccountName st
 }
 
 func (kcl *KubeClient) ensureServiceAccountHasPortainerUserClusterRole(serviceAccountName string) error {
-	clusterRoleBinding, err := kcl.cli.RbacV1().ClusterRoleBindings().Get(portainerUserCRBName, metav1.GetOptions{})
+	clusterRoleBinding, err := kcl.cli.RbacV1().ClusterRoleBindings().Get(context.TODO(), portainerUserCRBName, metav1.GetOptions{})
 	if k8serrors.IsNotFound(err) {
 		clusterRoleBinding = &rbacv1.ClusterRoleBinding{
 			ObjectMeta: metav1.ObjectMeta{
@@ -91,7 +92,7 @@ func (kcl *KubeClient) ensureServiceAccountHasPortainerUserClusterRole(serviceAc
 			},
 		}
 
-		_, err := kcl.cli.RbacV1().ClusterRoleBindings().Create(clusterRoleBinding)
+		_, err := kcl.cli.RbacV1().ClusterRoleBindings().Create(context.TODO(), clusterRoleBinding, metav1.CreateOptions{})
 		return err
 	} else if err != nil {
 		return err
@@ -109,14 +110,14 @@ func (kcl *KubeClient) ensureServiceAccountHasPortainerUserClusterRole(serviceAc
 		Namespace: portainerNamespace,
 	})
 
-	_, err = kcl.cli.RbacV1().ClusterRoleBindings().Update(clusterRoleBinding)
+	_, err = kcl.cli.RbacV1().ClusterRoleBindings().Update(context.TODO(), clusterRoleBinding, metav1.UpdateOptions{})
 	return err
 }
 
 func (kcl *KubeClient) removeNamespaceAccessForServiceAccount(serviceAccountName, namespace string) error {
 	roleBindingName := namespaceClusterRoleBindingName(namespace, kcl.instanceID)
 
-	roleBinding, err := kcl.cli.RbacV1().RoleBindings(namespace).Get(roleBindingName, metav1.GetOptions{})
+	roleBinding, err := kcl.cli.RbacV1().RoleBindings(namespace).Get(context.TODO(), roleBindingName, metav1.GetOptions{})
 	if k8serrors.IsNotFound(err) {
 		return nil
 	} else if err != nil {
@@ -133,14 +134,14 @@ func (kcl *KubeClient) removeNamespaceAccessForServiceAccount(serviceAccountName
 
 	roleBinding.Subjects = updatedSubjects
 
-	_, err = kcl.cli.RbacV1().RoleBindings(namespace).Update(roleBinding)
+	_, err = kcl.cli.RbacV1().RoleBindings(namespace).Update(context.TODO(), roleBinding, metav1.UpdateOptions{})
 	return err
 }
 
 func (kcl *KubeClient) ensureNamespaceAccessForServiceAccount(serviceAccountName, namespace string) error {
 	roleBindingName := namespaceClusterRoleBindingName(namespace, kcl.instanceID)
 
-	roleBinding, err := kcl.cli.RbacV1().RoleBindings(namespace).Get(roleBindingName, metav1.GetOptions{})
+	roleBinding, err := kcl.cli.RbacV1().RoleBindings(namespace).Get(context.TODO(), roleBindingName, metav1.GetOptions{})
 	if k8serrors.IsNotFound(err) {
 		roleBinding = &rbacv1.RoleBinding{
 			ObjectMeta: metav1.ObjectMeta{
@@ -159,7 +160,7 @@ func (kcl *KubeClient) ensureNamespaceAccessForServiceAccount(serviceAccountName
 			},
 		}
 
-		_, err = kcl.cli.RbacV1().RoleBindings(namespace).Create(roleBinding)
+		_, err = kcl.cli.RbacV1().RoleBindings(namespace).Create(context.TODO(), roleBinding, metav1.CreateOptions{})
 		return err
 	} else if err != nil {
 		return err
@@ -177,6 +178,6 @@ func (kcl *KubeClient) ensureNamespaceAccessForServiceAccount(serviceAccountName
 		Namespace: portainerNamespace,
 	})
 
-	_, err = kcl.cli.RbacV1().RoleBindings(namespace).Update(roleBinding)
+	_, err = kcl.cli.RbacV1().RoleBindings(namespace).Update(context.TODO(), roleBinding, metav1.UpdateOptions{})
 	return err
 }
