@@ -16,7 +16,7 @@ angular.module('portainer.integrations.storidge').factory('StoridgeNodeService',
           var nodes = [];
 
           for (var key in nodeData) {
-            if (nodeData.hasOwnProperty(key)) {
+            if (Object.prototype.hasOwnProperty.call(nodeData, key)) {
               nodes.push(new StoridgeNodeModel(key, nodeData[key]));
             }
           }

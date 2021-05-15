@@ -74,26 +74,22 @@ angular.module('portainer.app').factory('AccessService', [
     }
 
     async function accessesAsync(entity, parent) {
-      try {
-        if (!entity) {
-          throw { msg: 'Unable to retrieve accesses' };
-        }
-        if (!entity.UserAccessPolicies) {
-          entity.UserAccessPolicies = {};
-        }
-        if (!entity.TeamAccessPolicies) {
-          entity.TeamAccessPolicies = {};
-        }
-        if (parent && !parent.UserAccessPolicies) {
-          parent.UserAccessPolicies = {};
-        }
-        if (parent && !parent.TeamAccessPolicies) {
-          parent.TeamAccessPolicies = {};
-        }
-        return await getAccesses(entity.UserAccessPolicies, entity.TeamAccessPolicies, parent ? parent.UserAccessPolicies : {}, parent ? parent.TeamAccessPolicies : {});
-      } catch (err) {
-        throw err;
+      if (!entity) {
+        throw { msg: 'Unable to retrieve accesses' };
       }
+      if (!entity.UserAccessPolicies) {
+        entity.UserAccessPolicies = {};
+      }
+      if (!entity.TeamAccessPolicies) {
+        entity.TeamAccessPolicies = {};
+      }
+      if (parent && !parent.UserAccessPolicies) {
+        parent.UserAccessPolicies = {};
+      }
+      if (parent && !parent.TeamAccessPolicies) {
+        parent.TeamAccessPolicies = {};
+      }
+      return await getAccesses(entity.UserAccessPolicies, entity.TeamAccessPolicies, parent ? parent.UserAccessPolicies : {}, parent ? parent.TeamAccessPolicies : {});
     }
 
     function accesses(entity, parent) {

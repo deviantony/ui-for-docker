@@ -133,7 +133,7 @@ angular.module('portainer.docker').factory('ImageService', [
 
       Image.create({}, imageConfiguration)
         .$promise.then(function success(data) {
-          var err = data.length > 0 && data[data.length - 1].hasOwnProperty('message');
+          var err = data.length > 0 && data[data.length - 1].message;
           if (err) {
             var detail = data[data.length - 1];
             deferred.reject({ msg: detail.message });

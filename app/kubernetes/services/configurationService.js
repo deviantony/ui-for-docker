@@ -26,35 +26,27 @@ class KubernetesConfigurationService {
    * GET
    */
   async getAsync(namespace, name) {
-    try {
-      const [configMap, secret] = await Promise.allSettled([this.KubernetesConfigMapService.get(namespace, name), this.KubernetesSecretService.get(namespace, name)]);
-      let configuration;
-      if (secret.status === 'fulfilled') {
-        configuration = KubernetesConfigurationConverter.secretToConfiguration(secret.value);
-        return configuration;
-      }
-      configuration = KubernetesConfigurationConverter.configMapToConfiguration(configMap.value);
+    const [configMap, secret] = await Promise.allSettled([this.KubernetesConfigMapService.get(namespace, name), this.KubernetesSecretService.get(namespace, name)]);
+    let configuration;
+    if (secret.status === 'fulfilled') {
+      configuration = KubernetesConfigurationConverter.secretToConfiguration(secret.value);
       return configuration;
-    } catch (err) {
-      throw err;
     }
+    configuration = KubernetesConfigurationConverter.configMapToConfiguration(configMap.value);
+    return configuration;
   }
 
   async getAllAsync(namespace) {
-    try {
-      const namespaces = namespace ? [namespace] : _.map(await this.KubernetesNamespaceService.get(), 'Name');
-      const res = await Promise.all(
-        _.map(namespaces, async (ns) => {
-          const [configMaps, secrets] = await Promise.all([this.KubernetesConfigMapService.get(ns), this.KubernetesSecretService.get(ns)]);
-          const secretsConfigurations = _.map(secrets, (secret) => KubernetesConfigurationConverter.secretToConfiguration(secret));
-          const configMapsConfigurations = _.map(configMaps, (configMap) => KubernetesConfigurationConverter.configMapToConfiguration(configMap));
-          return _.concat(configMapsConfigurations, secretsConfigurations);
-        })
-      );
-      return _.flatten(res);
-    } catch (err) {
-      throw err;
-    }
+    const namespaces = namespace ? [namespace] : _.map(await this.KubernetesNamespaceService.get(), 'Name');
+    const res = await Promise.all(
+      _.map(namespaces, async (ns) => {
+        const [configMaps, secrets] = await Promise.all([this.KubernetesConfigMapService.get(ns), this.KubernetesSecretService.get(ns)]);
+        const secretsConfigurations = _.map(secrets, (secret) => KubernetesConfigurationConverter.secretToConfiguration(secret));
+        const configMapsConfigurations = _.map(configMaps, (configMap) => KubernetesConfigurationConverter.configMapToConfiguration(configMap));
+        return _.concat(configMapsConfigurations, secretsConfigurations);
+      })
+    );
+    return _.flatten(res);
   }
 
   get(namespace, name) {
@@ -70,16 +62,12 @@ class KubernetesConfigurationService {
   async createAsync(formValues) {
     formValues.ConfigurationOwner = KubernetesCommonHelper.ownerToLabel(formValues.ConfigurationOwner);
 
-    try {
-      if (formValues.Type === KubernetesConfigurationTypes.CONFIGMAP) {
-        const configMap = KubernetesConfigMapConverter.configurationFormValuesToConfigMap(formValues);
-        await this.KubernetesConfigMapService.create(configMap);
-      } else {
-        const secret = KubernetesSecretConverter.configurationFormValuesToSecret(formValues);
-        await this.KubernetesSecretService.create(secret);
-      }
-    } catch (err) {
-      throw err;
+    if (formValues.Type === KubernetesConfigurationTypes.CONFIGMAP) {
+      const configMap = KubernetesConfigMapConverter.configurationFormValuesToConfigMap(formValues);
+      await this.KubernetesConfigMapService.create(configMap);
+    } else {
+      const secret = KubernetesSecretConverter.configurationFormValuesToSecret(formValues);
+      await this.KubernetesSecretService.create(secret);
     }
   }
 
@@ -91,18 +79,14 @@ class KubernetesConfigurationService {
    * UPDATE
    */
   async updateAsync(formValues, configuration) {
-    try {
-      if (formValues.Type === KubernetesConfigurationTypes.CONFIGMAP) {
-        const configMap = KubernetesConfigMapConverter.configurationFormValuesToConfigMap(formValues);
-        configMap.ConfigurationOwner = configuration.ConfigurationOwner;
-        await this.KubernetesConfigMapService.update(configMap);
-      } else {
-        const secret = KubernetesSecretConverter.configurationFormValuesToSecret(formValues);
-        secret.ConfigurationOwner = configuration.ConfigurationOwner;
-        await this.KubernetesSecretService.update(secret);
-      }
-    } catch (err) {
-      throw err;
+    if (formValues.Type === KubernetesConfigurationTypes.CONFIGMAP) {
+      const configMap = KubernetesConfigMapConverter.configurationFormValuesToConfigMap(formValues);
+      configMap.ConfigurationOwner = configuration.ConfigurationOwner;
+      await this.KubernetesConfigMapService.update(configMap);
+    } else {
+      const secret = KubernetesSecretConverter.configurationFormValuesToSecret(formValues);
+      secret.ConfigurationOwner = configuration.ConfigurationOwner;
+      await this.KubernetesSecretService.update(secret);
     }
   }
 
@@ -114,14 +98,10 @@ class KubernetesConfigurationService {
    * DELETE
    */
   async deleteAsync(config) {
-    try {
-      if (config.Type === KubernetesConfigurationTypes.CONFIGMAP) {
-        await this.KubernetesConfigMapService.delete(config);
-      } else {
-        await this.KubernetesSecretService.delete(config);
-      }
-    } catch (err) {
-      throw err;
+    if (config.Type === KubernetesConfigurationTypes.CONFIGMAP) {
+      await this.KubernetesConfigMapService.delete(config);
+    } else {
+      await this.KubernetesSecretService.delete(config);
     }
   }
 
