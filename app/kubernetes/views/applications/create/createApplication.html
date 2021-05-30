@@ -31,6 +31,7 @@
                   auto-focus
                   required
                   ng-disabled="ctrl.state.isEdit"
+                  maxlength="253"
                 />
               </div>
             </div>
@@ -38,14 +39,15 @@
               <div class="col-sm-12 small text-warning">
                 <div ng-messages="kubernetesApplicationCreationForm.application_name.$error">
                   <p ng-message="required"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> This field is required.</p>
-                  <p ng-message="pattern"
-                    ><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> This field must consist of lower case alphanumeric characters or '-', start with an alphabetic
-                    character, and end with an alphanumeric character (e.g. 'my-name', or 'abc-123').</p
-                  >
+                  <p ng-message="maxlength">The field can be of maximum length of 253 characters</p>
+                  <p ng-message="pattern">
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> This field must consist of lower case alphanumeric characters or '-', start with an alphabetic
+                    character, and end with an alphanumeric character (e.g. 'my-name', or 'abc-123').
+                  </p>
                 </div>
-                <p ng-if="ctrl.state.alreadyExists"
-                  ><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> An application with the same name already exists inside the selected resource pool.</p
-                >
+                <p ng-if="ctrl.state.alreadyExists">
+                  <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> An application with the same name already exists inside the selected resource pool.
+                </p>
               </div>
             </div>
             <!-- #endregion -->

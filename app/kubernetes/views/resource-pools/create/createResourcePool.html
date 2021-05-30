@@ -24,6 +24,7 @@
                   placeholder="my-project"
                   required
                   auto-focus
+                  maxlength="63"
                 />
               </div>
             </div>
@@ -31,10 +32,11 @@
               <div class="col-sm-12 small text-warning">
                 <div ng-messages="resourcePoolCreationForm.pool_name.$error">
                   <p ng-message="required"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> This field is required.</p>
-                  <p ng-message="pattern"
-                    ><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> This field must consist of lower case alphanumeric characters, '-' or '.', and must start and end
-                    with an alphanumeric character.</p
-                  >
+                  <p ng-message="maxlength">The field can be of maximum length of 63 characters</p>
+                  <p ng-message="pattern">
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                    This field must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character.
+                  </p>
                 </div>
                 <p ng-if="ctrl.state.isAlreadyExist"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> A resource pool with the same name already exists.</p>
               </div>
