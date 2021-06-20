@@ -27,7 +27,7 @@ type (
 
 	// KubeClient represent a service used to execute Kubernetes operations
 	KubeClient struct {
-		cli        *kubernetes.Clientset
+		cli        kubernetes.Interface
 		instanceID string
 	}
 )

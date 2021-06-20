@@ -33,5 +33,7 @@ func NewHandler(bouncer *security.RequestBouncer) *Handler {
 		bouncer.AuthenticatedAccess(httperror.LoggerHandler(h.websocketAttach)))
 	h.PathPrefix("/websocket/pod").Handler(
 		bouncer.AuthenticatedAccess(httperror.LoggerHandler(h.websocketPodExec)))
+	h.PathPrefix("/websocket/kubernetes-shell").Handler(
+		bouncer.AuthenticatedAccess(httperror.LoggerHandler(h.websocketShellPodExec)))
 	return h
 }

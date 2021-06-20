@@ -90,6 +90,26 @@ func (handler *Handler) websocketPodExec(w http.ResponseWriter, r *http.Request)
 		return nil
 	}
 
+	cli, err := handler.KubernetesClientFactory.GetKubeClient(endpoint)
+	if err != nil {
+		return &httperror.HandlerError{http.StatusInternalServerError, "Unable to create Kubernetes client", err}
+	}
+
+	handlerErr := handler.hijackPodExecStartOperation(w, r, cli, endpoint, namespace, podName, containerName, command)
+	if handlerErr != nil {
+		return handlerErr
+	}
+
+	return nil
+}
+
+func (handler *Handler) hijackPodExecStartOperation(
+	w http.ResponseWriter,
+	r *http.Request,
+	cli portainer.KubeClient,
+	endpoint *portainer.Endpoint,
+	namespace, podName, containerName, command string,
+) *httperror.HandlerError {
 	commandArray := strings.Split(command, " ")
 
 	websocketConn, err := handler.connectionUpgrader.Upgrade(w, r, nil)
@@ -106,11 +126,6 @@ func (handler *Handler) websocketPodExec(w http.ResponseWriter, r *http.Request)
 	errorChan := make(chan error, 1)
 	go streamFromWebsocketToWriter(websocketConn, stdinWriter, errorChan)
 	go streamFromReaderToWebsocket(websocketConn, stdoutReader, errorChan)
-
-	cli, err := handler.KubernetesClientFactory.GetKubeClient(endpoint)
-	if err != nil {
-		return &httperror.HandlerError{http.StatusInternalServerError, "Unable to create Kubernetes client", err}
-	}
 
 	err = cli.StartExecProcess(namespace, podName, containerName, commandArray, stdinReader, stdoutWriter)
 	if err != nil {
