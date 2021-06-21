@@ -7,6 +7,7 @@ import (
 
 	gittypes "github.com/portainer/portainer/api/git/types"
 	v1 "k8s.io/api/core/v1"
+	clientV1 "k8s.io/client-go/tools/clientcmd/api/v1"
 )
 
 type (
@@ -1190,6 +1191,7 @@ type (
 		DeleteRegistrySecret(registry *Registry, namespace string) error
 		CreateRegistrySecret(registry *Registry, namespace string) error
 		IsRegistrySecret(namespace, secretName string) (bool, error)
+		GetKubeConfig(ctx context.Context, apiServerURL string, bearerToken string, tokenData *TokenData) (*clientV1.Config, error)
 	}
 
 	// KubernetesDeployer represents a service to deploy a manifest inside a Kubernetes endpoint
