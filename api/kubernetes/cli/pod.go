@@ -76,7 +76,7 @@ func (kcl *KubeClient) CreateUserShellPod(ctx context.Context, serviceAccountNam
 		Namespace:        shellPod.Namespace,
 		PodName:          shellPod.Name,
 		ContainerName:    shellPod.Spec.Containers[0].Name,
-		ShellExecCommand: "/bin/bash",
+		ShellExecCommand: "env COLUMNS=200 /bin/bash",
 	}
 
 	// Handle pod lifecycle/cleanup - terminate pod after maxPodKeepAlive or upon request (long-lived) cancellation
