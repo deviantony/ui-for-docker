@@ -12,7 +12,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-const ShellPodImage = "zeeshans/k8s-shell"
+const ShellPodImage = "portainer/kubectl-shell"
 
 // CreateUserShellPod will create a kubectl based shell for the specified user by mounting their respective service account.
 // The lifecycle of the pod is managed in this function; this entails management of the following pod operations:
@@ -40,8 +40,7 @@ func (kcl *KubeClient) CreateUserShellPod(ctx context.Context, serviceAccountNam
 			ServiceAccountName:            serviceAccountName,
 			Containers: []v1.Container{
 				{
-					Name: "kubectl-shell-container",
-					// TODO update the image details
+					Name:    "kubectl-shell-container",
 					Image:   ShellPodImage,
 					Command: []string{"sleep"},
 					// Specify sleep time to prevent zombie pods in case portainer process is terminated
@@ -76,7 +75,7 @@ func (kcl *KubeClient) CreateUserShellPod(ctx context.Context, serviceAccountNam
 		Namespace:        shellPod.Namespace,
 		PodName:          shellPod.Name,
 		ContainerName:    shellPod.Spec.Containers[0].Name,
-		ShellExecCommand: "env COLUMNS=200 /bin/bash",
+		ShellExecCommand: "env COLUMNS=200 /bin/bash", // env COLUMNS dictates minimum width of the shell
 	}
 
 	// Handle pod lifecycle/cleanup - terminate pod after maxPodKeepAlive or upon request (long-lived) cancellation
