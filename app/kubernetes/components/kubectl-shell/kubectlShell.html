@@ -5,8 +5,8 @@
 <div ng-if="checked" class="{{ css }}-kubectl-shell">
   <div class="shell-container">
     <div class="shell-item">Kubectl Shell</div>
-    <div class="shell-item-center">
-      <a href="">Download Kubeconfig</a>
+    <div ng-if="isHTTPS" class="shell-item-center">
+      <a href="" ng-click="ctrl.downloadKubeconfig()">Download Kubeconfig</a>
     </div>
     <div class="shell-item-right">
       <i class="fas fa-redo-alt" ng-click="ctrl.screenclear();"></i>

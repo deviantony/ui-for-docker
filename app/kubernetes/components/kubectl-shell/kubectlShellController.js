@@ -3,7 +3,7 @@ import { Terminal } from 'xterm';
 import * as fit from 'xterm/lib/addons/fit/fit';
 
 class KubectlShellController {
-  constructor($window, $async, $scope, $state, Notifications, EndpointProvider, LocalStorage) {
+  constructor($window, $async, $scope, $state, Notifications, EndpointProvider, LocalStorage, KubernetesConfigService) {
     this.$scope = $scope;
     this.$state = $state;
     this.$async = $async;
@@ -11,6 +11,7 @@ class KubectlShellController {
     this.Notifications = Notifications;
     this.EndpointProvider = EndpointProvider;
     this.LocalStorage = LocalStorage;
+    this.KubernetesConfigService = KubernetesConfigService;
 
     this.onInit = this.onInit.bind(this);
   }
@@ -97,10 +98,15 @@ class KubectlShellController {
     this.configureSocketAndTerminal(this.state.socket, this.state.term);
   }
 
+  async downloadKubeconfig() {
+    await this.KubernetesConfigService.downloadConfig();
+  }
+
   async onInit() {
     this.$scope.css = 'normal';
     this.$scope.checked = false;
     this.$scope.icon = 'fa-window-minimize';
+    this.$scope.isHTTPS = this.$window.location.protocol === 'https:';
 
     this.state = {
       connected: false,

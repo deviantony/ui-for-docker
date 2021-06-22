@@ -77,8 +77,8 @@ func (handler *Handler) getKubernetesConfig(w http.ResponseWriter, r *http.Reque
 		return &httperror.HandlerError{http.StatusNotFound, "Unable to generate Kubeconfig", err}
 	}
 
-	contentTypeHeader := r.Header.Get("Content-Type")
-	if contentTypeHeader == "text/yaml" {
+	contentAcceptHeader := r.Header.Get("Accept")
+	if contentAcceptHeader == "text/yaml" {
 		yaml, err := kcli.GenerateYAML(config)
 		if err != nil {
 			return &httperror.HandlerError{http.StatusInternalServerError, "Failed to generate Kubeconfig", err}

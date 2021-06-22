@@ -1,5 +1,6 @@
 .shell-container {
   display: flex;
+  justify-content: space-between;
   color: #424242;
   background: rgb(245, 245, 245);
   padding: 8px;
