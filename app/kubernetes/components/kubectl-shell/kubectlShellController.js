@@ -115,6 +115,13 @@ class KubectlShellController {
     };
   }
 
+  $onDestroy() {
+    if (this.state.connected) {
+      this.disconnect();
+      this.$window.onresize = null;
+    }
+  }
+
   $onInit() {
     return this.$async(this.onInit);
   }
