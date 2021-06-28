@@ -50,7 +50,8 @@ class KubernetesCreateApplicationController {
     KubernetesIngressService,
     KubernetesPersistentVolumeClaimService,
     KubernetesNamespaceHelper,
-    KubernetesVolumeService
+    KubernetesVolumeService,
+    KubernetesNodesLimitsService
   ) {
     this.$async = $async;
     this.$state = $state;
@@ -68,6 +69,7 @@ class KubernetesCreateApplicationController {
     this.KubernetesIngressService = KubernetesIngressService;
     this.KubernetesPersistentVolumeClaimService = KubernetesPersistentVolumeClaimService;
     this.KubernetesNamespaceHelper = KubernetesNamespaceHelper;
+    this.KubernetesNodesLimitsService = KubernetesNodesLimitsService;
 
     this.ApplicationDeploymentTypes = KubernetesApplicationDeploymentTypes;
     this.ApplicationDataAccessPolicies = KubernetesApplicationDataAccessPolicies;
@@ -534,12 +536,27 @@ class KubernetesCreateApplicationController {
     return !this.state.sliders.memory.max || !this.state.sliders.cpu.max;
   }
 
-  resourceReservationsOverflow() {
-    const instances = this.formValues.ReplicaCount;
+  nodeLimitsOverflow() {
     const cpu = this.formValues.CpuLimit;
-    const maxCpu = this.state.sliders.cpu.max;
-    const memory = this.formValues.MemoryLimit;
-    const maxMemory = this.state.sliders.memory.max;
+    const memory = KubernetesResourceReservationHelper.bytesValue(this.formValues.MemoryLimit);
+
+    const overflow = this.nodesLimits.overflowForReplica(cpu, memory, 1);
+
+    return overflow;
+  }
+
+  effectiveInstance() {
+    const instance = this.formValues.DeploymentType === this.ApplicationDeploymentTypes.GLOBAL ? this.nodeNumber : this.formValues.ReplicaCount;
+
+    return instance;
+  }
+
+  resourceReservationsOverflow() {
+    const instances = this.effectiveInstance();
+    const cpu = this.formValues.CpuLimit;
+    const maxCpu = this.state.namespaceLimits.cpu;
+    const memory = KubernetesResourceReservationHelper.bytesValue(this.formValues.MemoryLimit);
+    const maxMemory = this.state.namespaceLimits.memory;
 
     if (cpu * instances > maxCpu) {
       return true;
@@ -549,15 +566,20 @@ class KubernetesCreateApplicationController {
       return true;
     }
 
-    return false;
+    if (this.formValues.DeploymentType === this.ApplicationDeploymentTypes.REPLICATED) {
+      return this.nodesLimits.overflowForReplica(cpu, memory, instances);
+    }
+
+    // DeploymentType == GLOBAL
+    return this.nodesLimits.overflowForGlobal(cpu, memory);
   }
 
   autoScalerOverflow() {
     const instances = this.formValues.AutoScaler.MaxReplicas;
     const cpu = this.formValues.CpuLimit;
-    const maxCpu = this.state.sliders.cpu.max;
-    const memory = this.formValues.MemoryLimit;
-    const maxMemory = this.state.sliders.memory.max;
+    const maxCpu = this.state.namespaceLimits.cpu;
+    const memory = KubernetesResourceReservationHelper.bytesValue(this.formValues.MemoryLimit);
+    const maxMemory = this.state.namespaceLimits.memory;
 
     if (cpu * instances > maxCpu) {
       return true;
@@ -567,7 +589,7 @@ class KubernetesCreateApplicationController {
       return true;
     }
 
-    return false;
+    return this.nodesLimits.overflowForReplica(cpu, memory, instances);
   }
 
   publishViaLoadBalancerEnabled() {
@@ -683,50 +705,70 @@ class KubernetesCreateApplicationController {
 
   /* #region  DATA AUTO REFRESH */
   updateSliders() {
-    this.state.resourcePoolHasQuota = false;
-
     const quota = this.formValues.ResourcePool.Quota;
-    let minCpu,
-      maxCpu,
-      minMemory,
-      maxMemory = 0;
+    let minCpu = 0,
+      minMemory = 0,
+      maxCpu = this.state.namespaceLimits.cpu,
+      maxMemory = this.state.namespaceLimits.memory;
+
     if (quota) {
       if (quota.CpuLimit) {
-        this.state.resourcePoolHasQuota = true;
         minCpu = KubernetesApplicationQuotaDefaults.CpuLimit;
-        maxCpu = quota.CpuLimit - quota.CpuLimitUsed;
-        if (this.state.isEdit && this.savedFormValues.CpuLimit) {
-          maxCpu += this.savedFormValues.CpuLimit * this.savedFormValues.ReplicaCount;
-        }
-      } else {
-        minCpu = 0;
-        maxCpu = this.state.nodes.cpu;
       }
       if (quota.MemoryLimit) {
-        this.state.resourcePoolHasQuota = true;
-        minMemory = KubernetesApplicationQuotaDefaults.MemoryLimit;
-        maxMemory = quota.MemoryLimit - quota.MemoryLimitUsed;
-        if (this.state.isEdit && this.savedFormValues.MemoryLimit) {
-          maxMemory += KubernetesResourceReservationHelper.bytesValue(this.savedFormValues.MemoryLimit) * this.savedFormValues.ReplicaCount;
-        }
-      } else {
-        minMemory = 0;
-        maxMemory = this.state.nodes.memory;
+        minMemory = KubernetesResourceReservationHelper.bytesValue(KubernetesApplicationQuotaDefaults.MemoryLimit);
       }
-    } else {
-      minCpu = 0;
-      maxCpu = this.state.nodes.cpu;
-      minMemory = 0;
-      maxMemory = this.state.nodes.memory;
     }
-    this.state.sliders.memory.min = minMemory;
+
+    maxCpu = _.min([maxCpu, this.nodesLimits.MaxCPU]);
+    maxMemory = _.min([maxMemory, this.nodesLimits.MaxMemory]);
+
+    if (maxMemory < minMemory) {
+      minMemory = 0;
+      maxMemory = 0;
+    }
+
+    this.state.sliders.memory.min = KubernetesResourceReservationHelper.megaBytesValue(minMemory);
     this.state.sliders.memory.max = KubernetesResourceReservationHelper.megaBytesValue(maxMemory);
     this.state.sliders.cpu.min = minCpu;
     this.state.sliders.cpu.max = _.round(maxCpu, 2);
     if (!this.state.isEdit) {
       this.formValues.CpuLimit = minCpu;
-      this.formValues.MemoryLimit = minMemory;
+      this.formValues.MemoryLimit = KubernetesResourceReservationHelper.megaBytesValue(minMemory);
     }
+  }
+
+  updateNamespaceLimits() {
+    let maxCpu = this.state.nodes.cpu;
+    let maxMemory = this.state.nodes.memory;
+    const quota = this.formValues.ResourcePool.Quota;
+
+    this.state.resourcePoolHasQuota = false;
+
+    if (quota) {
+      if (quota.CpuLimit) {
+        this.state.resourcePoolHasQuota = true;
+        maxCpu = quota.CpuLimit - quota.CpuLimitUsed;
+        if (this.state.isEdit && this.savedFormValues.CpuLimit) {
+          const instance =
+            this.state.isEdit && this.savedFormValues.DeploymentType === this.ApplicationDeploymentTypes.GLOBAL ? this.nodeNumber : this.savedFormValues.ReplicaCount;
+          maxCpu += this.savedFormValues.CpuLimit * instance;
+        }
+      }
+
+      if (quota.MemoryLimit) {
+        this.state.resourcePoolHasQuota = true;
+        maxMemory = quota.MemoryLimit - quota.MemoryLimitUsed;
+        if (this.state.isEdit && this.savedFormValues.MemoryLimit) {
+          const instance =
+            this.state.isEdit && this.savedFormValues.DeploymentType === this.ApplicationDeploymentTypes.GLOBAL ? this.nodeNumber : this.savedFormValues.ReplicaCount;
+          maxMemory += KubernetesResourceReservationHelper.bytesValue(this.savedFormValues.MemoryLimit) * instance;
+        }
+      }
+    }
+
+    this.state.namespaceLimits.cpu = maxCpu;
+    this.state.namespaceLimits.memory = maxMemory;
   }
 
   refreshStacks(namespace) {
@@ -814,6 +856,7 @@ class KubernetesCreateApplicationController {
   onResourcePoolSelectionChange() {
     return this.$async(async () => {
       const namespace = this.formValues.ResourcePool.Namespace.Name;
+      this.updateNamespaceLimits();
       this.updateSliders();
       await this.refreshNamespaceData(namespace);
       this.resetFormValues();
@@ -901,6 +944,10 @@ class KubernetesCreateApplicationController {
             memory: 0,
             cpu: 0,
           },
+          namespaceLimits: {
+            memory: 0,
+            cpu: 0,
+          },
           resourcePoolHasQuota: false,
           viewReady: false,
           availableSizeUnits: ['MB', 'GB', 'TB'],
@@ -943,12 +990,14 @@ class KubernetesCreateApplicationController {
 
         this.formValues = new KubernetesApplicationFormValues();
 
-        const [resourcePools, nodes, ingresses] = await Promise.all([
+        const [resourcePools, nodes, ingresses, nodesLimits] = await Promise.all([
           this.KubernetesResourcePoolService.get(),
           this.KubernetesNodeService.get(),
           this.KubernetesIngressService.get(),
+          this.KubernetesNodesLimitsService.get(),
         ]);
         this.ingresses = ingresses;
+        this.nodesLimits = nodesLimits;
 
         this.resourcePools = _.filter(resourcePools, (resourcePool) => !this.KubernetesNamespaceHelper.isSystemNamespace(resourcePool.Namespace.Name));
         this.formValues.ResourcePool = this.resourcePools[0];
@@ -961,6 +1010,7 @@ class KubernetesCreateApplicationController {
           this.state.nodes.cpu += item.CPU;
         });
         this.nodesLabels = KubernetesNodeHelper.generateNodeLabelsFromNodes(nodes);
+        this.nodeNumber = nodes.length;
 
         const namespace = this.state.isEdit ? this.state.params.namespace : this.formValues.ResourcePool.Namespace.Name;
         await this.refreshNamespaceData(namespace);
@@ -993,6 +1043,11 @@ class KubernetesCreateApplicationController {
           this.formValues.OriginalIngressClasses = angular.copy(this.ingresses);
         }
 
+        if (this.state.isEdit) {
+          this.nodesLimits.excludesPods(this.application.Pods, this.formValues.CpuLimit, KubernetesResourceReservationHelper.bytesValue(this.formValues.MemoryLimit));
+        }
+
+        this.updateNamespaceLimits();
         this.updateSliders();
 
         const dockerHub = await this.DockerHubService.dockerhub();
