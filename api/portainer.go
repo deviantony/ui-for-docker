@@ -573,6 +573,8 @@ type (
 		SSO                         bool            `json:"SSO"`
 		HideInternalAuth            bool            `json:"HideInternalAuth"`
 		LogoutURI                   string          `json:"LogoutURI"`
+		AdminAutoPopulate           bool            `json:"AdminAutoPopulate"`
+		AdminGroupClaimsRegexList   []string        `json:"AdminGroupClaimsRegexList"`
 	}
 
 	// OAuthInfo represents extracted data from the resource object obtained from an OAuth providers resource URL

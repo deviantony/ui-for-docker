@@ -64,6 +64,10 @@ func (payload *settingsUpdatePayload) Validate(r *http.Request) error {
 		}
 	}
 
+	if payload.OAuthSettings.AdminAutoPopulate && len(payload.OAuthSettings.AdminGroupClaimsRegexList) == 0 {
+		return errors.New("Invalid AdminGroupClaimsRegexList")
+	}
+
 	return nil
 }
 
