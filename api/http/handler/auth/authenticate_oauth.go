@@ -115,11 +115,55 @@ func (handler *Handler) validateOAuth(w http.ResponseWriter, r *http.Request) (*
 		}
 	}
 
+	if user == nil && !settings.OAuthSettings.AdminAutoPopulate && !settings.OAuthSettings.OAuthAutoCreateUsers {
+		return resp, &httperror.HandlerError{
+			StatusCode: http.StatusForbidden,
+			Message:    "Auto OAuth admin population failed: user not created beforehand in Portainer and automatic user provisioning not enabled",
+			Err:        httperrors.ErrUnauthorized,
+		}
+	}
+
+	autoOAuthAdmin := false
+
+	if settings.OAuthSettings.AdminAutoPopulate {
+		isValid, err := validateClaimWithRegex(settings.OAuthSettings, authInfo.Teams)
+		if err != nil {
+			return resp, &httperror.HandlerError{
+				StatusCode: http.StatusInternalServerError,
+				Message:    "Failed to validate OAuth teams with pre-set claim regexs",
+				Err:        err,
+			}
+		}
+		if user != nil && isValid {
+			user.Role = portainer.AdministratorRole
+			if err := handler.DataStore.User().UpdateUser(user.ID, user); err != nil {
+				return resp, &httperror.HandlerError{
+					StatusCode: http.StatusInternalServerError,
+					Message:    "Unable to persist user changes inside the database",
+					Err:        err,
+				}
+			}
+			if err := handler.AuthorizationService.UpdateUsersAuthorizations(); err != nil {
+				return resp, &httperror.HandlerError{
+					StatusCode: http.StatusInternalServerError,
+					Message:    "Unable to update user authorizations",
+					Err:        err,
+				}
+			}
+
+		}
+		autoOAuthAdmin = isValid
+	}
+
 	if user == nil {
 		user = &portainer.User{
 			Username:                authInfo.Username,
 			Role:                    portainer.StandardUserRole,
 			PortainerAuthorizations: authorization.DefaultPortainerAuthorizations(),
+		}
+
+		if autoOAuthAdmin {
+			user.Role = portainer.AdministratorRole
 		}
 
 		err = handler.DataStore.User().CreateUser(user)
