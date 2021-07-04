@@ -158,8 +158,9 @@
                 <a
                   ng-if="!$ctrl.offlineMode"
                   ui-sref="docker.stacks.stack({ name: item.Name, id: item.Id, type: item.Type, regular: item.Regular, external: item.External, orphaned: item.Orphaned, orphanedRunning: item.OrphanedRunning })"
-                  >{{ item.Name }}</a
                 >
+                  {{ item.Name }}
+                </a>
                 <span ng-if="$ctrl.offlineMode">{{ item.Name }}</span>
                 <span ng-if="item.Regular && item.Status == 2" style="margin-left: 10px;" class="label label-warning image-tag space-left">Inactive</span>
               </td>

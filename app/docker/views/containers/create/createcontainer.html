@@ -624,7 +624,7 @@
                 Runtime
               </div>
               <!-- privileged-mode -->
-              <div class="form-group" ng-if="isAdmin || allowPrivilegedMode">
+              <div class="form-group" ng-if="allowPrivilegedMode">
                 <div class="col-sm-12">
                   <label for="privileged_mode" class="control-label text-left">
                     Privileged mode
@@ -683,7 +683,7 @@
               </div>
               <!-- !devices-->
               <!-- sysctls -->
-              <div ng-if="showSysctls" class="form-group">
+              <div ng-if="allowSysctl" class="form-group">
                 <div class="col-sm-12" style="margin-top: 5px;">
                   <label class="control-label text-left">Sysctls</label>
                   <span class="label label-default interactive" style="margin-left: 10px;" ng-click="addSysctl()">

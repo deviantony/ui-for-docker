@@ -8,8 +8,10 @@ api/cmd/portainer/portainer*
 **/.vscode/tasks.json
 
 .eslintcache
-__debug_bin
-
-api/docs
 .idea
+test/e2e/cypress/screenshots
+*.db
+*.log
+__debug_bin
+api/docs
 .env

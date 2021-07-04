@@ -173,7 +173,7 @@ function shell_run_container() {
     'docker rm -f portainer',
     'docker run -d -p 8000:8000 -p 9000:9000 -v $(pwd)/dist:/app -v ' +
       portainer_data +
-      ':/data -v /var/run/docker.sock:/var/run/docker.sock:z -v /var/run/docker.sock:/var/run/alternative.sock:z -v /tmp:/tmp --name portainer portainer/base /app/portainer',
+      ':/data -v /var/run/docker.sock:/var/run/docker.sock:z -v /tmp:/tmp --name portainer portainer/base /app/portainer',
   ].join(';');
 }
 
@@ -191,7 +191,7 @@ function shell_download_docker_binary(p, a) {
   var ip = ps[p] === undefined ? p : ps[p];
   var ia = as[a] === undefined ? a : as[a];
   var binaryVersion = p === 'windows' ? '<%= binaries.dockerWindowsVersion %>' : '<%= binaries.dockerLinuxVersion %>';
-  
+
   return [
     'if [ -f dist/docker ] || [ -f dist/docker.exe ]; then',
     'echo "docker binary exists";',
@@ -207,7 +207,7 @@ function shell_download_docker_compose_binary(p, a) {
   var ip = ps[p] || p;
   var ia = as[a] || a;
   var binaryVersion = p === 'windows' ? '<%= binaries.dockerWindowsComposeVersion %>' : '<%= binaries.dockerLinuxComposeVersion %>';
-  
+
   return [
     'if [ -f dist/docker-compose ] || [ -f dist/docker-compose.exe ]; then',
     'echo "Docker Compose binary exists";',
@@ -219,7 +219,7 @@ function shell_download_docker_compose_binary(p, a) {
 
 function shell_download_kompose_binary(p, a) {
   var binaryVersion = '<%= binaries.komposeVersion %>';
-  
+
   return [
     'if [ -f dist/kompose ] || [ -f dist/kompose.exe ]; then',
     'echo "kompose binary exists";',
@@ -231,7 +231,7 @@ function shell_download_kompose_binary(p, a) {
 
 function shell_download_kubectl_binary(p, a) {
   var binaryVersion = '<%= binaries.kubectlVersion %>';
-  
+
   return [
     'if [ -f dist/kubectl ] || [ -f dist/kubectl.exe ]; then',
     'echo "kubectl binary exists";',

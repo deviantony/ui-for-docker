@@ -672,11 +672,13 @@ angular.module('portainer.docker').controller('CreateContainerController', [
       $scope.formValues.NodeName = nodeName;
       HttpRequestHelper.setPortainerAgentTargetHeader(nodeName);
 
-      $scope.isAdmin = Authentication.isAdmin();
-      $scope.showDeviceMapping = await shouldShowDevices();
-      $scope.showSysctls = await shouldShowSysctls();
-      $scope.areContainerCapabilitiesEnabled = await checkIfContainerCapabilitiesEnabled();
-      $scope.isAdminOrEndpointAdmin = Authentication.isAdmin();
+      const isAdmin = Authentication.isAdmin();
+      $scope.isAdmin = isAdmin;
+      $scope.showDeviceMapping = endpoint.SecuritySettings.allowDeviceMappingForRegularUsers || isAdmin;
+      $scope.allowSysctl = endpoint.SecuritySettings.allowSysctlSettingForRegularUsers || isAdmin;
+      $scope.areContainerCapabilitiesEnabled = endpoint.SecuritySettings.allowContainerCapabilitiesForRegularUsers || isAdmin;
+      $scope.allowBindMounts = endpoint.SecuritySettings.allowBindMountsForRegularUsers || isAdmin;
+      $scope.allowPrivilegedMode = endpoint.SecuritySettings.allowPrivilegedModeForRegularUsers || isAdmin;
 
       Volume.query(
         {},
@@ -737,9 +739,6 @@ angular.module('portainer.docker').controller('CreateContainerController', [
         .catch(function error(err) {
           Notifications.error('Failure', err, 'Unable to retrieve engine details');
         });
-
-      $scope.allowBindMounts = $scope.isAdminOrEndpointAdmin || endpoint.SecuritySettings.allowBindMountsForRegularUsers;
-      $scope.allowPrivilegedMode = endpoint.SecuritySettings.allowPrivilegedModeForRegularUsers;
 
       PluginService.loggingPlugins(apiVersion < 1.25).then(function success(loggingDrivers) {
         $scope.availableLoggingDrivers = loggingDrivers;
@@ -953,18 +952,6 @@ angular.module('portainer.docker').controller('CreateContainerController', [
         Notifications.success('Container successfully created');
         $state.go('docker.containers', {}, { reload: true });
       }
-    }
-
-    async function shouldShowDevices() {
-      return endpoint.SecuritySettings.allowDeviceMappingForRegularUsers || Authentication.isAdmin();
-    }
-
-    async function shouldShowSysctls() {
-      return endpoint.SecuritySettings.allowSysctlSettingForRegularUsers || Authentication.isAdmin();
-    }
-
-    async function checkIfContainerCapabilitiesEnabled() {
-      return endpoint.SecuritySettings.allowContainerCapabilitiesForRegularUsers || Authentication.isAdmin();
     }
 
     initView();

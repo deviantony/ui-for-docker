@@ -228,18 +228,18 @@ type (
 		// URL or IP address where exposed containers will be reachable
 		PublicURL        string              `json:"PublicURL" example:"docker.mydomain.tld:2375"`
 		TLSConfig        TLSConfiguration    `json:"TLSConfig"`
-		Extensions       []EndpointExtension `json:"Extensions" example:""`
-		AzureCredentials AzureCredentials    `json:"AzureCredentials,omitempty" example:""`
+		Extensions       []EndpointExtension `json:"Extensions"`
+		AzureCredentials AzureCredentials    `json:"AzureCredentials,omitempty"`
 		// List of tag identifiers to which this endpoint is associated
 		TagIDs []TagID `json:"TagIds"`
 		// The status of the endpoint (1 - up, 2 - down)
 		Status EndpointStatus `json:"Status" example:"1"`
 		// List of snapshots
-		Snapshots []DockerSnapshot `json:"Snapshots" example:""`
+		Snapshots []DockerSnapshot `json:"Snapshots"`
 		// List of user identifiers authorized to connect to this endpoint
 		UserAccessPolicies UserAccessPolicies `json:"UserAccessPolicies"`
 		// List of team identifiers authorized to connect to this endpoint
-		TeamAccessPolicies TeamAccessPolicies `json:"TeamAccessPolicies" example:""`
+		TeamAccessPolicies TeamAccessPolicies `json:"TeamAccessPolicies"`
 		// The identifier of the edge agent associated with this endpoint
 		EdgeID string `json:"EdgeID,omitempty" example:""`
 		// The key which is used to map the agent to Portainer
@@ -247,7 +247,7 @@ type (
 		// The check in interval for edge agent (in seconds)
 		EdgeCheckinInterval int `json:"EdgeCheckinInterval" example:"5"`
 		// Associated Kubernetes data
-		Kubernetes KubernetesData `json:"Kubernetes" example:""`
+		Kubernetes KubernetesData `json:"Kubernetes"`
 		// Maximum version of docker-compose
 		ComposeSyntaxMaxVersion string `json:"ComposeSyntaxMaxVersion" example:"3.8"`
 		// Endpoint specific security settings
@@ -284,7 +284,9 @@ type (
 	// one extension of each type can be associated to an endpoint
 	EndpointExtensionType int
 
-	// EndpointGroup represents a group of endpoints
+	// EndpointGroup represents a group of endpoints.
+	//
+	// An endpoint may belong to only 1 endpoint group.
 	EndpointGroup struct {
 		// Endpoint group Identifier
 		ID EndpointGroupID `json:"Id" example:"1"`
@@ -292,8 +294,8 @@ type (
 		Name string `json:"Name" example:"my-endpoint-group"`
 		// Description associated to the endpoint group
 		Description        string             `json:"Description" example:"Endpoint group description"`
-		UserAccessPolicies UserAccessPolicies `json:"UserAccessPolicies" example:""`
-		TeamAccessPolicies TeamAccessPolicies `json:"TeamAccessPolicies" example:""`
+		UserAccessPolicies UserAccessPolicies `json:"UserAccessPolicies"`
+		TeamAccessPolicies TeamAccessPolicies `json:"TeamAccessPolicies"`
 		// List of tags associated to this endpoint group
 		TagIDs []TagID `json:"TagIds"`
 
@@ -355,26 +357,34 @@ type (
 	// Extension represents a deprecated Portainer extension
 	Extension struct {
 		// Extension Identifier
-		ID               ExtensionID        `json:"Id" example:"1"`
-		Enabled          bool               `json:"Enabled"`
-		Name             string             `json:"Name,omitempty"`
-		ShortDescription string             `json:"ShortDescription,omitempty"`
-		Description      string             `json:"Description,omitempty"`
-		DescriptionURL   string             `json:"DescriptionURL,omitempty"`
-		Price            string             `json:"Price,omitempty"`
-		PriceDescription string             `json:"PriceDescription,omitempty"`
-		Deal             bool               `json:"Deal,omitempty"`
-		Available        bool               `json:"Available,omitempty"`
-		License          LicenseInformation `json:"License,omitempty"`
-		Version          string             `json:"Version"`
-		UpdateAvailable  bool               `json:"UpdateAvailable"`
-		ShopURL          string             `json:"ShopURL,omitempty"`
-		Images           []string           `json:"Images,omitempty"`
-		Logo             string             `json:"Logo,omitempty"`
+		ID               ExtensionID                 `json:"Id" example:"1"`
+		Enabled          bool                        `json:"Enabled"`
+		Name             string                      `json:"Name,omitempty"`
+		ShortDescription string                      `json:"ShortDescription,omitempty"`
+		Description      string                      `json:"Description,omitempty"`
+		DescriptionURL   string                      `json:"DescriptionURL,omitempty"`
+		Price            string                      `json:"Price,omitempty"`
+		PriceDescription string                      `json:"PriceDescription,omitempty"`
+		Deal             bool                        `json:"Deal,omitempty"`
+		Available        bool                        `json:"Available,omitempty"`
+		License          ExtensionLicenseInformation `json:"License,omitempty"`
+		Version          string                      `json:"Version"`
+		UpdateAvailable  bool                        `json:"UpdateAvailable"`
+		ShopURL          string                      `json:"ShopURL,omitempty"`
+		Images           []string                    `json:"Images,omitempty"`
+		Logo             string                      `json:"Logo,omitempty"`
 	}
 
 	// ExtensionID represents a extension identifier
 	ExtensionID int
+
+	// ExtensionLicenseInformation represents information about an extension license
+	ExtensionLicenseInformation struct {
+		LicenseKey string `json:"LicenseKey,omitempty"`
+		Company    string `json:"Company,omitempty"`
+		Expiration string `json:"Expiration,omitempty"`
+		Valid      bool   `json:"Valid,omitempty"`
+	}
 
 	// GitlabRegistryData represents data required for gitlab registry to work
 	GitlabRegistryData struct {
@@ -473,14 +483,6 @@ type (
 		AutoCreateUsers bool `json:"AutoCreateUsers" example:"true"`
 	}
 
-	// LicenseInformation represents information about an extension license
-	LicenseInformation struct {
-		LicenseKey string `json:"LicenseKey,omitempty"`
-		Company    string `json:"Company,omitempty"`
-		Expiration string `json:"Expiration,omitempty"`
-		Valid      bool   `json:"Valid,omitempty"`
-	}
-
 	// MembershipRole represents the role of a user within a team
 	MembershipRole int
 
@@ -568,13 +570,13 @@ type (
 		// Type of Docker resource. Valid values are: 1- container, 2 -service
 		// 3 - volume, 4 - secret, 5 - stack, 6 - config or 7 - custom template
 		Type         ResourceControlType  `json:"Type" example:"1"`
-		UserAccesses []UserResourceAccess `json:"UserAccesses" example:""`
-		TeamAccesses []TeamResourceAccess `json:"TeamAccesses" example:""`
+		UserAccesses []UserResourceAccess `json:"UserAccesses"`
+		TeamAccesses []TeamResourceAccess `json:"TeamAccesses"`
 		// Permit access to the associated resource to any user
 		Public bool `json:"Public" example:"true"`
 		// Permit access to resource only to admins
 		AdministratorsOnly bool `json:"AdministratorsOnly" example:"true"`
-		System             bool `json:"System" example:""`
+		System             bool `json:"System" example:"true"`
 
 		// Deprecated fields
 		// Deprecated in DBVersion == 2
@@ -642,8 +644,8 @@ type (
 		BlackListedLabels []Pair `json:"BlackListedLabels"`
 		// Active authentication method for the Portainer instance. Valid values are: 1 for internal, 2 for LDAP, or 3 for oauth
 		AuthenticationMethod AuthenticationMethod `json:"AuthenticationMethod" example:"1"`
-		LDAPSettings         LDAPSettings         `json:"LDAPSettings" example:""`
-		OAuthSettings        OAuthSettings        `json:"OAuthSettings" example:""`
+		LDAPSettings         LDAPSettings         `json:"LDAPSettings"`
+		OAuthSettings        OAuthSettings        `json:"OAuthSettings"`
 		// The interval in which endpoint snapshots are created
 		SnapshotInterval string `json:"SnapshotInterval" example:"5m"`
 		// URL to the templates that will be displayed in the UI when navigating to App Templates
@@ -651,7 +653,7 @@ type (
 		// The default check in interval for edge agent (in seconds)
 		EdgeAgentCheckinInterval int `json:"EdgeAgentCheckinInterval" example:"5"`
 		// Whether edge compute features are enabled
-		EnableEdgeComputeFeatures bool `json:"EnableEdgeComputeFeatures" example:""`
+		EnableEdgeComputeFeatures bool `json:"EnableEdgeComputeFeatures" example:"false"`
 		// The duration of a user session
 		UserSessionTimeout string `json:"UserSessionTimeout" example:"5m"`
 		// Whether telemetry is enabled
@@ -693,9 +695,9 @@ type (
 		// Path to the Stack file
 		EntryPoint string `json:"EntryPoint" example:"docker-compose.yml"`
 		// A list of environment variables used during stack deployment
-		Env []Pair `json:"Env" example:""`
+		Env []Pair `json:"Env"`
 		//
-		ResourceControl *ResourceControl `json:"ResourceControl" example:""`
+		ResourceControl *ResourceControl `json:"ResourceControl"`
 		// Stack status (1 - active, 2 - inactive)
 		Status StackStatus `json:"Status" example:"1"`
 		// Path on disk to the repository hosting the Stack file
@@ -756,7 +758,9 @@ type (
 	// TeamID represents a team identifier
 	TeamID int
 
-	// TeamMembership represents a membership association between a user and a team
+	// TeamMembership represents a membership association between a user and a team.
+	//
+	// A user may belong to multiple teams.
 	TeamMembership struct {
 		// Membership Identifier
 		ID TeamMembershipID `json:"Id" example:"1"`
@@ -830,7 +834,7 @@ type (
 		// A list of ports exposed by the container
 		Ports []string `json:"ports,omitempty" example:"8080:80/tcp"`
 		// Container labels
-		Labels []Pair `json:"labels,omitempty" example:""`
+		Labels []Pair `json:"labels,omitempty"`
 		// Whether the container should be started in privileged mode
 		Privileged bool `json:"privileged,omitempty" example:"true"`
 		// Whether the container should be started in

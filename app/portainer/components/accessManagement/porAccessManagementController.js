@@ -5,8 +5,7 @@ import angular from 'angular';
 class PorAccessManagementController {
   /* @ngInject */
   constructor(Notifications, AccessService) {
-    this.Notifications = Notifications;
-    this.AccessService = AccessService;
+    Object.assign(this, { Notifications, AccessService });
 
     this.unauthorizeAccess = this.unauthorizeAccess.bind(this);
     this.updateAction = this.updateAction.bind(this);
@@ -29,6 +28,7 @@ class PorAccessManagementController {
     const entity = this.accessControlledEntity;
     const oldUserAccessPolicies = entity.UserAccessPolicies;
     const oldTeamAccessPolicies = entity.TeamAccessPolicies;
+
     const selectedUserAccesses = _.filter(this.formValues.multiselectOutput, (access) => access.Type === 'user');
     const selectedTeamAccesses = _.filter(this.formValues.multiselectOutput, (access) => access.Type === 'team');
 

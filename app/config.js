@@ -28,6 +28,7 @@ angular.module('portainer').config([
         },
       ],
     });
+
     $httpProvider.interceptors.push('jwtInterceptor');
     $httpProvider.interceptors.push('EndpointStatusInterceptor');
     $httpProvider.defaults.headers.post['Content-Type'] = 'application/json';

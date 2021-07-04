@@ -15,6 +15,7 @@ export function StackViewModel(data) {
   this.CreatedBy = data.CreatedBy;
   this.UpdateDate = data.UpdateDate;
   this.UpdatedBy = data.UpdatedBy;
+
   this.Regular = true;
   this.External = false;
   this.Orphaned = false;

@@ -165,11 +165,13 @@
                   item.Id | truncate: 40
                 }}</a>
                 <span ng-if="$ctrl.offlineMode">{{ item.Id | truncate: 40 }}</span>
-                <btn authorization="DockerAgentBrowseList" ng-if="$ctrl.showBrowseAction && !$ctrl.offlineMode">
-                  <a ui-sref="docker.volumes.volume.browse({ id: item.Id, nodeName: item.NodeName })" class="btn btn-xs btn-primary space-left">
-                    <i class="fa fa-search"></i> browse
-                  </a>
-                </btn>
+                <span ng-if="$ctrl.showBrowseAction && !$ctrl.offlineMode">
+                  <btn authorization="DockerAgentBrowseList">
+                    <a ui-sref="docker.volumes.volume.browse({ id: item.Id, nodeName: item.NodeName })" class="btn btn-xs btn-primary space-left">
+                      <i class="fa fa-search"></i> browse
+                    </a>
+                  </btn>
+                </span>
                 <span style="margin-left: 10px;" class="label label-warning image-tag space-left" ng-if="item.dangling">Unused</span>
               </td>
               <td>{{ item.StackName ? item.StackName : '-' }}</td>

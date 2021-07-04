@@ -23,8 +23,8 @@ import (
 type (
 	// Migrator defines a service to migrate data after a Portainer version update.
 	Migrator struct {
-		currentDBVersion        int
 		db                      *bolt.DB
+		currentDBVersion        int
 		endpointGroupService    *endpointgroup.Service
 		endpointService         *endpoint.Service
 		endpointRelationService *endpointrelation.Service
@@ -344,7 +344,7 @@ func (m *Migrator) Migrate() error {
 
 	// Portainer 2.1.0
 	if m.currentDBVersion < 26 {
-		err := m.updateEndpointSettingsToDB25()
+		err := m.updateEndpointSettingsToDB26()
 		if err != nil {
 			return err
 		}

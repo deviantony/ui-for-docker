@@ -70,8 +70,10 @@ func (service *Service) CreateRole(role *portainer.Role) error {
 	return service.connection.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(BucketName))
 
-		id, _ := bucket.NextSequence()
-		role.ID = portainer.RoleID(id)
+		if role.ID == 0 {
+			id, _ := bucket.NextSequence()
+			role.ID = portainer.RoleID(id)
+		}
 
 		data, err := internal.MarshalObject(role)
 		if err != nil {

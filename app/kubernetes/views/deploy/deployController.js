@@ -119,6 +119,7 @@ class KubernetesDeployController {
       return this.ModalService.confirmWebEditorDiscard();
     }
   }
+
   async onInit() {
     this.state = {
       DeployType: KubernetesDeployManifestTypes.KUBERNETES,

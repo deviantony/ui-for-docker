@@ -87,6 +87,7 @@ class KubernetesConfigMapConverter {
         res.data[entry.Key] = entry.Value;
       }
     });
+
     return res;
   }
 

@@ -121,7 +121,7 @@
           <!-- !toggle -->
 
           <!-- restore form -->
-          <form class="simple-box-form form-horizontal" style="padding-left: 30px;" ng-if="state.showRestorePortainer">
+          <form class="simple-box-form form-horizontal" style="padding-left: 30px;" ng-if="state.showRestorePortainer" name="restorePortainerForm">
             <!-- note -->
             <div class="form-group">
               <div class="col-sm-9">
@@ -131,6 +131,7 @@
               </div>
             </div>
             <!-- !note -->
+
             <div class="form-group">
               <div class="boxselector_wrapper">
                 <div>
@@ -155,26 +156,29 @@
                 </div>
               </div>
             </div>
-            <!-- note -->
-            <div class="form-group">
-              <div class="col-sm-12">
-                <span class="small text-muted">
-                  You can upload a backup file from your computer.
-                </span>
+
+            <div>
+              <!-- note -->
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <span class="small text-muted">
+                    You can upload a backup file from your computer.
+                  </span>
+                </div>
               </div>
-            </div>
-            <!-- !note -->
-            <!-- select-file-input -->
-            <div class="form-group">
-              <div class="col-sm-12">
-                <button class="btn btn-sm btn-primary" ngf-select accept=".tar.gz,.encrypted" ng-model="formValues.BackupFile" auto-focus>Select file</button>
-                <span style="margin-left: 5px;">
-                  {{ formValues.BackupFile.name }}
-                  <i class="fa fa-times red-icon" ng-if="!formValues.BackupFile" aria-hidden="true"></i>
-                </span>
+              <!-- !note -->
+              <!-- select-file-input -->
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <button class="btn btn-sm btn-primary" ngf-select accept=".tar.gz,.encrypted" ng-model="formValues.BackupFile" auto-focus>Select file</button>
+                  <span style="margin-left: 5px;">
+                    {{ formValues.BackupFile.name }}
+                    <i class="fa fa-times red-icon" ng-if="!formValues.BackupFile" aria-hidden="true"></i>
+                  </span>
+                </div>
               </div>
+              <!-- !select-file-input -->
             </div>
-            <!-- !select-file-input -->
             <!-- password-input -->
             <div class="form-group">
               <label for="password" class="col-sm-3 control-label text-left">

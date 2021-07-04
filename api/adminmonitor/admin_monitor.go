@@ -37,7 +37,7 @@ func (m *Monitor) Start() {
 		case <-time.After(m.timeout):
 			initialized, err := m.WasInitialized()
 			if err != nil {
-				logFatalf("%s", err)
+				logFatalf("failed getting admin user: %s", err)
 			}
 			if !initialized {
 				logFatalf("[FATAL] [internal,init] No administrator account was created in %f mins. Shutting down the Portainer instance for security reasons", m.timeout.Minutes())

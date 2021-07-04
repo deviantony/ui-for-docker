@@ -32,13 +32,13 @@ class KubernetesConfigurationController {
     this.LocalStorage = LocalStorage;
     this.ModalService = ModalService;
     this.KubernetesConfigurationService = KubernetesConfigurationService;
+    this.KubernetesConfigMapService = KubernetesConfigMapService;
+    this.KubernetesSecretService = KubernetesSecretService;
     this.KubernetesResourcePoolService = KubernetesResourcePoolService;
     this.KubernetesApplicationService = KubernetesApplicationService;
     this.KubernetesEventService = KubernetesEventService;
     this.KubernetesConfigurationTypes = KubernetesConfigurationTypes;
     this.KubernetesNamespaceHelper = KubernetesNamespaceHelper;
-    this.KubernetesConfigMapService = KubernetesConfigMapService;
-    this.KubernetesSecretService = KubernetesSecretService;
 
     this.onInit = this.onInit.bind(this);
     this.getConfigurationAsync = this.getConfigurationAsync.bind(this);

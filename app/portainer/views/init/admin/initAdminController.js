@@ -47,7 +47,7 @@ angular.module('portainer.app').controller('InitAdminController', [
           return StateManager.initialize();
         })
         .then(function () {
-          return EndpointService.endpoints(0, 100);
+          return EndpointService.endpoints(0, 1);
         })
         .then(function success(data) {
           if (data.value.length === 0) {
@@ -75,6 +75,7 @@ angular.module('portainer.app').controller('InitAdminController', [
           Notifications.error('Failure', err, 'Unable to verify administrator account existence');
         });
     }
+
     createAdministratorFlow();
 
     async function waitPortainerRestart() {
@@ -85,7 +86,9 @@ angular.module('portainer.app').controller('InitAdminController', [
           if (status && status.Version) {
             return;
           }
-        } catch (e) {}
+        } catch (e) {
+          // pass
+        }
       }
       throw 'Timeout to wait for Portainer restarting';
     }

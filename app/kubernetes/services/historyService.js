@@ -43,6 +43,7 @@ class KubernetesHistoryService {
         application.CurrentRevision = currentRevision;
         application.Revisions = revisionsList;
       }
+
       return application;
     } catch (err) {
       throw new PortainerError('', err);

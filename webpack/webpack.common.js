@@ -115,6 +115,7 @@ module.exports = {
       shorthands: true,
       collections: true,
       paths: true,
+      flattening: true,
     }),
   ],
   optimization: {

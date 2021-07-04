@@ -105,9 +105,9 @@
                               <div ng-messages="kubernetesVolumeUpdateForm.size.$error">
                                 <p ng-message="required"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> This field is required.</p>
                               </div>
-                              <p ng-show="ctrl.state.errors.volumeSize && !kubernetesVolumeUpdateForm.size.$invalid"
-                                ><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> The new size must be greater than the actual size.</p
-                              >
+                              <p ng-show="ctrl.state.errors.volumeSize && !kubernetesVolumeUpdateForm.size.$invalid">
+                                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> The new size must be greater than the actual size.
+                              </p>
                             </div>
                           </div>
                         </form>

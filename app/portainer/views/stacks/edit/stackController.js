@@ -21,9 +21,10 @@ angular.module('portainer.app').controller('StackController', [
   'GroupService',
   'ModalService',
   'StackHelper',
-  'ResourceControlService',
+  'endpoint',
   'Authentication',
   'ContainerHelper',
+  'ResourceControlService',
   function (
     $async,
     $q,
@@ -45,9 +46,10 @@ angular.module('portainer.app').controller('StackController', [
     GroupService,
     ModalService,
     StackHelper,
-    ResourceControlService,
+    endpoint,
     Authentication,
-    ContainerHelper
+    ContainerHelper,
+    ResourceControlService
   ) {
     $scope.state = {
       actionInProgress: false,
@@ -60,8 +62,8 @@ angular.module('portainer.app').controller('StackController', [
     $scope.formValues = {
       Prune: false,
       Endpoint: null,
-      AccessControlData: new AccessControlFormData(),
       Env: [],
+      AccessControlData: new AccessControlFormData(),
     };
 
     $window.onbeforeunload = () => {
@@ -452,12 +454,7 @@ angular.module('portainer.app').controller('StackController', [
         loadStack(stackId);
       }
 
-      try {
-        const endpoint = EndpointProvider.currentEndpoint();
-        $scope.composeSyntaxMaxVersion = endpoint.ComposeSyntaxMaxVersion;
-      } catch (err) {
-        Notifications.error('Failure', err, 'Unable to retrieve the ComposeSyntaxMaxVersion');
-      }
+      $scope.composeSyntaxMaxVersion = endpoint.ComposeSyntaxMaxVersion;
 
       $scope.stackType = $transition$.params().type;
     }

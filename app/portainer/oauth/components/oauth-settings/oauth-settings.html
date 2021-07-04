@@ -45,10 +45,10 @@
     <div class="form-group">
       <span class="col-sm-12 text-muted small">
         <p>The users created by the automatic provisioning feature can be added to a default team on creation.</p>
-        <p
-          >By assigning newly created users to a team, they will be able to access the environments associated to that team. This setting is optional and if not set, newly created
-          users won't be able to access any environments.</p
-        >
+        <p>
+          By assigning newly created users to a team, they will be able to access the environments associated to that team. This setting is optional and if not set, newly created
+          users won't be able to access any environments.
+        </p>
       </span>
     </div>
     <div class="form-group">
@@ -56,9 +56,9 @@
       <span class="small text-muted" style="margin-left: 20px;" ng-if="$ctrl.teams.length === 0">
         You have not yet created any teams. Head over to the <a ui-sref="portainer.teams">Teams view</a> to manage teams.
       </span>
-      <button type="button" class="btn btn-sm btn-danger" ng-click="$ctrl.settings.DefaultTeamID = null" ng-disabled="!$ctrl.settings.DefaultTeamID" ng-if="$ctrl.teams.length > 0"
-        ><i class="fa fa-times" aria-hidden="true"></i
-      ></button>
+      <button type="button" class="btn btn-sm btn-danger" ng-click="$ctrl.settings.DefaultTeamID = null" ng-disabled="!$ctrl.settings.DefaultTeamID" ng-if="$ctrl.teams.length > 0">
+        <i class="fa fa-times" aria-hidden="true"></i>
+      </button>
       <div class="col-sm-9 col-lg-9" ng-if="$ctrl.teams.length > 0">
         <select class="form-control" ng-model="$ctrl.settings.DefaultTeamID" ng-options="team.Id as team.Name for team in $ctrl.teams">
           <option value="">No team</option>
@@ -103,86 +103,88 @@
     </div>
   </div>
 
-  <div class="form-group">
-    <label for="oauth_authorization_uri" class="col-sm-3 col-lg-2 control-label text-left">
-      Authorization URL
-      <portainer-tooltip
-        position="bottom"
-        message="URL used to authenticate against the OAuth provider. Will redirect the user to the OAuth provider login view"
-      ></portainer-tooltip>
-    </label>
-    <div class="col-sm-9 col-lg-10">
-      <input type="text" class="form-control" id="oauth_authorization_uri" ng-model="$ctrl.settings.AuthorizationURI" placeholder="https://example.com/oauth/authorize" />
+  <div>
+    <div class="form-group">
+      <label for="oauth_authorization_uri" class="col-sm-3 col-lg-2 control-label text-left">
+        Authorization URL
+        <portainer-tooltip
+          position="bottom"
+          message="URL used to authenticate against the OAuth provider. Will redirect the user to the OAuth provider login view"
+        ></portainer-tooltip>
+      </label>
+      <div class="col-sm-9 col-lg-10">
+        <input type="text" class="form-control" id="oauth_authorization_uri" ng-model="$ctrl.settings.AuthorizationURI" placeholder="https://example.com/oauth/authorize" />
+      </div>
     </div>
-  </div>
 
-  <div class="form-group">
-    <label for="oauth_access_token_uri" class="col-sm-3 col-lg-2 control-label text-left">
-      Access token URL
-      <portainer-tooltip position="bottom" message="URL used by Portainer to exchange a valid OAuth authentication code for an access token"></portainer-tooltip>
-    </label>
-    <div class="col-sm-9 col-lg-10">
-      <input type="text" class="form-control" id="oauth_access_token_uri" ng-model="$ctrl.settings.AccessTokenURI" placeholder="https://example.com/oauth/token" />
+    <div class="form-group">
+      <label for="oauth_access_token_uri" class="col-sm-3 col-lg-2 control-label text-left">
+        Access token URL
+        <portainer-tooltip position="bottom" message="URL used by Portainer to exchange a valid OAuth authentication code for an access token"></portainer-tooltip>
+      </label>
+      <div class="col-sm-9 col-lg-10">
+        <input type="text" class="form-control" id="oauth_access_token_uri" ng-model="$ctrl.settings.AccessTokenURI" placeholder="https://example.com/oauth/token" />
+      </div>
     </div>
-  </div>
 
-  <div class="form-group">
-    <label for="oauth_resource_uri" class="col-sm-3 col-lg-2 control-label text-left">
-      Resource URL
-      <portainer-tooltip position="bottom" message="URL used by Portainer to retrieve information about the authenticated user"></portainer-tooltip>
-    </label>
-    <div class="col-sm-9 col-lg-10">
-      <input type="text" class="form-control" id="oauth_resource_uri" ng-model="$ctrl.settings.ResourceURI" placeholder="https://example.com/user" />
+    <div class="form-group">
+      <label for="oauth_resource_uri" class="col-sm-3 col-lg-2 control-label text-left">
+        Resource URL
+        <portainer-tooltip position="bottom" message="URL used by Portainer to retrieve information about the authenticated user"></portainer-tooltip>
+      </label>
+      <div class="col-sm-9 col-lg-10">
+        <input type="text" class="form-control" id="oauth_resource_uri" ng-model="$ctrl.settings.ResourceURI" placeholder="https://example.com/user" />
+      </div>
     </div>
-  </div>
 
-  <div class="form-group">
-    <label for="oauth_redirect_uri" class="col-sm-3 col-lg-2 control-label text-left">
-      Redirect URL
-      <portainer-tooltip
-        position="bottom"
-        message="URL used by the OAuth provider to redirect the user after successful authentication. Should be set to your Portainer instance URL"
-      ></portainer-tooltip>
-    </label>
-    <div class="col-sm-9 col-lg-10">
-      <input type="text" class="form-control" id="oauth_redirect_uri" ng-model="$ctrl.settings.RedirectURI" placeholder="http://yourportainer.com/" />
+    <div class="form-group">
+      <label for="oauth_redirect_uri" class="col-sm-3 col-lg-2 control-label text-left">
+        Redirect URL
+        <portainer-tooltip
+          position="bottom"
+          message="URL used by the OAuth provider to redirect the user after successful authentication. Should be set to your Portainer instance URL"
+        ></portainer-tooltip>
+      </label>
+      <div class="col-sm-9 col-lg-10">
+        <input type="text" class="form-control" id="oauth_redirect_uri" ng-model="$ctrl.settings.RedirectURI" placeholder="http://yourportainer.com/" />
+      </div>
     </div>
-  </div>
-  <div class="form-group">
-    <label for="oauth_logout_url" class="col-sm-3 col-lg-2 control-label text-left">
-      Logout URL
-      <portainer-tooltip
-        position="bottom"
-        message="URL used by Portainer to redirect the user to the OAuth provider in order to log the user out of the identity provider session."
-      ></portainer-tooltip>
-    </label>
-    <div class="col-sm-9 col-lg-10">
-      <input type="text" class="form-control" id="oauth_logout_url" ng-model="$ctrl.settings.LogoutURI" />
+    <div class="form-group">
+      <label for="oauth_logout_url" class="col-sm-3 col-lg-2 control-label text-left">
+        Logout URL
+        <portainer-tooltip
+          position="bottom"
+          message="URL used by Portainer to redirect the user to the OAuth provider in order to log the user out of the identity provider session."
+        ></portainer-tooltip>
+      </label>
+      <div class="col-sm-9 col-lg-10">
+        <input type="text" class="form-control" id="oauth_logout_url" ng-model="$ctrl.settings.LogoutURI" />
+      </div>
     </div>
-  </div>
-  <div class="form-group">
-    <label for="oauth_user_identifier" class="col-sm-3 col-lg-2 control-label text-left">
-      User identifier
-      <portainer-tooltip
-        position="bottom"
-        message="Identifier that will be used by Portainer to create an account for the authenticated user. Retrieved from the resource server specified via the Resource URL field"
-      ></portainer-tooltip>
-    </label>
-    <div class="col-sm-9 col-lg-10">
-      <input type="text" class="form-control" id="oauth_user_identifier" ng-model="$ctrl.settings.UserIdentifier" placeholder="id" />
+    <div class="form-group">
+      <label for="oauth_user_identifier" class="col-sm-3 col-lg-2 control-label text-left">
+        User identifier
+        <portainer-tooltip
+          position="bottom"
+          message="Identifier that will be used by Portainer to create an account for the authenticated user. Retrieved from the resource server specified via the Resource URL field"
+        ></portainer-tooltip>
+      </label>
+      <div class="col-sm-9 col-lg-10">
+        <input type="text" class="form-control" id="oauth_user_identifier" ng-model="$ctrl.settings.UserIdentifier" placeholder="id" />
+      </div>
     </div>
-  </div>
 
-  <div class="form-group">
-    <label for="oauth_scopes" class="col-sm-3 col-lg-2 control-label text-left">
-      Scopes
-      <portainer-tooltip
-        position="bottom"
-        message="Scopes required by the OAuth provider to retrieve information about the authenticated user. Refer to your OAuth provider documentation for more information about this"
-      ></portainer-tooltip>
-    </label>
-    <div class="col-sm-9 col-lg-10">
-      <input type="text" class="form-control" id="oauth_scopes" ng-model="$ctrl.settings.Scopes" placeholder="id,email,name" />
+    <div class="form-group">
+      <label for="oauth_scopes" class="col-sm-3 col-lg-2 control-label text-left">
+        Scopes
+        <portainer-tooltip
+          position="bottom"
+          message="Scopes required by the OAuth provider to retrieve information about the authenticated user. Refer to your OAuth provider documentation for more information about this"
+        ></portainer-tooltip>
+      </label>
+      <div class="col-sm-9 col-lg-10">
+        <input type="text" class="form-control" id="oauth_scopes" ng-model="$ctrl.settings.Scopes" placeholder="id,email,name" />
+      </div>
     </div>
   </div>
 </div>

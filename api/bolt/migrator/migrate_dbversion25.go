@@ -4,7 +4,7 @@ import (
 	portainer "github.com/portainer/portainer/api"
 )
 
-func (m *Migrator) updateEndpointSettingsToDB25() error {
+func (m *Migrator) updateEndpointSettingsToDB26() error {
 	settings, err := m.settingsService.Settings()
 	if err != nil {
 		return err

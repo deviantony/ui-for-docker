@@ -55,7 +55,9 @@
                     <tr ng-if="ctrl.application.Requests.Cpu || ctrl.application.Requests.Memory">
                       <td>
                         <div>Resource reservations</div>
-                        <div ng-if="ctrl.application.ApplicationType !== ctrl.KubernetesApplicationTypes.POD" class="text-muted small"> per instance </div>
+                        <div ng-if="ctrl.application.ApplicationType !== ctrl.KubernetesApplicationTypes.POD" class="text-muted small">
+                          per instance
+                        </div>
                       </td>
                       <td>
                         <div ng-if="ctrl.application.Requests.Cpu">CPU {{ ctrl.application.Requests.Cpu | kubernetesApplicationCPUValue }}</div>

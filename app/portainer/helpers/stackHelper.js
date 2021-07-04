@@ -1,6 +1,7 @@
 import _ from 'lodash-es';
 import YAML from 'yaml';
 import GenericHelper from '@/portainer/helpers/genericHelper';
+
 import { ExternalStackViewModel } from '@/portainer/models/stack';
 
 angular.module('portainer.app').factory('StackHelper', [

@@ -36,26 +36,12 @@ func NewService(connection *internal.DbConnection) (*Service, error) {
 
 // DBVersion retrieves the stored database version.
 func (service *Service) DBVersion() (int, error) {
-	var data []byte
-
-	err := service.connection.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(BucketName))
-
-		value := bucket.Get([]byte(versionKey))
-		if value == nil {
-			return errors.ErrObjectNotFound
-		}
-
-		data = make([]byte, len(value))
-		copy(data, value)
-
-		return nil
-	})
+	version, err := service.getKey(versionKey)
 	if err != nil {
 		return 0, err
 	}
 
-	return strconv.Atoi(string(data))
+	return strconv.Atoi(string(version))
 }
 
 // Edition retrieves the stored portainer edition.
@@ -75,46 +61,22 @@ func (service *Service) Edition() (portainer.SoftwareEdition, error) {
 
 // StoreDBVersion store the database version.
 func (service *Service) StoreDBVersion(version int) error {
-	return service.connection.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(BucketName))
-
-		data := []byte(strconv.Itoa(version))
-		return bucket.Put([]byte(versionKey), data)
-	})
+	return service.setKey(versionKey, strconv.Itoa(version))
 }
 
 // InstanceID retrieves the stored instance ID.
 func (service *Service) InstanceID() (string, error) {
-	var data []byte
-
-	err := service.connection.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(BucketName))
-
-		value := bucket.Get([]byte(instanceKey))
-		if value == nil {
-			return errors.ErrObjectNotFound
-		}
-
-		data = make([]byte, len(value))
-		copy(data, value)
-
-		return nil
-	})
+	instanceID, err := service.getKey(instanceKey)
 	if err != nil {
 		return "", err
 	}
 
-	return string(data), nil
+	return string(instanceID), nil
 }
 
 // StoreInstanceID store the instance ID.
 func (service *Service) StoreInstanceID(ID string) error {
-	return service.connection.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(BucketName))
-
-		data := []byte(ID)
-		return bucket.Put([]byte(instanceKey), data)
-	})
+	return service.setKey(instanceKey, ID)
 }
 
 func (service *Service) getKey(key string) ([]byte, error) {

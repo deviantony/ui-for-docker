@@ -66,14 +66,6 @@ func (manager *ComposeStackManager) ComposeSyntaxMaxVersion() string {
 	return composeSyntaxMaxVersion
 }
 
-// NormalizeStackName returns a new stack name with unsupported characters replaced
-func (manager *ComposeStackManager) NormalizeStackName(name string) string {
-	// this is coming from libcompose
-	// https://github.com/portainer/libcompose/blob/master/project/context.go#L117-L120
-	r := regexp.MustCompile("[^a-z0-9]+")
-	return r.ReplaceAllString(strings.ToLower(name), "")
-}
-
 // Up will deploy a compose stack (equivalent of docker-compose up)
 func (manager *ComposeStackManager) Up(stack *portainer.Stack, endpoint *portainer.Endpoint) error {
 
@@ -133,4 +125,12 @@ func (manager *ComposeStackManager) Down(stack *portainer.Stack, endpoint *porta
 	}
 
 	return proj.Down(context.Background(), options.Down{RemoveVolume: false, RemoveOrphans: true})
+}
+
+// NormalizeStackName returns a new stack name with unsupported characters replaced
+func (manager *ComposeStackManager) NormalizeStackName(name string) string {
+	// this is coming from libcompose
+	// https://github.com/portainer/libcompose/blob/master/project/context.go#L117-L120
+	r := regexp.MustCompile("[^a-z0-9]+")
+	return r.ReplaceAllString(strings.ToLower(name), "")
 }

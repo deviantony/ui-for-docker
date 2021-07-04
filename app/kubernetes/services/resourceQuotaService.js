@@ -1,5 +1,4 @@
 import _ from 'lodash-es';
-
 import angular from 'angular';
 import PortainerError from 'Portainer/error';
 import { KubernetesCommonParams } from 'Kubernetes/models/common/params';

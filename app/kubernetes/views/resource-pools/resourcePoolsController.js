@@ -50,7 +50,7 @@ class KubernetesResourcePoolsController {
     try {
       this.resourcePools = await this.KubernetesResourcePoolService.get();
     } catch (err) {
-      this.Notifications.error('Failure', err, 'Unable to retreive namespaces');
+      this.Notifications.error('Failure', err, 'Unable to retrieve namespaces');
     }
   }
 

@@ -31,136 +31,138 @@
   </span>
 </information-panel>
 
-<div class="row" ng-if="(!applicationState.endpoint.mode.agentProxy || applicationState.endpoint.mode.provider !== 'DOCKER_SWARM_MODE') && info && endpoint">
-  <div class="col-sm-12">
-    <rd-widget>
-      <rd-widget-header icon="fa-tachometer-alt" title-text="Endpoint info"></rd-widget-header>
-      <rd-widget-body classes="no-padding">
-        <table class="table">
-          <tbody>
-            <tr>
-              <td>Endpoint</td>
-              <td>
-                {{ endpoint.Name }}
-                <span class="small text-muted space-left">
-                  <i class="fa fa-microchip"></i> {{ endpoint.Snapshots[0].TotalCPU }} <i class="fa fa-memory space-left"></i> {{ endpoint.Snapshots[0].TotalMemory | humansize }}
-                </span>
-                <span class="small text-muted">
-                  - {{ info.Swarm && info.Swarm.NodeID !== '' ? 'Swarm' : 'Standalone' }} {{ info.ServerVersion }}
-                  <span ng-if="endpoint.Type === 2">+ <i class="fa fa-bolt" aria-hidden="true"></i> Agent</span></span
-                >
-              </td>
-            </tr>
-            <tr>
-              <td>URL</td>
-              <td>{{ endpoint.URL | stripprotocol }}</td>
-            </tr>
-            <tr>
-              <td>Tags</td>
-              <td>{{ endpointTags }}</td>
-            </tr>
-            <tr ng-if="applicationState.endpoint.mode.provider === 'DOCKER_SWARM_MODE' && applicationState.endpoint.mode.role === 'MANAGER'">
-              <td colspan="2">
-                <div class="btn-group" role="group" aria-label="...">
-                  <a ui-sref="docker.swarm.visualizer"><i class="fa fa-object-group space-right" aria-hidden="true"></i>Go to cluster visualizer</a>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </rd-widget-body>
-    </rd-widget>
+<div ng-if="info">
+  <div class="row" ng-if="(!applicationState.endpoint.mode.agentProxy || applicationState.endpoint.mode.provider !== 'DOCKER_SWARM_MODE') && endpoint">
+    <div class="col-sm-12">
+      <rd-widget>
+        <rd-widget-header icon="fa-tachometer-alt" title-text="Endpoint info"></rd-widget-header>
+        <rd-widget-body classes="no-padding">
+          <table class="table">
+            <tbody>
+              <tr>
+                <td>Endpoint</td>
+                <td>
+                  {{ endpoint.Name }}
+                  <span class="small text-muted space-left">
+                    <i class="fa fa-microchip"></i> {{ endpoint.Snapshots[0].TotalCPU }} <i class="fa fa-memory space-left"></i> {{ endpoint.Snapshots[0].TotalMemory | humansize }}
+                  </span>
+                  <span class="small text-muted">
+                    - {{ info.Swarm && info.Swarm.NodeID !== '' ? 'Swarm' : 'Standalone' }} {{ info.ServerVersion }}
+                    <span ng-if="endpoint.Type === 2">+ <i class="fa fa-bolt" aria-hidden="true"></i> Agent</span></span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td>URL</td>
+                <td>{{ endpoint.URL | stripprotocol }}</td>
+              </tr>
+              <tr>
+                <td>Tags</td>
+                <td>{{ endpointTags }}</td>
+              </tr>
+              <tr ng-if="applicationState.endpoint.mode.provider === 'DOCKER_SWARM_MODE' && applicationState.endpoint.mode.role === 'MANAGER'">
+                <td colspan="2">
+                  <div class="btn-group" role="group" aria-label="...">
+                    <a ui-sref="docker.swarm.visualizer"><i class="fa fa-object-group space-right" aria-hidden="true"></i>Go to cluster visualizer</a>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </rd-widget-body>
+      </rd-widget>
+    </div>
   </div>
-</div>
 
-<div class="row">
-  <div class="col-xs-12 col-md-6" ng-if="showStacks">
-    <a ui-sref="docker.stacks">
-      <rd-widget>
-        <rd-widget-body>
-          <div class="widget-icon blue pull-left">
-            <i class="fa fa-th-list"></i>
-          </div>
-          <div class="title">{{ stackCount }}</div>
-          <div class="comment">{{ stackCount === 1 ? 'Stack' : 'Stacks' }}</div>
-        </rd-widget-body>
-      </rd-widget>
-    </a>
-  </div>
-  <div class="col-xs-12 col-md-6" ng-if="applicationState.endpoint.mode.provider === 'DOCKER_SWARM_MODE' && applicationState.endpoint.mode.role === 'MANAGER'">
-    <a ui-sref="docker.services">
-      <rd-widget>
-        <rd-widget-body>
-          <div class="widget-icon blue pull-left">
-            <i class="fa fa-list-alt"></i>
-          </div>
-          <div class="title">{{ serviceCount }}</div>
-          <div class="comment">{{ serviceCount === 1 ? 'Service' : 'Services' }}</div>
-        </rd-widget-body>
-      </rd-widget>
-    </a>
-  </div>
-  <div class="col-xs-12 col-md-6" ng-if="containers">
-    <a ui-sref="docker.containers">
-      <rd-widget>
-        <rd-widget-body>
-          <div class="widget-icon blue pull-left">
-            <i class="fa fa-cubes"></i>
-          </div>
-          <div class="pull-right" style="padding-left: 5px;">
-            <div><i class="fa fa-power-off space-right green-icon"></i>{{ containers | runningcontainers }} running</div>
-            <div><i class="fa fa-power-off space-right red-icon"></i>{{ containers | stoppedcontainers }} stopped</div>
-          </div>
-          <div class="pull-right" style="padding-right: 5px;">
-            <div><i class="fa fa-heartbeat space-right green-icon"></i>{{ containers | healthycontainers }} healthy</div>
-            <div><i class="fa fa-heartbeat space-right orange-icon"></i>{{ containers | unhealthycontainers }} unhealthy</div>
-          </div>
-          <div class="title">{{ containers.length }}</div>
-          <div class="comment">{{ containers.length === 1 ? 'Container' : 'Containers' }}</div>
-        </rd-widget-body>
-      </rd-widget>
-    </a>
-  </div>
-  <div class="col-xs-12 col-md-6" ng-if="images">
-    <a ui-sref="docker.images">
-      <rd-widget>
-        <rd-widget-body>
-          <div class="widget-icon blue pull-left">
-            <i class="fa fa-clone"></i>
-          </div>
-          <div class="pull-right">
-            <div><i class="fa fa-chart-pie space-right"></i>{{ images | imagestotalsize | humansize }}</div>
-          </div>
-          <div class="title">{{ images.length }}</div>
-          <div class="comment">{{ images.length === 1 ? 'Image' : 'Images' }}</div>
-        </rd-widget-body>
-      </rd-widget>
-    </a>
-  </div>
-  <div class="col-xs-12 col-md-6">
-    <a ui-sref="docker.volumes">
-      <rd-widget>
-        <rd-widget-body>
-          <div class="widget-icon blue pull-left">
-            <i class="fa fa-hdd"></i>
-          </div>
-          <div class="title">{{ volumeCount }}</div>
-          <div class="comment">{{ volumeCount === 1 ? 'Volume' : 'Volumes' }}</div>
-        </rd-widget-body>
-      </rd-widget>
-    </a>
-  </div>
-  <div class="col-xs-12 col-md-6">
-    <a ui-sref="docker.networks">
-      <rd-widget>
-        <rd-widget-body>
-          <div class="widget-icon blue pull-left">
-            <i class="fa fa-sitemap"></i>
-          </div>
-          <div class="title">{{ networkCount }}</div>
-          <div class="comment">{{ networkCount === 1 ? 'Network' : 'Networks' }}</div>
-        </rd-widget-body>
-      </rd-widget>
-    </a>
+  <div class="row">
+    <div class="col-xs-12 col-md-6" ng-if="showStacks">
+      <a ui-sref="docker.stacks">
+        <rd-widget>
+          <rd-widget-body>
+            <div class="widget-icon blue pull-left">
+              <i class="fa fa-th-list"></i>
+            </div>
+            <div class="title dashboard-item">{{ stackCount }}</div>
+            <div class="comment dashboard-item">{{ stackCount === 1 ? 'Stack' : 'Stacks' }}</div>
+          </rd-widget-body>
+        </rd-widget>
+      </a>
+    </div>
+    <div class="col-xs-12 col-md-6" ng-if="applicationState.endpoint.mode.provider === 'DOCKER_SWARM_MODE' && applicationState.endpoint.mode.role === 'MANAGER'">
+      <a ui-sref="docker.services">
+        <rd-widget>
+          <rd-widget-body>
+            <div class="widget-icon blue pull-left">
+              <i class="fa fa-list-alt"></i>
+            </div>
+            <div class="title dashboard-item">{{ serviceCount }}</div>
+            <div class="comment dashboard-item">{{ serviceCount === 1 ? 'Service' : 'Services' }}</div>
+          </rd-widget-body>
+        </rd-widget>
+      </a>
+    </div>
+    <div class="col-xs-12 col-md-6" ng-if="containers">
+      <a ui-sref="docker.containers">
+        <rd-widget>
+          <rd-widget-body>
+            <div class="widget-icon blue pull-left">
+              <i class="fa fa-cubes"></i>
+            </div>
+            <div class="pull-right" style="padding-left: 5px;">
+              <div><i class="fa fa-power-off space-right green-icon"></i>{{ containers | runningcontainers }} running</div>
+              <div><i class="fa fa-power-off space-right red-icon"></i>{{ containers | stoppedcontainers }} stopped</div>
+            </div>
+            <div class="pull-right" style="padding-right: 5px;">
+              <div><i class="fa fa-heartbeat space-right green-icon"></i>{{ containers | healthycontainers }} healthy</div>
+              <div><i class="fa fa-heartbeat space-right orange-icon"></i>{{ containers | unhealthycontainers }} unhealthy</div>
+            </div>
+            <div class="title dashboard-item">{{ containers.length }}</div>
+            <div class="comment dashboard-item">{{ containers.length === 1 ? 'Container' : 'Containers' }}</div>
+          </rd-widget-body>
+        </rd-widget>
+      </a>
+    </div>
+    <div class="col-xs-12 col-md-6" ng-if="images">
+      <a ui-sref="docker.images">
+        <rd-widget>
+          <rd-widget-body>
+            <div class="widget-icon blue pull-left">
+              <i class="fa fa-clone"></i>
+            </div>
+            <div class="pull-right">
+              <div><i class="fa fa-chart-pie space-right"></i>{{ images | imagestotalsize | humansize }}</div>
+            </div>
+            <div class="title dashboard-item">{{ images.length }}</div>
+            <div class="comment dashboard-item">{{ images.length === 1 ? 'Image' : 'Images' }}</div>
+          </rd-widget-body>
+        </rd-widget>
+      </a>
+    </div>
+    <div class="col-xs-12 col-md-6">
+      <a ui-sref="docker.volumes">
+        <rd-widget>
+          <rd-widget-body>
+            <div class="widget-icon blue pull-left">
+              <i class="fa fa-hdd"></i>
+            </div>
+            <div class="title dashboard-item">{{ volumeCount }}</div>
+            <div class="comment dashboard-item">{{ volumeCount === 1 ? 'Volume' : 'Volumes' }}</div>
+          </rd-widget-body>
+        </rd-widget>
+      </a>
+    </div>
+    <div class="col-xs-12 col-md-6">
+      <a ui-sref="docker.networks">
+        <rd-widget>
+          <rd-widget-body>
+            <div class="widget-icon blue pull-left">
+              <i class="fa fa-sitemap"></i>
+            </div>
+            <div class="title dashboard-item">{{ networkCount }}</div>
+            <div class="comment dashboard-item">{{ networkCount === 1 ? 'Network' : 'Networks' }}</div>
+          </rd-widget-body>
+        </rd-widget>
+      </a>
+    </div>
   </div>
 </div>

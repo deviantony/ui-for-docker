@@ -128,7 +128,11 @@ angular.module('portainer.app').controller('GenericDatatableController', [
      * https://github.com/portainer/portainer/pull/2877#issuecomment-503333425
      * https://github.com/portainer/portainer/pull/2877#issuecomment-503537249
      */
-    this.$onInit = function () {
+    this.$onInit = function $onInit() {
+      this.$onInitGeneric();
+    };
+
+    this.$onInitGeneric = function $onInitGeneric() {
       this.setDefaults();
       this.prepareTableFromDataset();
 

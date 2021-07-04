@@ -318,7 +318,7 @@
                               ng-model="volume.Source"
                               ng-options="vol as ((vol.Id|truncate:30) + ' - ' + (vol.Driver|truncate:30)) for vol in availableVolumes"
                             >
-                              <option selected disabled value="">Select a volume</option>
+                              <option selected disabled hidden value="">Select a volume</option>
                             </select>
                           </div>
                           <div class="small text-warning" ng-show="!volume.Source"> <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Source is required. </div>
