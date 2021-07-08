@@ -1028,3 +1028,9 @@ json-tree .branch-preview {
   margin-top: 2rem;
   margin-bottom: 2rem;
 }
+
+.kubectl-shell {
+  display: block;
+  text-align: center;
+  padding-bottom: 5px;
+}

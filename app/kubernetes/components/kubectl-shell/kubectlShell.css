@@ -3,12 +3,10 @@
   justify-content: space-between;
   color: #424242;
   background: rgb(245, 245, 245);
-  padding: 8px;
   border-top: 1px solid rgb(190, 190, 190);
 }
 
 .shell-item {
-  height: 16px;
   width: 150px;
   font-weight: bold;
   text-align: center;
@@ -17,8 +15,17 @@
 
 .shell-item-center {
   flex-grow: 1;
+}
+
+ul.sidebar li .shell-item-center a {
   border-left: 1px solid rgb(143, 143, 143);
-  padding: 0px 15px;
+  padding: 0px 5px;
+  color: #424242;
+}
+
+ul.sidebar li .shell-item-center a:hover {
+  color: rgb(51, 122, 183);
+  text-decoration: underline;
 }
 
 .shell-item-center a {
@@ -53,7 +60,7 @@
   bottom: 0;
   left: 0;
   width: 100vw;
-  height: 500px;
+  height: 480px;
   z-index: 1000;
 }
 
