@@ -59,10 +59,9 @@ func (handler *Handler) getKubernetesConfig(w http.ResponseWriter, r *http.Reque
 		return &httperror.HandlerError{http.StatusUnauthorized, "Unauthorized", err}
 	}
 
-	permissionDeniedErr := "Permission denied to access endpoint"
 	tokenData, err := security.RetrieveTokenData(r)
 	if err != nil {
-		return &httperror.HandlerError{http.StatusForbidden, permissionDeniedErr, err}
+		return &httperror.HandlerError{http.StatusForbidden, "Permission denied to access endpoint", err}
 	}
 
 	cli, err := handler.KubernetesClientFactory.GetKubeClient(endpoint)
