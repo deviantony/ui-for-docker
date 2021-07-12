@@ -9,8 +9,12 @@ class KubernetesMetricsService {
     this.KubernetesMetrics = KubernetesMetrics;
 
     this.capabilitiesAsync = this.capabilitiesAsync.bind(this);
+
     this.getPodAsync = this.getPodAsync.bind(this);
     this.getNodeAsync = this.getNodeAsync.bind(this);
+
+    this.getPodsAsync = this.getPodsAsync.bind(this);
+    this.getNodesAsync = this.getNodesAsync.bind(this);
   }
 
   /**
@@ -67,6 +71,42 @@ class KubernetesMetricsService {
 
   getPod(namespace, podName) {
     return this.$async(this.getPodAsync, namespace, podName);
+  }
+
+  /**
+   * Stats of Nodes in cluster
+   *
+   * @param {string} endpointID
+   */
+  async getNodesAsync(endpointID) {
+    try {
+      const data = await this.KubernetesMetrics().getNodes({ endpointId: endpointID }).$promise;
+      return data;
+    } catch (err) {
+      throw new PortainerError('Unable to retrieve nodes stats', err);
+    }
+  }
+
+  getNodes(endpointID) {
+    return this.$async(this.getNodesAsync, endpointID);
+  }
+
+  /**
+   * Stats of Pods in a namespace
+   *
+   * @param {string} namespace
+   */
+  async getPodsAsync(namespace) {
+    try {
+      const data = await this.KubernetesMetrics(namespace).getPods().$promise;
+      return data;
+    } catch (err) {
+      throw new PortainerError('Unable to retrieve pod stats', err);
+    }
+  }
+
+  getPods(namespace) {
+    return this.$async(this.getPodsAsync, namespace);
   }
 }
 

@@ -3,9 +3,12 @@ angular.module('portainer.kubernetes').component('kubernetesResourceReservation'
   controller: 'KubernetesResourceReservationController',
   bindings: {
     description: '@',
-    cpu: '<',
+    cpuReservation: '<',
+    cpuUsage: '<',
     cpuLimit: '<',
-    memory: '<',
+    memoryReservation: '<',
+    memoryUsage: '<',
     memoryLimit: '<',
+    displayUsage: '<',
   },
 });

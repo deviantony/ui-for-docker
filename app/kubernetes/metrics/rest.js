@@ -24,6 +24,14 @@ angular.module('portainer.kubernetes').factory('KubernetesMetrics', [
             method: 'GET',
             url: `${url}/nodes/:id`,
           },
+          getPods: {
+            method: 'GET',
+            url: `${url}/namespaces/:namespace/pods`,
+          },
+          getNodes: {
+            method: 'GET',
+            url: `${url}/nodes`,
+          },
         }
       );
     };

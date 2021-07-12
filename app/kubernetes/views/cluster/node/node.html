@@ -78,11 +78,14 @@
                 <div style="padding: 8px;">
                   <kubernetes-resource-reservation
                     ng-if="ctrl.resourceReservation"
-                    cpu="ctrl.resourceReservation.CPU"
+                    cpu-reservation="ctrl.resourceReservation.CPU"
+                    cpu-usage="ctrl.resourceUsage.CPU"
                     cpu-limit="ctrl.node.CPU"
-                    memory="ctrl.resourceReservation.Memory"
+                    memory-reservation="ctrl.resourceReservation.Memory"
+                    memory-usage="ctrl.resourceUsage.Memory"
                     memory-limit="ctrl.memoryLimit"
                     description="Resource reservation represents the total amount of resource assigned to all the applications running on this node."
+                    display-usage="ctrl.state.isAdmin"
                   >
                   </kubernetes-resource-reservation>
                 </div>

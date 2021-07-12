@@ -3,6 +3,7 @@ import _ from 'lodash-es';
 import filesizeParser from 'filesize-parser';
 import { KubernetesResourceQuotaDefaults } from 'Kubernetes/models/resource-quota/models';
 import KubernetesResourceReservationHelper from 'Kubernetes/helpers/resourceReservationHelper';
+import { KubernetesResourceReservation } from 'Kubernetes/models/resource-reservation/models';
 import KubernetesEventHelper from 'Kubernetes/helpers/eventHelper';
 import {
   KubernetesResourcePoolFormValues,
@@ -27,6 +28,7 @@ class KubernetesResourcePoolController {
     EndpointService,
     ModalService,
     KubernetesNodeService,
+    KubernetesMetricsService,
     KubernetesResourceQuotaService,
     KubernetesResourcePoolService,
     KubernetesEventService,
@@ -45,6 +47,7 @@ class KubernetesResourcePoolController {
       EndpointService,
       ModalService,
       KubernetesNodeService,
+      KubernetesMetricsService,
       KubernetesResourceQuotaService,
       KubernetesResourcePoolService,
       KubernetesEventService,
@@ -240,6 +243,8 @@ class KubernetesResourcePoolController {
           app.Memory = resourceReservation.Memory;
           return app;
         });
+
+        await this.getResourceUsage(this.pool.Namespace.Name);
       } catch (err) {
         this.Notifications.error('Failure', err, 'Unable to retrieve applications.');
       } finally {
@@ -299,6 +304,22 @@ class KubernetesResourcePoolController {
     });
   }
   /* #endregion */
+
+  async getResourceUsage(namespace) {
+    try {
+      const namespaceMetrics = await this.KubernetesMetricsService.getPods(namespace);
+      // extract resource usage of all containers within each pod of the namespace
+      const containeResourceUsageList = namespaceMetrics.items.map((i) => i.containers.map((c) => c.usage)).flatMap((c) => c);
+      const namespaceResourceUsage = containeResourceUsageList.reduce((total, u) => {
+        total.CPU += KubernetesResourceReservationHelper.parseCPU(u.cpu);
+        total.Memory += KubernetesResourceReservationHelper.megaBytesValue(u.memory);
+        return total;
+      }, new KubernetesResourceReservation());
+      this.state.resourceUsage = namespaceResourceUsage;
+    } catch (err) {
+      this.Notifications.error('Failure', 'Unable to retrieve namespace resource usage', err);
+    }
+  }
 
   /* #region  ON INIT */
   $onInit() {
