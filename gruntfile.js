@@ -7,6 +7,7 @@ var arch = os.arch();
 if (arch === 'x64') arch = 'amd64';
 
 var portainer_data = '${PORTAINER_DATA:-/tmp/portainer}';
+var portainer_root = process.env.PORTAINER_PROJECT ? process.env.PORTAINER_PROJECT : process.env.PWD;
 
 module.exports = function (grunt) {
   loadGruntTasks(grunt, {
@@ -171,7 +172,7 @@ function shell_build_binary_azuredevops(p, a) {
 function shell_run_container() {
   return [
     'docker rm -f portainer',
-    'docker run -d -p 8000:8000 -p 9000:9000 -v $(pwd)/dist:/app -v ' +
+    'docker run -d -p 8000:8000 -p 9000:9000 -v ' + portainer_root + '/dist:/app -v ' +
       portainer_data +
       ':/data -v /var/run/docker.sock:/var/run/docker.sock:z -v /var/run/docker.sock:/var/run/alternative.sock:z -v /tmp:/tmp --name portainer portainer/base /app/portainer',
   ].join(';');
