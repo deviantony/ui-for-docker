@@ -333,9 +333,8 @@ class KubernetesResourcePoolController {
           sliderMaxMemory: 0,
           sliderMaxCpu: 0,
           cpuUsage: 0,
-          cpuUsed: 0,
           memoryUsage: 0,
-          memoryUsed: 0,
+          resourceReservation: { CPU: 0, Memory: 0 },
           activeTab: 0,
           currentName: this.$state.$current.name,
           showEditorTab: false,
@@ -345,6 +344,7 @@ class KubernetesResourcePoolController {
           viewReady: false,
           eventWarningCount: 0,
           canUseIngress: endpoint.Kubernetes.Configuration.IngressClasses.length,
+          useServerMetrics: this.endpoint.Kubernetes.Configuration.UseServerMetrics,
           duplicates: {
             ingressHosts: new KubernetesFormValidationReferences(),
           },
@@ -373,8 +373,8 @@ class KubernetesResourcePoolController {
           this.formValues = KubernetesResourceQuotaConverter.quotaToResourcePoolFormValues(quota);
           this.formValues.EndpointId = this.endpoint.Id;
 
-          this.state.cpuUsed = quota.CpuLimitUsed;
-          this.state.memoryUsed = KubernetesResourceReservationHelper.megaBytesValue(quota.MemoryLimitUsed);
+          this.state.resourceReservation.CPU = quota.CpuLimitUsed;
+          this.state.resourceReservation.Memory = KubernetesResourceReservationHelper.megaBytesValue(quota.MemoryLimitUsed);
         }
 
         this.isEditable = !this.KubernetesNamespaceHelper.isSystemNamespace(this.pool.Namespace.Name);

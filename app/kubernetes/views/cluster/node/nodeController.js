@@ -23,7 +23,6 @@ class KubernetesNodeController {
     KubernetesApplicationService,
     KubernetesEndpointService,
     KubernetesMetricsService,
-    EndpointProvider,
     Authentication
   ) {
     this.$async = $async;
@@ -37,7 +36,6 @@ class KubernetesNodeController {
     this.KubernetesApplicationService = KubernetesApplicationService;
     this.KubernetesEndpointService = KubernetesEndpointService;
     this.KubernetesMetricsService = KubernetesMetricsService;
-    this.EndpointProvider = EndpointProvider;
     this.Authentication = Authentication;
 
     this.onInit = this.onInit.bind(this);
@@ -435,7 +433,7 @@ class KubernetesNodeController {
 
     this.availabilities = KubernetesNodeAvailabilities;
 
-    this.state.useServerMetrics = this.EndpointProvider.currentEndpoint().Kubernetes.Configuration.UseServerMetrics;
+    this.state.useServerMetrics = this.endpoint.Kubernetes.Configuration.UseServerMetrics;
 
     this.state.activeTab = this.LocalStorage.getActiveTab('node');
 

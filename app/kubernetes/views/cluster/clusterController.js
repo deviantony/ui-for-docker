@@ -16,8 +16,7 @@ class KubernetesClusterController {
     KubernetesMetricsService,
     KubernetesApplicationService,
     KubernetesComponentStatusService,
-    KubernetesEndpointService,
-    EndpointProvider
+    KubernetesEndpointService
   ) {
     this.$async = $async;
     this.$state = $state;
@@ -29,7 +28,6 @@ class KubernetesClusterController {
     this.KubernetesApplicationService = KubernetesApplicationService;
     this.KubernetesComponentStatusService = KubernetesComponentStatusService;
     this.KubernetesEndpointService = KubernetesEndpointService;
-    this.EndpointProvider = EndpointProvider;
 
     this.onInit = this.onInit.bind(this);
     this.getNodes = this.getNodes.bind(this);
@@ -110,7 +108,7 @@ class KubernetesClusterController {
       this.resourceReservation.Memory = KubernetesResourceReservationHelper.megaBytesValue(this.resourceReservation.Memory);
 
       if (this.isAdmin) {
-        await this.getResourceUsage(this.EndpointProvider.currentEndpoint().Id);
+        await this.getResourceUsage(this.endpoint.Id);
       }
     } catch (err) {
       this.Notifications.error('Failure', 'Unable to retrieve applications', err);
@@ -147,7 +145,7 @@ class KubernetesClusterController {
     };
 
     this.isAdmin = this.Authentication.isAdmin();
-    this.state.useServerMetrics = this.EndpointProvider.currentEndpoint().Kubernetes.Configuration.UseServerMetrics;
+    this.state.useServerMetrics = this.endpoint.Kubernetes.Configuration.UseServerMetrics;
 
     await this.getNodes();
     if (this.isAdmin) {
