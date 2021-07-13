@@ -392,6 +392,13 @@ type (
 	// JobType represents a job type
 	JobType int
 
+	K8sNodeLimits struct {
+		CPU    int64 `json:"CPU"`
+		Memory int64 `json:"Memory"`
+	}
+
+	K8sNodesLimits map[string]*K8sNodeLimits
+
 	K8sNamespaceAccessPolicy struct {
 		UserAccessPolicies UserAccessPolicies `json:"UserAccessPolicies"`
 		TeamAccessPolicies TeamAccessPolicies `json:"TeamAccessPolicies"`
@@ -1167,6 +1174,7 @@ type (
 		SetupUserServiceAccount(userID int, teamIDs []int) error
 		GetServiceAccountBearerToken(userID int) (string, error)
 		StartExecProcess(namespace, podName, containerName string, command []string, stdin io.Reader, stdout io.Writer) error
+		GetNodesLimits() (K8sNodesLimits, error)
 		GetNamespaceAccessPolicies() (map[string]K8sNamespaceAccessPolicy, error)
 		UpdateNamespaceAccessPolicies(accessPolicies map[string]K8sNamespaceAccessPolicy) error
 	}
