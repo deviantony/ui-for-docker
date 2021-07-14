@@ -325,7 +325,6 @@ class KubernetesResourcePoolController {
   $onInit() {
     return this.$async(async () => {
       try {
-        const endpoint = this.endpoint;
         this.isAdmin = this.Authentication.isAdmin();
 
         this.state = {
@@ -343,7 +342,7 @@ class KubernetesResourcePoolController {
           ingressesLoading: true,
           viewReady: false,
           eventWarningCount: 0,
-          canUseIngress: endpoint.Kubernetes.Configuration.IngressClasses.length,
+          canUseIngress: this.endpoint.Kubernetes.Configuration.IngressClasses.length,
           useServerMetrics: this.endpoint.Kubernetes.Configuration.UseServerMetrics,
           duplicates: {
             ingressHosts: new KubernetesFormValidationReferences(),
@@ -387,7 +386,7 @@ class KubernetesResourcePoolController {
 
         if (this.state.canUseIngress) {
           await this.getIngresses();
-          const ingressClasses = endpoint.Kubernetes.Configuration.IngressClasses;
+          const ingressClasses = this.endpoint.Kubernetes.Configuration.IngressClasses;
           this.formValues.IngressClasses = KubernetesIngressConverter.ingressClassesToFormValues(ingressClasses, this.ingresses);
           _.forEach(this.formValues.IngressClasses, (ic) => {
             if (ic.Hosts.length === 0) {
