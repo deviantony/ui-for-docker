@@ -309,8 +309,8 @@ class KubernetesResourcePoolController {
     try {
       const namespaceMetrics = await this.KubernetesMetricsService.getPods(namespace);
       // extract resource usage of all containers within each pod of the namespace
-      const containeResourceUsageList = namespaceMetrics.items.map((i) => i.containers.map((c) => c.usage)).flatMap((c) => c);
-      const namespaceResourceUsage = containeResourceUsageList.reduce((total, u) => {
+      const containerResourceUsageList = namespaceMetrics.items.flatMap((i) => i.containers.map((c) => c.usage));
+      const namespaceResourceUsage = containerResourceUsageList.reduce((total, u) => {
         total.CPU += KubernetesResourceReservationHelper.parseCPU(u.cpu);
         total.Memory += KubernetesResourceReservationHelper.megaBytesValue(u.memory);
         return total;
