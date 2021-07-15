@@ -1,0 +1,94 @@
+<div class="row">
+  <div class="col-sm-12">
+    <rd-widget>
+      <rd-widget-header icon="fa-key" title-text="SSL certificate"></rd-widget-header>
+      <rd-widget-body>
+        <form class="form-horizontal" name="$ctrl.sslForm">
+          <span class="small">
+            <p class="text-muted">
+              <i class="fa fa-exclamation-circle orange-icon" aria-hidden="true" style="margin-right: 2px;"></i>
+              Forcing HTTPs only will cause Portainer to stop listening on the HTTP port. Any edge agent endpoint that is using HTTP will no longer be available.
+            </p>
+          </span>
+
+          <por-switch-field ng-model="$ctrl.formValues.forceHTTPS" label="Force HTTPS only" on-change="($ctrl.onChangeForceHTTPS)"></por-switch-field>
+
+          <hr />
+
+          <div class="form-group">
+            <span class="col-sm-12">
+              Provide a new SSL Certificate to replace the existing one that is used for HTTPS connections.
+            </span>
+          </div>
+
+          <div class="form-group">
+            <span class="col-sm-12">
+              Upload a X.509 certificate, commonly a crt, a cer, or a pem file.
+            </span>
+          </div>
+
+          <div class="form-group">
+            <div class="col-sm-12">
+              <button class="btn btn-sm btn-primary" ngf-select ng-model="$ctrl.formValues.certFile" ngf-pattern="$ctrl.certFilePattern" name="certFile">
+                Select file
+              </button>
+              <span style="margin-left: 5px;">
+                {{ $ctrl.formValues.certFile.name }}
+                <i class="fa fa-times red-icon" ng-if="!$ctrl.formValues.certFile" aria-hidden="true"></i>
+              </span>
+            </div>
+          </div>
+          <div class="form-group col-md-12" ng-show="$ctrl.sslForm.certFile.$invalid">
+            <div class="small text-warning">
+              <div ng-messages="$ctrl.sslForm.certFile.$error">
+                <p ng-message="pattern"> <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> File type is invalid.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <span class="col-sm-12">
+              Upload a private key, commonly a key, or a pem file.
+            </span>
+          </div>
+
+          <div class="form-group">
+            <div class="col-sm-12">
+              <button class="btn btn-sm btn-primary" ngf-select ng-model="$ctrl.formValues.keyFile" ngf-pattern="$ctrl.keyFilePattern" name="keyFile">
+                Select file
+              </button>
+              <span style="margin-left: 5px;">
+                {{ $ctrl.formValues.keyFile.name }}
+                <i class="fa fa-times red-icon" ng-if="!$ctrl.formValues.keyFile" aria-hidden="true"></i>
+              </span>
+            </div>
+          </div>
+          <div class="form-group col-md-12" ng-show="$ctrl.sslForm.keyFile.$invalid">
+            <div class="small text-warning">
+              <div ng-messages="$ctrl.sslForm.keyFile.$error">
+                <p ng-message="pattern"> <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> File type is invalid.</p>
+              </div>
+            </div>
+          </div>
+
+          <hr />
+          <div class="form-group">
+            <div class="col-sm-12">
+              <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                ng-disabled="$ctrl.state.actionInProgress || !$ctrl.isFormChanged()"
+                ng-click="$ctrl.save()"
+                button-spinner="$ctrl.state.actionInProgress"
+              >
+                <span ng-hide="$ctrl.state.actionInProgress">Apply Changes</span>
+                <span ng-show="$ctrl.state.actionInProgress">Saving in progress...</span>
+              </button>
+              <span class="text-danger" ng-if="state.formValidationError" style="margin-left: 5px;">{{ state.formValidationError }}</span>
+            </div>
+          </div>
+        </form>
+      </rd-widget-body>
+    </rd-widget>
+  </div>
+</div>

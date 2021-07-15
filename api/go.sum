@@ -240,8 +240,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/portainer/libcompose v0.5.3 h1:tE4WcPuGvo+NKeDkDWpwNavNLZ5GHIJ4RvuZXsI9uI8=
 github.com/portainer/libcompose v0.5.3/go.mod h1:7SKd/ho69rRKHDFSDUwkbMcol2TMKU5OslDsajr8Ro8=
-github.com/portainer/libcrypto v0.0.0-20190723020515-23ebe86ab2c2 h1:0PfgGLys9yHr4rtnirg0W0Cjvv6/DzxBIZk5sV59208=
-github.com/portainer/libcrypto v0.0.0-20190723020515-23ebe86ab2c2/go.mod h1:/wIeGwJOMYc1JplE/OvYMO5korce39HddIfI8VKGyAM=
+github.com/portainer/libcrypto v0.0.0-20210422035235-c652195c5c3a h1:qY8TbocN75n5PDl16o0uVr5MevtM5IhdwSelXEd4nFM=
+github.com/portainer/libcrypto v0.0.0-20210422035235-c652195c5c3a/go.mod h1:n54EEIq+MM0NNtqLeCby8ljL+l275VpolXO0ibHegLE=
 github.com/portainer/libhttp v0.0.0-20190806161843-ba068f58be33 h1:H8HR2dHdBf8HANSkUyVw4o8+4tegGcd+zyKZ3e599II=
 github.com/portainer/libhttp v0.0.0-20190806161843-ba068f58be33/go.mod h1:Y2TfgviWI4rT2qaOTHr+hq6MdKIE5YjgQAu7qwptTV0=
 github.com/prometheus/client_golang v0.9.1/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=

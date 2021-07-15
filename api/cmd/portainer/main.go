@@ -23,6 +23,7 @@ import (
 	"github.com/portainer/portainer/api/internal/authorization"
 	"github.com/portainer/portainer/api/internal/edge"
 	"github.com/portainer/portainer/api/internal/snapshot"
+	"github.com/portainer/portainer/api/internal/ssl"
 	"github.com/portainer/portainer/api/jwt"
 	"github.com/portainer/portainer/api/kubernetes"
 	kubecli "github.com/portainer/portainer/api/kubernetes/cli"
@@ -53,7 +54,7 @@ func initFileService(dataStorePath string) portainer.FileService {
 	return fileService
 }
 
-func initDataStore(dataStorePath string, fileService portainer.FileService) portainer.DataStore {
+func initDataStore(dataStorePath string, fileService portainer.FileService, shutdownCtx context.Context) portainer.DataStore {
 	store, err := bolt.NewStore(dataStorePath, fileService)
 	if err != nil {
 		log.Fatalf("failed creating data store: %v", err)
@@ -73,7 +74,14 @@ func initDataStore(dataStorePath string, fileService portainer.FileService) port
 	if err != nil {
 		log.Fatalf("failed migration: %v", err)
 	}
+
+	go shutdownDatastore(shutdownCtx, store)
 	return store
+}
+
+func shutdownDatastore(shutdownCtx context.Context, datastore portainer.DataStore) {
+	<-shutdownCtx.Done()
+	datastore.Close()
 }
 
 func initComposeStackManager(assetsPath string, dataStorePath string, reverseTunnelService portainer.ReverseTunnelService, proxyManager *proxy.Manager) portainer.ComposeStackManager {
@@ -130,6 +138,23 @@ func initGitService() portainer.GitService {
 	return git.NewService()
 }
 
+func initSSLService(addr, dataPath, certPath, keyPath string, fileService portainer.FileService, dataStore portainer.DataStore, shutdownTrigger context.CancelFunc) (*ssl.Service, error) {
+	slices := strings.Split(addr, ":")
+	host := slices[0]
+	if host == "" {
+		host = "0.0.0.0"
+	}
+
+	sslService := ssl.NewService(fileService, dataStore, shutdownTrigger)
+
+	err := sslService.Init(host, certPath, keyPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return sslService, nil
+}
+
 func initDockerClientFactory(signatureService portainer.DigitalSignatureService, reverseTunnelService portainer.ReverseTunnelService) *docker.ClientFactory {
 	return docker.NewClientFactory(signatureService, reverseTunnelService)
 }
@@ -176,7 +201,27 @@ func updateSettingsFromFlags(dataStore portainer.DataStore, flags *portainer.CLI
 		settings.BlackListedLabels = *flags.Labels
 	}
 
-	return dataStore.Settings().UpdateSettings(settings)
+	err = dataStore.Settings().UpdateSettings(settings)
+	if err != nil {
+		return err
+	}
+
+	httpEnabled := !*flags.HTTPDisabled
+	if httpEnabled {
+		sslSettings, err := dataStore.SSLSettings().Settings()
+		if err != nil {
+			return err
+		}
+
+		sslSettings.HTTPEnabled = httpEnabled
+
+		err = dataStore.SSLSettings().UpdateSettings(sslSettings)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func loadAndParseKeyPair(fileService portainer.FileService, signatureService portainer.DigitalSignatureService) error {
@@ -348,7 +393,7 @@ func buildServer(flags *portainer.CLIFlags) portainer.Server {
 
 	fileService := initFileService(*flags.Data)
 
-	dataStore := initDataStore(*flags.Data, fileService)
+	dataStore := initDataStore(*flags.Data, fileService, shutdownCtx)
 
 	if err := dataStore.CheckCurrentEdition(); err != nil {
 		log.Fatal(err)
@@ -368,6 +413,11 @@ func buildServer(flags *portainer.CLIFlags) portainer.Server {
 	cryptoService := initCryptoService()
 
 	digitalSignatureService := initDigitalSignatureService()
+
+	sslService, err := initSSLService(*flags.AddrHTTPS, *flags.Data, *flags.SSLCert, *flags.SSLKey, fileService, dataStore, shutdownTrigger)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	err = initKeyPair(fileService, digitalSignatureService)
 	if err != nil {
@@ -464,11 +514,18 @@ func buildServer(flags *portainer.CLIFlags) portainer.Server {
 		log.Fatalf("failed starting license service: %s", err)
 	}
 
+	sslSettings, err := dataStore.SSLSettings().Settings()
+	if err != nil {
+		log.Fatalf("failed to fetch ssl settings from DB")
+	}
+
 	return &http.Server{
 		AuthorizationService:        authorizationService,
 		ReverseTunnelService:        reverseTunnelService,
 		Status:                      applicationStatus,
 		BindAddress:                 *flags.Addr,
+		BindAddressHTTPS:            *flags.AddrHTTPS,
+		HTTPEnabled:                 sslSettings.HTTPEnabled,
 		AssetsPath:                  *flags.Assets,
 		DataStore:                   dataStore,
 		SwarmStackManager:           swarmStackManager,
@@ -484,9 +541,7 @@ func buildServer(flags *portainer.CLIFlags) portainer.Server {
 		KubernetesTokenCacheManager: kubernetesTokenCacheManager,
 		SignatureService:            digitalSignatureService,
 		SnapshotService:             snapshotService,
-		SSL:                         *flags.SSL,
-		SSLCert:                     *flags.SSLCert,
-		SSLKey:                      *flags.SSLKey,
+		SSLService:                  sslService,
 		DockerClientFactory:         dockerClientFactory,
 		KubernetesClientFactory:     kubernetesClientFactory,
 		ShutdownCtx:                 shutdownCtx,
@@ -499,7 +554,7 @@ func main() {
 
 	for {
 		server := buildServer(flags)
-		log.Printf("Starting Portainer %s on %s\n", portainer.APIVersion, *flags.Addr)
+		log.Printf("Starting Portainer version %s\n", portainer.APIVersion)
 		err := server.Start()
 		log.Printf("Http server exited: %s\n", err)
 	}

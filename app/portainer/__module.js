@@ -1,6 +1,7 @@
 import _ from 'lodash-es';
 
 import componentsModule from './components';
+import settingsModule from './settings';
 
 async function initAuthentication(authManager, Authentication, $rootScope, $state) {
   authManager.checkAuthOnRefresh();
@@ -17,7 +18,7 @@ async function initAuthentication(authManager, Authentication, $rootScope, $stat
   return await Authentication.init();
 }
 
-angular.module('portainer.app', ['portainer.oauth', componentsModule]).config([
+angular.module('portainer.app', ['portainer.oauth', componentsModule, settingsModule]).config([
   '$stateRegistryProvider',
   function ($stateRegistryProvider) {
     'use strict';

@@ -28,7 +28,7 @@ require (
 	github.com/orcaman/concurrent-map v0.0.0-20190826125027-8c72a8bb44f6
 	github.com/pkg/errors v0.9.1
 	github.com/portainer/libcompose v0.5.3
-	github.com/portainer/libcrypto v0.0.0-20190723020515-23ebe86ab2c2
+	github.com/portainer/libcrypto v0.0.0-20210422035235-c652195c5c3a
 	github.com/portainer/libhttp v0.0.0-20190806161843-ba068f58be33
 	github.com/stretchr/testify v1.6.1
 	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2

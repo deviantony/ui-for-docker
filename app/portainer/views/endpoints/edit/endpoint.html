@@ -39,20 +39,27 @@
           <label class="btn btn-primary" ng-model="state.platformType" uib-btn-radio="'windows'"><i class="fab fa-windows" style="margin-right: 2px;"></i> Windows</label>
         </div>
       </div>
+      <por-switch-field
+        label="Allow self-signed certs"
+        ng-model="state.allowSelfSignedCerts"
+        tooltip="When allowing self-signed certificates the edge agent will ignore the domain validation when connecting to Portainer via HTTPS"
+      ></por-switch-field>
       <div style="margin-top: 10px;">
         <uib-tabset active="state.deploymentTab">
-          <uib-tab index="0" ng-if="state.platformType === 'linux'" heading="Kubernetes">
-            <code style="display: block; white-space: pre-wrap; padding: 16px 90px;"
-              >curl https://downloads.portainer.io/portainer-edge-agent-setup.sh | sudo bash -s -- {{ randomEdgeID }} {{ endpoint.EdgeKey }}</code
-            >
+          <uib-tab index="'kubernetes'" heading="Kubernetes" ng-if="state.platformType === 'linux'">
+            <code style="display: block; white-space: pre-wrap; padding: 16px 45px;">
+              {{ dockerCommands[state.deploymentTab][state.platformType](randomEdgeID, endpoint.EdgeKey, state.allowSelfSignedCerts) }}
+            </code>
           </uib-tab>
-          <uib-tab index="1" heading="Docker Swarm">
-            <code ng-if="state.platformType === 'linux'" style="display: block; white-space: pre-wrap; padding: 16px 90px;">{{ dockerCommands.linuxSwarm }}</code>
-            <code ng-if="state.platformType === 'windows'" style="display: block; white-space: pre-wrap; padding: 16px 90px;">{{ dockerCommands.windowsSwarm }}</code>
+          <uib-tab index="'swarm'" heading="Docker Swarm">
+            <code style="display: block; white-space: pre-wrap; padding: 16px 45px;">
+              {{ dockerCommands[state.deploymentTab][state.platformType](randomEdgeID, endpoint.EdgeKey, state.allowSelfSignedCerts) }}
+            </code>
           </uib-tab>
-          <uib-tab index="2" heading="Docker Standalone">
-            <code ng-if="state.platformType === 'linux'" style="display: block; white-space: pre-wrap; padding: 16px 90px;">{{ dockerCommands.linuxStandalone }}</code>
-            <code ng-if="state.platformType === 'windows'" style="display: block; white-space: pre-wrap; padding: 16px 90px;">{{ dockerCommands.windowsStandalone }}</code>
+          <uib-tab index="'standalone'" heading="Docker Standalone">
+            <code style="display: block; white-space: pre-wrap; padding: 16px 45px;">
+              {{ dockerCommands[state.deploymentTab][state.platformType](randomEdgeID, endpoint.EdgeKey, state.allowSelfSignedCerts) }}
+            </code>
           </uib-tab>
         </uib-tabset>
         <div style="margin-top: 10px;">

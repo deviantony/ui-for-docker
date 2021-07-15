@@ -55,6 +55,22 @@ func (store *Store) Init() error {
 		return err
 	}
 
+	_, err = store.SSLSettings().Settings()
+	if err != nil {
+		if err != errors.ErrObjectNotFound {
+			return err
+		}
+
+		defaultSSLSettings := &portainer.SSLSettings{
+			HTTPEnabled: true,
+		}
+
+		err = store.SSLSettings().UpdateSettings(defaultSSLSettings)
+		if err != nil {
+			return err
+		}
+	}
+
 	groups, err := store.EndpointGroupService.EndpointGroups()
 	if err != nil {
 		return err

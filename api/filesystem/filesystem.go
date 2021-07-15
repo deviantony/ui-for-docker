@@ -50,6 +50,12 @@ const (
 	CustomTemplateStorePath = "custom_templates"
 	// TempPath represent the subfolder where temporary files are saved
 	TempPath = "tmp"
+	// SSLCertPath represents the default ssl certificates path
+	SSLCertPath = "certs"
+	// DefaultSSLCertFilename represents the default ssl certificate file name
+	DefaultSSLCertFilename = "cert.pem"
+	// DefaultSSLKeyFilename represents the default ssl key file name
+	DefaultSSLKeyFilename = "key.pem"
 )
 
 // ErrUndefinedTLSFileType represents an error returned on undefined TLS file type
@@ -70,6 +76,11 @@ func NewService(dataStorePath, fileStorePath string) (*Service, error) {
 	}
 
 	err := os.MkdirAll(dataStorePath, 0755)
+	if err != nil {
+		return nil, err
+	}
+
+	err = service.createDirectoryInStore(SSLCertPath)
 	if err != nil {
 		return nil, err
 	}
@@ -106,6 +117,66 @@ func (service *Service) RemoveDirectory(directoryPath string) error {
 // on its identifier.
 func (service *Service) GetStackProjectPath(stackIdentifier string) string {
 	return path.Join(service.fileStorePath, ComposeStorePath, stackIdentifier)
+}
+
+// Copy copies the file on fromFilePath to toFilePath
+// if toFilePath exists func will fail unless deleteIfExists is true
+func (service *Service) Copy(fromFilePath string, toFilePath string, deleteIfExists bool) error {
+	exists, err := service.FileExists(fromFilePath)
+	if err != nil {
+		return err
+	}
+
+	if !exists {
+		return errors.New("File doesn't exist")
+	}
+
+	finput, err := os.Open(fromFilePath)
+	if err != nil {
+		return err
+	}
+
+	defer finput.Close()
+
+	exists, err = service.FileExists(toFilePath)
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		if !deleteIfExists {
+			return errors.New("Destination file exists")
+		}
+
+		err := os.Remove(toFilePath)
+		if err != nil {
+			return err
+		}
+	}
+
+	foutput, err := os.Create(toFilePath)
+	if err != nil {
+		return err
+	}
+
+	defer foutput.Close()
+
+	buf := make([]byte, 1024)
+	for {
+		n, err := finput.Read(buf)
+		if err != nil && err != io.EOF {
+			return err
+		}
+		if n == 0 {
+			break
+		}
+
+		if _, err := foutput.Write(buf[:n]); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // StoreStackFileFromBytes creates a subfolder in the ComposeStorePath and stores a new file from bytes.
@@ -505,6 +576,49 @@ func (service *Service) GetTemporaryPath() (string, error) {
 // GetDataStorePath returns path to data folder
 func (service *Service) GetDatastorePath() string {
 	return service.dataStorePath
+}
+
+// GetDefaultSSLCertsPath returns the ssl certs path
+func (service *Service) GetDefaultSSLCertsPath() (string, string) {
+	certPath := path.Join(service.fileStorePath, SSLCertPath, DefaultSSLCertFilename)
+	keyPath := path.Join(service.fileStorePath, SSLCertPath, DefaultSSLKeyFilename)
+	return certPath, keyPath
+}
+
+// StoreSSLCertPair stores a ssl certificate pair
+func (service *Service) StoreSSLCertPair(cert, key []byte) (string, string, error) {
+	certPath, keyPath := service.GetDefaultSSLCertsPath()
+
+	r := bytes.NewReader(cert)
+	err := service.createFileInStore(certPath, r)
+	if err != nil {
+		return "", "", err
+	}
+
+	r = bytes.NewReader(key)
+	err = service.createFileInStore(keyPath, r)
+	if err != nil {
+		return "", "", err
+	}
+
+	return certPath, keyPath, nil
+}
+
+// CopySSLCertPair copies a ssl certificate pair
+func (service *Service) CopySSLCertPair(certPath, keyPath string) (string, string, error) {
+	defCertPath, defKeyPath := service.GetDefaultSSLCertsPath()
+
+	err := service.Copy(certPath, defCertPath, false)
+	if err != nil {
+		return "", "", err
+	}
+
+	err = service.Copy(keyPath, defKeyPath, false)
+	if err != nil {
+		return "", "", err
+	}
+
+	return defCertPath, defKeyPath, nil
 }
 
 // FileExists checks for the existence of the specified file.
