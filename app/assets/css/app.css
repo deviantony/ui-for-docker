@@ -6,6 +6,7 @@ body,
 #view {
   height: 100%;
   width: 100%;
+  overflow-y: initial;
 }
 
 #view {
