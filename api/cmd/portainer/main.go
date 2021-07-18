@@ -514,10 +514,7 @@ func buildServer(flags *portainer.CLIFlags) portainer.Server {
 		log.Fatalf("failed starting license service: %s", err)
 	}
 
-	sslSettings, err := dataStore.SSLSettings().Settings()
-	if err != nil {
-		log.Fatalf("failed to fetch ssl settings from DB")
-	}
+	httpEnabled := !*flags.HTTPDisabled
 
 	return &http.Server{
 		AuthorizationService:        authorizationService,
@@ -525,7 +522,7 @@ func buildServer(flags *portainer.CLIFlags) portainer.Server {
 		Status:                      applicationStatus,
 		BindAddress:                 *flags.Addr,
 		BindAddressHTTPS:            *flags.AddrHTTPS,
-		HTTPEnabled:                 sslSettings.HTTPEnabled,
+		HTTPEnabled:                 httpEnabled,
 		AssetsPath:                  *flags.Assets,
 		DataStore:                   dataStore,
 		SwarmStackManager:           swarmStackManager,
@@ -554,8 +551,8 @@ func main() {
 
 	for {
 		server := buildServer(flags)
-		log.Printf("Starting Portainer version %s\n", portainer.APIVersion)
+		log.Printf("[INFO] [cmd,main] Starting Portainer version %s\n", portainer.APIVersion)
 		err := server.Start()
-		log.Printf("Http server exited: %s\n", err)
+		log.Printf("[INFO] [cmd,main] Http server exited: %s\n", err)
 	}
 }

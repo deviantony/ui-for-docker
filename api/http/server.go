@@ -253,7 +253,7 @@ func (server *Server) Start() error {
 
 	if server.HTTPEnabled {
 		go func() {
-			log.Printf("Starting HTTP server on port %s\n", server.BindAddress)
+			log.Printf("[INFO] [http,server] [message: starting HTTP server on port %s]", server.BindAddress)
 			httpServer := &http.Server{
 				Addr:    server.BindAddress,
 				Handler: handler,
@@ -267,7 +267,7 @@ func (server *Server) Start() error {
 		}()
 	}
 
-	log.Printf("Starting HTTPS server on port %s\n", server.BindAddressHTTPS)
+	log.Printf("[INFO] [http,server] [message: starting HTTPS server on port %s]", server.BindAddressHTTPS)
 	httpsServer := &http.Server{
 		Addr:    server.BindAddressHTTPS,
 		Handler: handler,
@@ -285,12 +285,12 @@ func (server *Server) Start() error {
 func shutdown(shutdownCtx context.Context, httpServer *http.Server) {
 	<-shutdownCtx.Done()
 
-	log.Println("[DEBUG] Shutting down http server")
+	log.Println("[DEBUG] [http,server] [message: shutting down http server]")
 	shutdownTimeout, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	err := httpServer.Shutdown(shutdownTimeout)
 	if err != nil {
-		fmt.Printf("Failed shutdown http server: %s \n", err)
+		fmt.Printf("[ERROR] [http,server] [message: failed shutdown http server] [error: %s]", err)
 	}
 }

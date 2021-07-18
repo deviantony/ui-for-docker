@@ -78,6 +78,7 @@ module.exports = {
       '/api': 'http://localhost:9000',
     },
     open: true,
+    writeToDisk: true,
   },
   plugins: [
     new HtmlWebpackPlugin({

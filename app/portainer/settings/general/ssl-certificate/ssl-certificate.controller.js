@@ -18,6 +18,7 @@ class SslCertificateController {
 
     this.state = {
       actionInProgress: false,
+      reloadingPage: false,
     };
 
     const pemPattern = '.pem';
@@ -42,8 +43,9 @@ class SslCertificateController {
 
         if (this.formValues.forceHTTPS !== this.originalValues.forceHTTPS) {
           await new Promise((resolve) => setTimeout(resolve, 2000));
+          location.reload();
+          this.state.reloadingPage = true;
         }
-        this.$state.reload();
       } catch (err) {
         this.Notifications.error('Failure', err, 'Failed applying changes');
       }

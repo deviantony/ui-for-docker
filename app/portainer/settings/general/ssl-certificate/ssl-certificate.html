@@ -81,8 +81,9 @@
                 ng-click="$ctrl.save()"
                 button-spinner="$ctrl.state.actionInProgress"
               >
-                <span ng-hide="$ctrl.state.actionInProgress">Apply Changes</span>
+                <span ng-hide="$ctrl.state.actionInProgress || $ctrl.state.reloadingPage">Apply Changes</span>
                 <span ng-show="$ctrl.state.actionInProgress">Saving in progress...</span>
+                <span ng-show="$ctrl.state.reloadingPage">Reloading Page...</span>
               </button>
               <span class="text-danger" ng-if="state.formValidationError" style="margin-left: 5px;">{{ state.formValidationError }}</span>
             </div>

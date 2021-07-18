@@ -23,23 +23,6 @@ func (payload *sslUpdatePayload) Validate(r *http.Request) error {
 	return nil
 }
 
-// @id RegistryUpdate
-// @summary Update a registry
-// @description Update a registry
-// @description **Access policy**: administrator
-// @tags registries
-// @security jwt
-// @accept json
-// @produce json
-// @param id path int true "Registry identifier"
-// @param body body registryUpdatePayload true "Registry details"
-// @success 200 {object} portainer.Registry "Success"
-// @failure 400 "Invalid request"
-// @failure 404 "Registry not found"
-// @failure 409 "Another registry with the same URL already exists"
-// @failure 500 "Server error"
-// @router /registries/{id} [put]
-
 // @id SSLUpdate
 // @summary Update the ssl settings
 // @description Update the ssl settings.
