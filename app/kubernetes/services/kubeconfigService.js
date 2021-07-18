@@ -8,12 +8,8 @@ class KubernetesConfigService {
   }
 
   async downloadConfig() {
-    try {
-      const response = await this.KubernetesConfig.get();
-      return this.FileSaver.saveAs(response.data, 'config.yaml');
-    } catch (err) {
-      throw err;
-    }
+    const response = await this.KubernetesConfig.get();
+    return this.FileSaver.saveAs(response.data, 'config');
   }
 }
 
