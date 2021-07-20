@@ -74,6 +74,7 @@ func NewService() *Service {
 	httpsCli := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			Proxy:           http.ProxyFromEnvironment,
 		},
 		Timeout: 300 * time.Second,
 	}
