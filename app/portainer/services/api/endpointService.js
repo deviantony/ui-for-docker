@@ -40,6 +40,10 @@ angular.module('portainer.app').factory('EndpointService', [
       return Endpoints.updateAccess({ id: id }, { UserAccessPolicies: userAccessPolicies, TeamAccessPolicies: teamAccessPolicies }).$promise;
     };
 
+    service.deassociateEndpoint = function (endpointID) {
+      return Endpoints.deassociate({ id: endpointID }).$promise;
+    };
+
     service.updateEndpoint = function (id, payload) {
       var deferred = $q.defer();
       FileUploadService.uploadTLSFilesForEndpoint(id, payload.TLSCACert, payload.TLSCert, payload.TLSKey)

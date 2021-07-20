@@ -16,6 +16,7 @@ angular.module('portainer.app').factory('Endpoints', [
         },
         get: { method: 'GET', params: { id: '@id' } },
         update: { method: 'PUT', params: { id: '@id' } },
+        deassociate: { method: 'DELETE', params: { id: '@id', action: 'association' } },
         updateAccess: { method: 'PUT', params: { id: '@id', action: 'access' } },
         remove: { method: 'DELETE', params: { id: '@id' } },
         snapshots: { method: 'POST', params: { action: 'snapshot' } },

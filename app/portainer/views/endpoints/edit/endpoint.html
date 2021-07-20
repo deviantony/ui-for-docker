@@ -22,6 +22,11 @@
       <p>
         Edge identifier: <code>{{ endpoint.EdgeID }}</code>
       </p>
+      <p>
+        <button type="button" class="btn btn-primary btn-sm" ng-disabled="state.actionInProgress" ng-click="onDeassociateEndpoint()" button-spinner="state.actionInProgress">
+          <span ng-hide="state.actionInProgress">De-associate</span>
+        </button>
+      </p>
     </span>
   </information-panel>
   <information-panel ng-if="state.edgeEndpoint && !endpoint.EdgeID" title-text="Deploy an agent">

@@ -152,6 +152,24 @@ angular.module('portainer.app').factory('ModalService', [
       });
     };
 
+    service.confirmDeassociate = function (callback) {
+      const message =
+        '<p>De-associating this Edge endpoint will mark it as non associated and will clear the registered Edge ID.</p>' +
+        '<p>Any agent started with the Edge key associated to this endpoint will be able to re-associate with this endpoint.</p>' +
+        '<p>You can re-use the Edge ID and Edge key that you used to deploy the existing Edge agent to associate a new Edge device to this endpoint.</p>';
+      service.confirm({
+        title: 'About de-associating',
+        message: $sanitize(message),
+        buttons: {
+          confirm: {
+            label: 'De-associate',
+            className: 'btn-primary',
+          },
+        },
+        callback: callback,
+      });
+    };
+
     service.confirmUpdate = function (message, callback) {
       message = $sanitize(message);
       service.confirm({

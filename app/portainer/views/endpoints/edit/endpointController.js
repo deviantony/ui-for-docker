@@ -19,7 +19,8 @@ angular
     EndpointProvider,
     Notifications,
     Authentication,
-    SettingsService
+    SettingsService,
+    ModalService
   ) {
     $scope.state = {
       uploadInProgress: false,
@@ -110,6 +111,29 @@ angular
         $scope.endpoint.TagIds = $scope.endpoint.TagIds.concat(tag.Id);
       } catch (err) {
         Notifications.error('Failue', err, 'Unable to create tag');
+      }
+    }
+
+    $scope.onDeassociateEndpoint = async function () {
+      ModalService.confirmDeassociate((confirmed) => {
+        if (confirmed) {
+          deassociateEndpoint();
+        }
+      });
+    };
+
+    async function deassociateEndpoint() {
+      var endpoint = $scope.endpoint;
+
+      try {
+        $scope.state.actionInProgress = true;
+        await EndpointService.deassociateEndpoint(endpoint.Id);
+        Notifications.success('Endpoint de-associated', $scope.endpoint.Name);
+        $state.reload();
+      } catch (err) {
+        Notifications.error('Failure', err, 'Unable to de-associate endpoint');
+      } finally {
+        $scope.state.actionInProgress = false;
       }
     }
 
