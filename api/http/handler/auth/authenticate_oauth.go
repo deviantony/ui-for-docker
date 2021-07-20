@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/asaskevich/govalidator"
 	httperror "github.com/portainer/libhttp/error"
@@ -26,21 +25,21 @@ func (payload *oauthPayload) Validate(r *http.Request) error {
 	return nil
 }
 
-func (handler *Handler) authenticateOAuth(code string, settings *portainer.OAuthSettings) (string, *time.Time, error) {
+func (handler *Handler) authenticateOAuth(code string, settings *portainer.OAuthSettings) (string, error) {
 	if code == "" {
-		return "", nil, errors.New("Invalid OAuth authorization code")
+		return "", errors.New("Invalid OAuth authorization code")
 	}
 
 	if settings == nil {
-		return "", nil, errors.New("Invalid OAuth configuration")
+		return "", errors.New("Invalid OAuth configuration")
 	}
 
-	username, expiryTime, err := handler.OAuthService.Authenticate(code, settings)
+	username, err := handler.OAuthService.Authenticate(code, settings)
 	if err != nil {
-		return "", nil, err
+		return "", err
 	}
 
-	return username, expiryTime, nil
+	return username, nil
 }
 
 // @id ValidateOAuth
@@ -70,7 +69,7 @@ func (handler *Handler) validateOAuth(w http.ResponseWriter, r *http.Request) *h
 		return &httperror.HandlerError{StatusCode: http.StatusForbidden, Message: "OAuth authentication is not enabled", Err: errors.New("OAuth authentication is not enabled")}
 	}
 
-	username, expiryTime, err := handler.authenticateOAuth(payload.Code, &settings.OAuthSettings)
+	username, err := handler.authenticateOAuth(payload.Code, &settings.OAuthSettings)
 	if err != nil {
 		log.Printf("[DEBUG] - OAuth authentication error: %s", err)
 		return &httperror.HandlerError{StatusCode: http.StatusInternalServerError, Message: "Unable to authenticate through OAuth", Err: httperrors.ErrUnauthorized}
@@ -111,5 +110,5 @@ func (handler *Handler) validateOAuth(w http.ResponseWriter, r *http.Request) *h
 
 	}
 
-	return handler.writeTokenForOAuth(w, user, expiryTime)
+	return handler.writeToken(w, user)
 }

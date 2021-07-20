@@ -1201,7 +1201,7 @@ type (
 
 	// OAuthService represents a service used to authenticate users using OAuth
 	OAuthService interface {
-		Authenticate(code string, configuration *OAuthSettings) (string, *time.Time, error)
+		Authenticate(code string, configuration *OAuthSettings) (string, error)
 	}
 
 	// RegistryService represents a service for managing registry data

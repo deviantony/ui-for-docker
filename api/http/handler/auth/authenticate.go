@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/asaskevich/govalidator"
 	httperror "github.com/portainer/libhttp/error"
@@ -132,14 +131,6 @@ func (handler *Handler) authenticateLDAPAndCreateUser(w http.ResponseWriter, use
 
 func (handler *Handler) writeToken(w http.ResponseWriter, user *portainer.User) *httperror.HandlerError {
 	return handler.persistAndWriteToken(w, composeTokenData(user))
-}
-
-func (handler *Handler) writeTokenForOAuth(w http.ResponseWriter, user *portainer.User, expiryTime *time.Time) *httperror.HandlerError {
-	token, err := handler.JWTService.GenerateTokenForOAuth(composeTokenData(user), expiryTime)
-	if err != nil {
-		return &httperror.HandlerError{StatusCode: http.StatusInternalServerError, Message: "Unable to generate JWT token", Err: err}
-	}
-	return response.JSON(w, &authenticateResponse{JWT: token})
 }
 
 func (handler *Handler) persistAndWriteToken(w http.ResponseWriter, tokenData *portainer.TokenData) *httperror.HandlerError {

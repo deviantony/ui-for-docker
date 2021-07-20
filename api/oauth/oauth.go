@@ -9,7 +9,6 @@ import (
 	"mime"
 	"net/http"
 	"net/url"
-	"time"
 
 	"golang.org/x/oauth2"
 
@@ -27,18 +26,18 @@ func NewService() *Service {
 // Authenticate takes an access code and exchanges it for an access token from portainer OAuthSettings token endpoint.
 // On success, it will then return the username and token expiry time associated to authenticated user by fetching this information
 // from the resource server and matching it with the user identifier setting.
-func (*Service) Authenticate(code string, configuration *portainer.OAuthSettings) (string, *time.Time, error) {
+func (*Service) Authenticate(code string, configuration *portainer.OAuthSettings) (string, error) {
 	token, err := getOAuthToken(code, configuration)
 	if err != nil {
 		log.Printf("[DEBUG] - Failed retrieving access token: %v", err)
-		return "", nil, err
+		return "", err
 	}
 	username, err := getUsername(token.AccessToken, configuration)
 	if err != nil {
 		log.Printf("[DEBUG] - Failed retrieving oauth user name: %v", err)
-		return "", nil, err
+		return "", err
 	}
-	return username, &token.Expiry, nil
+	return username, nil
 }
 
 func getOAuthToken(code string, configuration *portainer.OAuthSettings) (*oauth2.Token, error) {
