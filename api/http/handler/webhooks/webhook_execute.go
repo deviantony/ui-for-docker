@@ -76,7 +76,7 @@ func (handler *Handler) executeServiceWebhook(w http.ResponseWriter, endpoint *p
 	service.Spec.TaskTemplate.ForceUpdate++
 
 	if imageTag != "" {
-		service.Spec.TaskTemplate.ContainerSpec.Image = strings.Split(service.Spec.TaskTemplate.ContainerSpec.Image, ":")[0] + ":" + imageTag
+		service.Spec.TaskTemplate.ContainerSpec.Image = string(service.Spec.TaskTemplate.ContainerSpec.Image[:strings.LastIndex(service.Spec.TaskTemplate.ContainerSpec.Image, ":")]) + ":" + imageTag
 	} else {
 		service.Spec.TaskTemplate.ContainerSpec.Image = strings.Split(service.Spec.TaskTemplate.ContainerSpec.Image, "@sha")[0]
 	}
