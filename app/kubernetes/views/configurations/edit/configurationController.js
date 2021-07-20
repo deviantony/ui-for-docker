@@ -289,6 +289,7 @@ class KubernetesConfigurationController {
     if (this.state.currentName !== this.$state.$current.name) {
       this.LocalStorage.storeActiveTab('configuration', 0);
     }
+    this.state.isEditorDirty = false;
   }
 }
 

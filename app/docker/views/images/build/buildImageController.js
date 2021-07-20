@@ -23,6 +23,10 @@ function BuildImageController($scope, $async, $window, ModalService, BuildServic
     }
   };
 
+  $scope.$on('$destroy', function () {
+    $scope.state.isEditorDirty = false;
+  });
+
   $scope.addImageName = function () {
     $scope.formValues.ImageNames.push({ Name: '' });
   };

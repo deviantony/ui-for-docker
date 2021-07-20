@@ -53,6 +53,10 @@ angular
       }
     };
 
+    $scope.$on('$destroy', function() {
+      $scope.state.isEditorDirty = false;
+    })
+
     $scope.onChangeFormValues = onChangeFormValues;
 
     $scope.addEnvironmentVariable = function () {

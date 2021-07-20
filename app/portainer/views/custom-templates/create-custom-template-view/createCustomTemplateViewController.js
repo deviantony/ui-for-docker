@@ -189,6 +189,10 @@ class CreateCustomTemplateViewController {
     };
   }
 
+  $onDestroy() {
+    this.state.isEditorDirty = false;
+  }
+
   async uiCanExit() {
     if (this.state.Method === 'editor' && this.formValues.FileContent && this.state.isEditorDirty) {
       return this.ModalService.confirmWebEditorDiscard();

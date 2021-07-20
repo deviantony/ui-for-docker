@@ -123,6 +123,10 @@ class EditCustomTemplateViewController {
       }
     };
   }
+
+  $onDestroy() {
+    this.state.isEditorDirty = false;
+  }
 }
 
 export default EditCustomTemplateViewController;

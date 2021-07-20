@@ -77,4 +77,8 @@ export class CreateEdgeJobViewController {
       }
     };
   }
+
+  $onDestroy() {
+    this.state.isEditorDirty = false;
+  }
 }

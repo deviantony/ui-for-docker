@@ -71,6 +71,10 @@ export class CreateEdgeStackViewController {
     };
   }
 
+  $onDestroy() {
+    this.state.isEditorDirty = false;
+  }
+
   createStack() {
     return this.$async(this.createStackAsync);
   }

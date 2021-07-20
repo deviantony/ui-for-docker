@@ -70,6 +70,10 @@ angular.module('portainer.app').controller('StackController', [
       }
     };
 
+    $scope.$on('$destroy', function() {
+      $scope.state.isEditorDirty = false;
+    })
+
     $scope.handleEnvVarChange = handleEnvVarChange;
     function handleEnvVarChange(value) {
       $scope.formValues.Env = value;

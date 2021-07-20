@@ -114,6 +114,10 @@ class KubernetesCreateConfigurationController {
   $onInit() {
     return this.$async(this.onInit);
   }
+
+  $onDestroy() {
+    this.state.isEditorDirty = false;
+  }
 }
 
 export default KubernetesCreateConfigurationController;

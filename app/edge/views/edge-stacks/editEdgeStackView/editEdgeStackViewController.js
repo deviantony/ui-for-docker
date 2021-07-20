@@ -53,6 +53,10 @@ export class EditEdgeStackViewController {
     };
   }
 
+  $onDestroy() {
+    this.state.isEditorDirty = false;
+  }
+
   async uiCanExit() {
     if (this.formValues.StackFileContent !== this.oldFileContent && this.state.isEditorDirty) {
       return this.ModalService.confirmWebEditorDiscard();

@@ -170,4 +170,8 @@ export class EdgeJobController {
       }
     };
   }
+
+  $onDestroy() {
+    this.state.isEditorDirty = false;
+  }
 }
