@@ -22,7 +22,7 @@ import (
 // @failure 400 "Invalid request"
 // @failure 404 "EndpointGroup not found"
 // @failure 500 "Server error"
-// @router /endpoint_groups/:id [get]
+// @router /endpoint_groups/{id} [get]
 func (handler *Handler) endpointGroupInspect(w http.ResponseWriter, r *http.Request) *httperror.HandlerError {
 	endpointGroupID, err := request.RetrieveNumericRouteVariableValue(r, "id")
 	if err != nil {

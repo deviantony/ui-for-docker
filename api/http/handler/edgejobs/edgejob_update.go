@@ -40,7 +40,7 @@ func (payload *edgeJobUpdatePayload) Validate(r *http.Request) error {
 // @success 200 {object} portainer.EdgeJob
 // @failure 500
 // @failure 400
-// @failure 503 Edge compute features are disabled
+// @failure 503 "Edge compute features are disabled"
 // @router /edge_jobs/{id} [post]
 func (handler *Handler) edgeJobUpdate(w http.ResponseWriter, r *http.Request) *httperror.HandlerError {
 	edgeJobID, err := request.RetrieveNumericRouteVariableValue(r, "id")

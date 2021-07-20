@@ -31,7 +31,7 @@ import (
 // @param tagsPartialMatch query bool false "If true, will return endpoint which has one of tagIds, if false (or missing) will return only endpoints that has all the tags"
 // @param endpointIds query []int false "will return only these endpoints"
 // @success 200 {array} portainer.Endpoint "Endpoints"
-// @failure 500 Server error
+// @failure 500 "Server error"
 // @router /endpoints [get]
 func (handler *Handler) endpointList(w http.ResponseWriter, r *http.Request) *httperror.HandlerError {
 	start, _ := request.RetrieveNumericQueryParameter(r, "start", true)

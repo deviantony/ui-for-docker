@@ -49,7 +49,7 @@ func (payload *endpointSettingsUpdatePayload) Validate(r *http.Request) error {
 // @failure 400 "Invalid request"
 // @failure 404 "Endpoint not found"
 // @failure 500 "Server error"
-// @router /api/endpoints/:id/settings [put]
+// @router /api/endpoints/{id}/settings [put]
 func (handler *Handler) endpointSettingsUpdate(w http.ResponseWriter, r *http.Request) *httperror.HandlerError {
 	endpointID, err := request.RetrieveNumericRouteVariableValue(r, "id")
 	if err != nil {

@@ -38,7 +38,7 @@ func (handler *Handler) cleanUp(stack *portainer.Stack, doCleanUp *bool) error {
 // @description **Access policy**: restricted
 // @tags stacks
 // @security jwt
-// @accept json, multipart/form-data
+// @accept json,multipart/form-data
 // @produce json
 // @param type query int true "Stack deployment type. Possible values: 1 (Swarm stack) or 2 (Compose stack)." Enums(1,2)
 // @param method query string true "Stack deployment method. Possible values: file, string or repository." Enums(string, file, repository)

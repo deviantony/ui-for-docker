@@ -29,7 +29,7 @@ import (
 // @param body_repository body swarmStackFromGitRepositoryPayload true "Required when using method=repository"
 // @success 200 {object} portainer.EdgeStack
 // @failure 500
-// @failure 503 Edge compute features are disabled
+// @failure 503 "Edge compute features are disabled"
 // @router /edge_stacks [post]
 func (handler *Handler) edgeStackCreate(w http.ResponseWriter, r *http.Request) *httperror.HandlerError {
 	method, err := request.RetrieveQueryParameter(r, "method", false)

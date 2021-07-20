@@ -21,7 +21,7 @@ import (
 // @description **Access policy**: authenticated
 // @tags custom_templates
 // @security jwt
-// @accept json, multipart/form-data
+// @accept json,multipart/form-data
 // @produce json
 // @param method query string true "method for creating template" Enums(string, file, repository)
 // @param body_string body customTemplateFromFileContentPayload false "Required when using method=string"

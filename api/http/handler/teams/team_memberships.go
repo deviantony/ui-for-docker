@@ -18,6 +18,7 @@ import (
 // @tags team_memberships
 // @security jwt
 // @produce json
+// @param id path string true "Team Id"
 // @success 200 {array} portainer.TeamMembership "Success"
 // @failure 400 "Invalid request"
 // @failure 403 "Permission denied"

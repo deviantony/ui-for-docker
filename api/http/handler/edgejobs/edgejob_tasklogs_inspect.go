@@ -25,7 +25,7 @@ type fileResponse struct {
 // @success 200 {object} fileResponse
 // @failure 500
 // @failure 400
-// @failure 503 Edge compute features are disabled
+// @failure 503 "Edge compute features are disabled"
 // @router /edge_jobs/{id}/tasks/{taskID}/logs [get]
 func (handler *Handler) edgeJobTaskLogsInspect(w http.ResponseWriter, r *http.Request) *httperror.HandlerError {
 	edgeJobID, err := request.RetrieveNumericRouteVariableValue(r, "id")

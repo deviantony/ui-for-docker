@@ -65,14 +65,14 @@ type Handler struct {
 }
 
 // @title PortainerCE API
-// @version 2.1.1
+// @version 2.5.1
 // @description.markdown api-description.md
 // @termsOfService
 
 // @contact.email info@portainer.io
 
-// @license.name
-// @license.url
+// @license.name zlib
+// @license.url https://github.com/portainer/portainer/blob/develop/LICENSE
 
 // @host
 // @BasePath /api
@@ -112,8 +112,6 @@ type Handler struct {
 // @tag.description Manage Portainer settings
 // @tag.name status
 // @tag.description Information about the Portainer instance
-// @tag.name stacks
-// @tag.description Manage Docker stacks
 // @tag.name users
 // @tag.description Manage users
 // @tag.name tags

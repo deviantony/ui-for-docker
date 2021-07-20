@@ -19,7 +19,7 @@ import (
 // @produce json
 // @param id path int true "EdgeGroup Id"
 // @success 200 {object} portainer.EdgeGroup
-// @failure 503 Edge compute features are disabled
+// @failure 503 "Edge compute features are disabled"
 // @failure 500
 // @router /edge_groups/{id} [get]
 func (handler *Handler) edgeGroupInspect(w http.ResponseWriter, r *http.Request) *httperror.HandlerError {

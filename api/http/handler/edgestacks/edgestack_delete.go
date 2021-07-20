@@ -22,7 +22,7 @@ import (
 // @success 204
 // @failure 500
 // @failure 400
-// @failure 503 Edge compute features are disabled
+// @failure 503 "Edge compute features are disabled"
 // @router /edge_stacks/{id} [delete]
 func (handler *Handler) edgeStackDelete(w http.ResponseWriter, r *http.Request) *httperror.HandlerError {
 	edgeStackID, err := request.RetrieveNumericRouteVariableValue(r, "id")

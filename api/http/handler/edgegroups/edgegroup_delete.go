@@ -20,7 +20,7 @@ import (
 // @produce json
 // @param id path int true "EdgeGroup Id"
 // @success 204
-// @failure 503 Edge compute features are disabled
+// @failure 503 "Edge compute features are disabled"
 // @failure 500
 // @router /edge_groups/{id} [delete]
 func (handler *Handler) edgeGroupDelete(w http.ResponseWriter, r *http.Request) *httperror.HandlerError {

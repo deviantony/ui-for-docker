@@ -23,7 +23,7 @@ type configResponse struct {
 // @accept json
 // @produce json
 // @param id path string true "Endpoint Id"
-// @param stackID path string true "EdgeStack Id"
+// @param stackId path string true "EdgeStack Id"
 // @success 200 {object} configResponse
 // @failure 500
 // @failure 400

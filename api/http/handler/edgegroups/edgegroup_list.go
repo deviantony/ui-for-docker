@@ -22,7 +22,7 @@ type decoratedEdgeGroup struct {
 // @produce json
 // @success 200 {array} portainer.EdgeGroup{HasEdgeStack=bool} "EdgeGroups"
 // @failure 500
-// @failure 503 Edge compute features are disabled
+// @failure 503 "Edge compute features are disabled"
 // @router /edge_groups [get]
 func (handler *Handler) edgeGroupList(w http.ResponseWriter, r *http.Request) *httperror.HandlerError {
 	edgeGroups, err := handler.DataStore.EdgeGroup().EdgeGroups()
