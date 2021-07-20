@@ -20,7 +20,7 @@ angular.module('portainer.integrations.storidge').factory('StoridgeSnapshotServi
           var snapshotsData = data.snapshots;
           let snapshotsArray = [];
           for (const key in snapshotsData) {
-            if (snapshotsData.hasOwnProperty(key)) {
+            if (Object.prototype.hasOwnProperty.call(snapshotsData, key)) {
               snapshotsArray.push(snapshotsData[key]);
             }
           }
