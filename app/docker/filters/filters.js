@@ -322,4 +322,7 @@ angular
       }
       return fullName.substring(0, versionIdx);
     };
+  })
+  .filter('unique', function () {
+    return _.uniqBy;
   });

@@ -262,7 +262,7 @@
               <td ng-show="$ctrl.columnVisibility.columns.ports.display">
                 <a
                   ng-if="item.Ports.length > 0"
-                  ng-repeat="p in item.Ports"
+                  ng-repeat="p in item.Ports | unique: 'public'"
                   class="image-tag"
                   ng-href="http://{{ $ctrl.state.publicURL || p.host }}:{{ p.public }}"
                   target="_blank"
