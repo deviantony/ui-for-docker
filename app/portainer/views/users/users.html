@@ -42,6 +42,12 @@
             </div>
           </div>
           <!-- !new-password-input -->
+          <div class="form-group" ng-if="AuthenticationMethod === 1">
+            <div class="col-sm-12">
+              <i ng-class="{ true: 'fa fa-check green-icon', false: 'fa fa-times red-icon' }[formValues.Password.length >= 8]" aria-hidden="true"></i>
+              <span class="small text-muted">Password must be at least 8 characters long</span>
+            </div>
+          </div>
           <!-- confirm-password-input -->
           <div class="form-group" ng-if="AuthenticationMethod === 1">
             <label for="confirm_password" class="col-sm-3 col-lg-2 control-label text-left">Confirm password</label>
@@ -112,7 +118,7 @@
               <button
                 type="button"
                 class="btn btn-primary btn-sm"
-                ng-disabled="state.actionInProgress || !state.validUsername || formValues.Username === '' || (AuthenticationMethod === 1 && formValues.Password === '') || (AuthenticationMethod === 1 && formValues.Password !== formValues.ConfirmPassword)"
+                ng-disabled="state.actionInProgress || !state.validUsername || formValues.Username === '' || (AuthenticationMethod === 1 && formValues.Password.length < 8) || (AuthenticationMethod === 1 && formValues.Password !== formValues.ConfirmPassword)"
                 ng-click="addUser()"
                 button-spinner="state.actionInProgress"
               >
