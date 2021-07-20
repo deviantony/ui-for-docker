@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"regexp"
 	"strings"
 
 	portainer "github.com/portainer/portainer/api"
@@ -40,7 +41,8 @@ func (w *ComposeWrapper) ComposeSyntaxMaxVersion() string {
 
 // NormalizeStackName returns a new stack name with unsupported characters replaced
 func (w *ComposeWrapper) NormalizeStackName(name string) string {
-	return name
+	r := regexp.MustCompile("[^a-z0-9]+")
+	return r.ReplaceAllString(strings.ToLower(name), "")
 }
 
 // Up builds, (re)creates and starts containers in the background. Wraps `docker-compose up -d` command

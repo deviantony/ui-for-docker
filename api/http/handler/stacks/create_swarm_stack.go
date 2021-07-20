@@ -47,6 +47,8 @@ func (handler *Handler) createSwarmStackFromFileContent(w http.ResponseWriter, r
 		return &httperror.HandlerError{http.StatusBadRequest, "Invalid request payload", err}
 	}
 
+	payload.Name = handler.SwarmStackManager.NormalizeStackName(payload.Name)
+
 	isUnique, err := handler.checkUniqueName(endpoint, payload.Name, 0, true)
 	if err != nil {
 		return &httperror.HandlerError{http.StatusInternalServerError, "Unable to check for name collision", err}
@@ -148,6 +150,8 @@ func (handler *Handler) createSwarmStackFromGitRepository(w http.ResponseWriter,
 		return &httperror.HandlerError{http.StatusBadRequest, "Invalid request payload", err}
 	}
 
+	payload.Name = handler.SwarmStackManager.NormalizeStackName(payload.Name)
+
 	isUnique, err := handler.checkUniqueName(endpoint, payload.Name, 0, true)
 	if err != nil {
 		return &httperror.HandlerError{http.StatusInternalServerError, "Unable to check for name collision", err}
@@ -243,6 +247,8 @@ func (handler *Handler) createSwarmStackFromFileUpload(w http.ResponseWriter, r 
 	if err != nil {
 		return &httperror.HandlerError{http.StatusBadRequest, "Invalid request payload", err}
 	}
+
+	payload.Name = handler.SwarmStackManager.NormalizeStackName(payload.Name)
 
 	isUnique, err := handler.checkUniqueName(endpoint, payload.Name, 0, true)
 	if err != nil {

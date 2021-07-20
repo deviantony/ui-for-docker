@@ -8,7 +8,9 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"regexp"
 	"runtime"
+	"strings"
 
 	portainer "github.com/portainer/portainer/api"
 )
@@ -183,4 +185,9 @@ func (manager *SwarmStackManager) retrieveConfigurationFromDisk(path string) (ma
 	}
 
 	return config, nil
+}
+
+func (manager *SwarmStackManager) NormalizeStackName(name string) string {
+	r := regexp.MustCompile("[^a-z0-9]+")
+	return r.ReplaceAllString(strings.ToLower(name), "")
 }
