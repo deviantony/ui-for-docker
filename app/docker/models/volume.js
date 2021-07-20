@@ -19,8 +19,8 @@ export function VolumeViewModel(data) {
     if (data.Portainer.ResourceControl) {
       this.ResourceControl = new ResourceControlViewModel(data.Portainer.ResourceControl);
     }
-    if (data.Portainer.Agent && data.Portainer.Agent.NodeName) {
-      this.NodeName = data.Portainer.Agent.NodeName;
+    if (data.Portainer.Agent) {
+      this.NodeName = data.Portainer.Agent.NodeName || '';
     }
   }
 }
