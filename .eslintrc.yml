@@ -26,3 +26,4 @@ rules:
   no-empty-function: warn
   no-useless-escape: off
   import/order: error
+  no-console: off
