@@ -4,7 +4,7 @@
       <rd-widget-header icon="fa-file-alt" title-text="Log viewer settings"></rd-widget-header>
       <rd-widget-body>
         <form class="form-horizontal">
-          <div class="form-group">
+          <div class="form-group" ng-if="$ctrl.containerRunning">
             <div class="col-sm-12">
               <label for="tls" class="control-label text-left">
                 Auto-refresh logs
@@ -13,8 +13,9 @@
               <label class="switch" style="margin-left: 20px;">
                 <input
                   type="checkbox"
+                  ng-init="$ctrl.state.logCollection = $ctrl.containerRunning"
                   ng-model="$ctrl.state.logCollection"
-                  ng-change="$ctrl.state.autoScroll = $ctrl.state.logCollection; $ctrl.logCollectionChange($ctrl.state.logCollection)"
+                  ng-change="$ctrl.state.autoScroll = $ctrl.state.logCollection && $ctrl.containerRunning; $ctrl.logCollectionChange($ctrl.state.logCollection && $ctrl.containerRunning); $ctrl.state.logCollection = $ctrl.state.logCollection && $ctrl.containerRunning;"
                 /><i></i>
               </label>
             </div>

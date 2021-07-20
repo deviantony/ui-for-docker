@@ -13,10 +13,11 @@ angular.module('portainer.docker').controller('ContainerLogsController', [
       lineCount: 100,
       sinceTimestamp: '',
       displayTimestamps: false,
+      containerRunning: true,
     };
 
-    $scope.changeLogCollection = function (logCollectionStatus) {
-      if (!logCollectionStatus) {
+    $scope.changeLogCollection = function (autoRefreshStatus) {
+      if (!autoRefreshStatus) {
         stopRepeater();
       } else {
         setUpdateRepeater(!$scope.container.Config.Tty);
@@ -75,6 +76,7 @@ angular.module('portainer.docker').controller('ContainerLogsController', [
         .then(function success(data) {
           var container = data;
           $scope.container = container;
+          $scope.state.containerRunning = container.State.Running;
           startLogPolling(!container.Config.Tty);
         })
         .catch(function error(err) {
