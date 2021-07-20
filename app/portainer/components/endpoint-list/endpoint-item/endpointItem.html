@@ -102,7 +102,7 @@
           <span>
             <span style="padding: 0 7px 0 0;"> <i class="fa fa-microchip space-right" aria-hidden="true"></i>{{ $ctrl.model.Kubernetes.Snapshots[0].TotalCPU }} CPU </span>
             <span style="padding: 0 7px 0 7px;">
-              <i class="fa fa-memory space-right" aria-hidden="true"></i>{{ $ctrl.model.Kubernetes.Snapshots[0].TotalMemory | humansize }} RAM
+              <i class="fa fa-memory space-right" aria-hidden="true"></i>{{ $ctrl.model.Kubernetes.Snapshots[0].TotalMemory | humansize: 2:2 }} RAM
             </span>
           </span>
         </span>
@@ -125,7 +125,7 @@
         <span class="small text-muted">
           <span ng-if="$ctrl.model.Type === 1">
             <span class="small text-muted">
-              <i class="fa fa-microchip"></i> {{ $ctrl.model.Snapshots[0].TotalCPU }}<i class="fa fa-memory space-left"></i> {{ $ctrl.model.Snapshots[0].TotalMemory | humansize }}
+              <i class="fa fa-microchip"></i> {{ $ctrl.model.Snapshots[0].TotalCPU }}<i class="fa fa-memory space-left"></i> {{ $ctrl.model.Snapshots[0].TotalMemory | humansize: 2:2 }}
             </span>
             <span class="space-left space-right">-</span>
           </span>

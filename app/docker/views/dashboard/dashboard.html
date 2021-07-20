@@ -43,7 +43,7 @@
               <td>
                 {{ endpoint.Name }}
                 <span class="small text-muted space-left">
-                  <i class="fa fa-microchip"></i> {{ endpoint.Snapshots[0].TotalCPU }} <i class="fa fa-memory space-left"></i> {{ endpoint.Snapshots[0].TotalMemory | humansize }}
+                  <i class="fa fa-microchip"></i> {{ endpoint.Snapshots[0].TotalCPU }} <i class="fa fa-memory space-left"></i> {{ endpoint.Snapshots[0].TotalMemory | humansize: 2:2 }}
                 </span>
                 <span class="small text-muted">
                   - {{ info.Swarm && info.Swarm.NodeID !== '' ? 'Swarm' : 'Standalone' }} {{ info.ServerVersion }}
