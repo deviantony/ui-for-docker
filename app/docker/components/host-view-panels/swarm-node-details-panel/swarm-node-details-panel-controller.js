@@ -59,9 +59,14 @@ angular.module('portainer.docker').controller('SwarmNodeDetailsPanelController',
 
       NodeService.updateNode(config).then(onUpdateSuccess).catch(notifyOnError);
 
-      function onUpdateSuccess() {
+      function onUpdateSuccess(node) {
         Notifications.success('Node successfully updated', 'Node updated');
-        $state.go('docker.nodes.node', { id: originalNode.Id }, { reload: true });
+
+        if (node.Availability === 'drain') {
+          $state.go('docker.swarm', { reload: true });
+        } else {
+          $state.go('docker.nodes.node', { id: originalNode.Id }, { reload: true });
+        }
       }
 
       function notifyOnError(error) {
