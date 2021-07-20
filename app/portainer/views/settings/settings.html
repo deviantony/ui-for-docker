@@ -26,18 +26,6 @@
               <label class="switch" style="margin-left: 20px;"> <input type="checkbox" name="toggle_logo" ng-model="formValues.customLogo" /><i></i> </label>
             </div>
           </div>
-          <div class="form-group">
-            <div class="col-sm-12">
-              <label for="toggle_enableTelemetry" class="control-label text-left">
-                Allow the collection of anonymous statistics
-              </label>
-              <label class="switch" style="margin-left: 20px;"> <input type="checkbox" name="toggle_enableTelemetry" ng-model="formValues.enableTelemetry" /><i></i> </label>
-            </div>
-            <div class="col-sm-12 text-muted small" style="margin-top: 10px;">
-              You can find more information about this in our
-              <a href="https://www.portainer.io/documentation/in-app-analytics-and-privacy-policy/" target="_blank">privacy policy</a>.
-            </div>
-          </div>
           <div ng-if="formValues.customLogo">
             <div class="form-group">
               <span class="col-sm-12 text-muted small">
@@ -51,6 +39,18 @@
               <div class="col-sm-11">
                 <input type="text" class="form-control" ng-model="settings.LogoURL" id="logo_url" placeholder="https://mycompany.com/logo.png" />
               </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-12">
+              <label for="toggle_enableTelemetry" class="control-label text-left">
+                Allow the collection of anonymous statistics
+              </label>
+              <label class="switch" style="margin-left: 20px;"> <input type="checkbox" name="toggle_enableTelemetry" ng-model="formValues.enableTelemetry" /><i></i> </label>
+            </div>
+            <div class="col-sm-12 text-muted small" style="margin-top: 10px;">
+              You can find more information about this in our
+              <a href="https://www.portainer.io/documentation/in-app-analytics-and-privacy-policy/" target="_blank">privacy policy</a>.
             </div>
           </div>
           <!-- !logo -->
