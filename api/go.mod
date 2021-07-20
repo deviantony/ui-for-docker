@@ -30,6 +30,7 @@ require (
 	github.com/portainer/libcompose v0.5.3
 	github.com/portainer/libcrypto v0.0.0-20190723020515-23ebe86ab2c2
 	github.com/portainer/libhttp v0.0.0-20190806161843-ba068f58be33
+	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.6.1
 	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
