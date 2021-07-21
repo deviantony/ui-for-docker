@@ -269,7 +269,7 @@ angular.module('portainer.docker').controller('CreateNetworkController', [
         creationContext.managerOperation = true;
       }
 
-      if ($scope.config.Driver === 'macvlan') {
+      if ($scope.config.Driver === 'macvlan' || $scope.config.Driver === 'l2bridge') {
         if ($scope.formValues.Macvlan.Scope === 'local') {
           modifyNetworkConfigurationForMacvlanConfigOnly(networkConfiguration);
         } else if ($scope.formValues.Macvlan.Scope === 'swarm') {
@@ -280,7 +280,7 @@ angular.module('portainer.docker').controller('CreateNetworkController', [
       }
 
       if (
-        $scope.config.Driver === 'macvlan' &&
+        ($scope.config.Driver === 'macvlan' || $scope.config.Driver === 'l2bridge') &&
         $scope.formValues.Macvlan.Scope === 'local' &&
         $scope.applicationState.endpoint.mode.agentProxy &&
         $scope.applicationState.endpoint.mode.provider === 'DOCKER_SWARM_MODE'

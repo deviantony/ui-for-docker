@@ -64,9 +64,11 @@
           </div>
           <!-- !driver-options -->
           <!-- macvlan-management -->
-          <network-macvlan-form ng-show="config.Driver === 'macvlan'" data="formValues.Macvlan" application-state="applicationState"></network-macvlan-form>
+          <network-macvlan-form ng-show="config.Driver === 'macvlan'" driver-name="MACVLAN" data="formValues.Macvlan" application-state="applicationState"></network-macvlan-form>
+          <network-macvlan-form ng-show="config.Driver === 'l2bridge'" driver-name="l2bridge" data="formValues.Macvlan" application-state="applicationState"></network-macvlan-form>
+          <!--  ||  -->
           <!-- !macvlan-management -->
-          <div ng-hide="config.Driver === 'macvlan' && formValues.Macvlan.Scope === 'swarm'">
+          <div ng-hide="(config.Driver === 'macvlan' || config.Driver === 'l2bridge') && formValues.Macvlan.Scope === 'swarm'">
             <div class="col-sm-12 form-section-title">
               IPV4 Network configuration
             </div>
@@ -115,7 +117,7 @@
               </span>
             </div>
           </div>
-          <div ng-show="config.Driver === 'bridge' || (config.Driver === 'macvlan' && formValues.Macvlan.Scope !== 'swarm')">
+          <div ng-show="config.Driver === 'bridge' || ((config.Driver === 'macvlan' || config.Driver === 'l2bridge') && formValues.Macvlan.Scope !== 'swarm')">
             <div class="col-sm-12 form-section-title">
               IPV6 Network configuration
             </div>
@@ -193,7 +195,7 @@
           </div>
           <!-- !labels-->
           <!-- internal -->
-          <div class="form-group" ng-hide="config.Driver === 'macvlan' && formValues.Macvlan.Scope === 'local'">
+          <div class="form-group" ng-hide="(config.Driver === 'macvlan' || config.Driver === 'l2bridge') && formValues.Macvlan.Scope === 'local'">
             <div class="col-sm-12">
               <label for="ownership" class="control-label text-left">
                 Isolated network
@@ -207,7 +209,7 @@
           </div>
           <!-- !internal -->
           <!-- attachable -->
-          <div class="form-group" ng-hide="config.Driver === 'macvlan' && formValues.Macvlan.Scope === 'local'">
+          <div class="form-group" ng-hide="(config.Driver === 'macvlan' || config.Driver === 'l2bridge') && formValues.Macvlan.Scope === 'local'">
             <div class="col-sm-12">
               <label for="attachable" class="control-label text-left">
                 Enable manual container attachment
@@ -224,7 +226,8 @@
               applicationState.endpoint.mode.agentProxy &&
               applicationState.endpoint.mode.provider === 'DOCKER_SWARM_MODE' &&
               config.Driver !== 'overlay' &&
-              config.Driver !== 'macvlan'
+              config.Driver !== 'macvlan' &&
+              config.Driver !== 'l2bridge'
             "
           >
             <div class="col-sm-12 form-section-title">
@@ -246,7 +249,7 @@
               <button
                 type="button"
                 class="btn btn-primary btn-sm"
-                ng-disabled="state.actionInProgress || !config.Name || (config.Driver === 'macvlan' && networkCreationForm.$invalid) || !isValid()"
+                ng-disabled="state.actionInProgress || !config.Name || ((config.Driver === 'macvlan' || config.Driver === 'l2bridge') && networkCreationForm.$invalid) || !isValid()"
                 ng-click="create()"
                 button-spinner="state.actionInProgress"
               >

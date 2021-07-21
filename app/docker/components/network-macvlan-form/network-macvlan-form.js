@@ -4,5 +4,6 @@ angular.module('portainer.docker').component('networkMacvlanForm', {
   bindings: {
     data: '=',
     applicationState: '<',
+    driverName: '@',
   },
 });

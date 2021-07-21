@@ -1,12 +1,10 @@
 <div>
-  <div class="col-sm-12 form-section-title">
-    Macvlan configuration
-  </div>
+  <div class="col-sm-12 form-section-title"> {{ $ctrl.driverName }} configuration </div>
   <!-- selector -->
   <div class="form-group">
     <span class="col-sm-12 text-muted small">
       <i class="fa fa-info-circle blue-icon" aria-hidden="true" style="margin-right: 2px;"></i>
-      To create a MACVLAN network you need to create a configuration, then create the network from this configuration.
+      To create a {{ $ctrl.driverName }} network you need to create a configuration, then create the network from this configuration.
     </span>
   </div>
   <div class="col-sm-12">
@@ -37,7 +35,7 @@
   </div>
   <!-- !selector -->
 
-  <ng-form name="macvlanConfigurationForm">
+  <ng-form name="form">
     <!-- configuration-inputs -->
     <div ng-show="$ctrl.data.Scope === 'local'">
       <!-- network-card-input -->
@@ -54,9 +52,9 @@
           />
         </div>
       </div>
-      <div class="form-group" ng-show="macvlanConfigurationForm.network_card.$invalid">
+      <div class="form-group" ng-show="form.network_card.$invalid">
         <div class="col-sm-12 small text-warning">
-          <div ng-messages="macvlanConfigurationForm.network_card.$error">
+          <div ng-messages="form.network_card.$error">
             <p ng-message="required"> <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Parent network card must be specified.</p>
           </div>
         </div>
@@ -81,9 +79,9 @@
             ></macvlan-nodes-datatable>
           </div>
         </div>
-        <div class="form-group" ng-show="macvlanConfigurationForm.node_selector.$invalid">
+        <div class="form-group" ng-show="form.node_selector.$invalid">
           <div class="col-sm-12 small text-warning">
-            <div ng-messages="macvlanConfigurationForm.node_selector.$error">
+            <div ng-messages="form.node_selector.$error">
               <p ng-message="required"> <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> At least one node must be selected.</p>
             </div>
           </div>
@@ -111,9 +109,9 @@
         </div>
       </div>
       <!-- !network-input -->
-      <div class="form-group" ng-show="macvlanConfigurationForm.config_network.$invalid">
+      <div class="form-group" ng-show="form.config_network.$invalid">
         <div class="col-sm-12 small text-warning">
-          <div ng-messages="macvlanConfigurationForm.config_network.$error">
+          <div ng-messages="form.config_network.$error">
             <p ng-message="required"> <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Select a configuration network.</p>
           </div>
         </div>
