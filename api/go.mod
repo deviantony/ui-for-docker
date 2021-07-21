@@ -29,7 +29,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/portainer/docker-compose-wrapper v0.0.0-20210527221011-0a1418224b92
 	github.com/portainer/libcompose v0.5.3
-	github.com/portainer/libcrypto v0.0.0-20190723020515-23ebe86ab2c2
+	github.com/portainer/libcrypto v0.0.0-20210422035235-c652195c5c3a
 	github.com/portainer/libhttp v0.0.0-20190806161843-ba068f58be33
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2

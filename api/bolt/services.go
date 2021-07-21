@@ -16,6 +16,7 @@ import (
 	"github.com/portainer/portainer/api/bolt/role"
 	"github.com/portainer/portainer/api/bolt/schedule"
 	"github.com/portainer/portainer/api/bolt/settings"
+	"github.com/portainer/portainer/api/bolt/ssl"
 	"github.com/portainer/portainer/api/bolt/stack"
 	"github.com/portainer/portainer/api/bolt/tag"
 	"github.com/portainer/portainer/api/bolt/team"
@@ -104,6 +105,12 @@ func (store *Store) initServices() error {
 		return err
 	}
 	store.SettingsService = settingsService
+
+	sslSettingsService, err := ssl.NewService(store.connection)
+	if err != nil {
+		return err
+	}
+	store.SSLSettingsService = sslSettingsService
 
 	stackService, err := stack.NewService(store.connection)
 	if err != nil {
@@ -215,6 +222,11 @@ func (store *Store) Role() portainer.RoleService {
 // Settings gives access to the Settings data management layer
 func (store *Store) Settings() portainer.SettingsService {
 	return store.SettingsService
+}
+
+// SSLSettings gives access to the SSL Settings data management layer
+func (store *Store) SSLSettings() portainer.SSLSettingsService {
+	return store.SSLSettingsService
 }
 
 // Stack gives access to the Stack data management layer

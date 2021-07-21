@@ -186,10 +186,10 @@
       </li>
       <li class="sidebar-list" ng-if="isAdmin">
         <a ui-sref="portainer.settings" ui-sref-active="active">Settings <span class="menu-icon fa fa-cogs fa-fw"></span></a>
-        <div class="sidebar-sublist" ng-if="toggle && ($state.current.name === 'portainer.settings' || $state.current.name === 'portainer.settings.authentication') && isAdmin">
-          <a ui-sref="portainer.settings.authentication" ui-sref-active="active">Authentication</a></div
-        >
-        <div class="sidebar-sublist" ng-if="toggle && ($state.current.name === 'portainer.settings' || $state.current.name === 'portainer.settings.authentication')">
+        <div class="sidebar-sublist" ng-if="toggle && $state.current.name.startsWith('portainer.settings') && isAdmin">
+          <a ui-sref="portainer.settings.authentication" ui-sref-active="active">Authentication</a>
+        </div>
+        <div class="sidebar-sublist" ng-if="toggle && $state.current.name.startsWith('portainer.settings')">
           <a href="http://www.portainer.io/help_about" target="_blank">Help / About</a>
         </div>
       </li>
