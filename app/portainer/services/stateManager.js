@@ -2,29 +2,16 @@ import moment from 'moment';
 
 angular.module('portainer.app').factory('StateManager', [
   '$q',
+  '$async',
   'SystemService',
   'InfoHelper',
-  'EndpointProvider',
   'LocalStorage',
   'SettingsService',
   'StatusService',
   'APPLICATION_CACHE_VALIDITY',
   'AgentPingService',
   '$analytics',
-  function StateManagerFactory(
-    $q,
-    SystemService,
-    InfoHelper,
-    EndpointProvider,
-    LocalStorage,
-    SettingsService,
-    StatusService,
-    APPLICATION_CACHE_VALIDITY,
-    AgentPingService,
-    $analytics
-  ) {
-    'use strict';
-
+  function StateManagerFactory($q, $async, SystemService, InfoHelper, LocalStorage, SettingsService, StatusService, APPLICATION_CACHE_VALIDITY, AgentPingService, $analytics) {
     var manager = {};
 
     var state = {
@@ -85,6 +72,9 @@ angular.module('portainer.app').factory('StateManager', [
 
     function assignStateFromStatusAndSettings(status, settings) {
       state.application.version = status.Version;
+      state.application.edition = status.Edition;
+      state.application.instanceId = status.InstanceID;
+
       state.application.enableTelemetry = settings.EnableTelemetry;
       state.application.logo = settings.LogoURL;
       state.application.snapshotInterval = settings.SnapshotInterval;
@@ -103,55 +93,51 @@ angular.module('portainer.app').factory('StateManager', [
           var status = data.status;
           var settings = data.settings;
           assignStateFromStatusAndSettings(status, settings);
-          $analytics.setOptOut(!settings.EnableTelemetry);
           LocalStorage.storeApplicationState(state.application);
           deferred.resolve(state);
         })
         .catch(function error(err) {
           deferred.reject({ msg: 'Unable to retrieve server settings and status', err: err });
-        })
-        .finally(function final() {
-          state.loading = false;
         });
 
       return deferred.promise;
     }
 
-    manager.initialize = function () {
-      var deferred = $q.defer();
-
-      var UIState = LocalStorage.getUIState();
-      if (UIState) {
-        state.UI = UIState;
-      }
-
-      var endpointState = LocalStorage.getEndpointState();
-      if (endpointState) {
-        state.endpoint = endpointState;
-      }
-
-      var applicationState = LocalStorage.getApplicationState();
-      if (applicationState && applicationState.validity) {
-        var now = moment().unix();
-        var cacheValidity = now - applicationState.validity;
-        if (cacheValidity > APPLICATION_CACHE_VALIDITY) {
-          loadApplicationState()
-            .then(() => deferred.resolve(state))
-            .catch((err) => deferred.reject(err));
-        } else {
-          state.application = applicationState;
-          state.loading = false;
-          $analytics.setOptOut(!state.application.enableTelemetry);
-          deferred.resolve(state);
+    manager.initialize = initialize;
+    async function initialize() {
+      return $async(async () => {
+        const UIState = LocalStorage.getUIState();
+        if (UIState) {
+          state.UI = UIState;
         }
-      } else {
-        loadApplicationState()
-          .then(() => deferred.resolve(state))
-          .catch((err) => deferred.reject(err));
-      }
 
-      return deferred.promise;
-    };
+        const endpointState = LocalStorage.getEndpointState();
+        if (endpointState) {
+          state.endpoint = endpointState;
+        }
+
+        const applicationState = LocalStorage.getApplicationState();
+        if (isAppStateValid(applicationState)) {
+          state.application = applicationState;
+        } else {
+          await loadApplicationState();
+        }
+
+        state.loading = false;
+        $analytics.setPortainerStatus(state.application.instanceId, state.application.version);
+        $analytics.setOptOut(!state.application.enableTelemetry);
+        return state;
+      });
+    }
+
+    function isAppStateValid(appState) {
+      if (!appState || !appState.validity) {
+        return false;
+      }
+      const now = moment().unix();
+      const cacheValidity = now - appState.validity;
+      return cacheValidity < APPLICATION_CACHE_VALIDITY;
+    }
 
     function assignExtensions(endpointExtensions) {
       var extensions = [];

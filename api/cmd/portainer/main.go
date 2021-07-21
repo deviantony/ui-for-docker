@@ -156,9 +156,10 @@ func initSnapshotService(snapshotInterval string, dataStore portainer.DataStore,
 	return snapshotService, nil
 }
 
-func initStatus(flags *portainer.CLIFlags) *portainer.Status {
+func initStatus(instanceID string) *portainer.Status {
 	return &portainer.Status{
-		Version: portainer.APIVersion,
+		Version:    portainer.APIVersion,
+		InstanceID: instanceID,
 	}
 }
 
@@ -422,7 +423,7 @@ func buildServer(flags *portainer.CLIFlags) portainer.Server {
 		log.Fatalf("failed loading edge jobs from database: %v", err)
 	}
 
-	applicationStatus := initStatus(flags)
+	applicationStatus := initStatus(instanceID)
 
 	err = initEndpoint(flags, dataStore, snapshotService)
 	if err != nil {

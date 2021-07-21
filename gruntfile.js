@@ -73,10 +73,10 @@ module.exports = function (grunt) {
     ]);
   });
 
-  grunt.task.registerTask('devopsbuild', 'devopsbuild:<platform>:<arch>', function (p, a) {
+  grunt.task.registerTask('devopsbuild', 'devopsbuild:<platform>:<arch>:env', function (p, a, env = 'prod') {
     grunt.task.run([
       'config:prod',
-      'env:prod',
+      `env:${env}`,
       'clean:all',
       'copy:assets',
       'shell:build_binary_azuredevops:' + p + ':' + a,
@@ -98,6 +98,9 @@ gruntfile_cfg.env = {
   },
   prod: {
     NODE_ENV: 'production',
+  },
+  testing: {
+    NODE_ENV: 'testing',
   },
 };
 

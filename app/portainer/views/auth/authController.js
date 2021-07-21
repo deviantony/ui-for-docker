@@ -5,6 +5,7 @@ class AuthenticationController {
   /* @ngInject */
   constructor(
     $async,
+    $analytics,
     $scope,
     $state,
     $stateParams,
@@ -20,6 +21,7 @@ class AuthenticationController {
     StatusService
   ) {
     this.$async = $async;
+    this.$analytics = $analytics;
     this.$scope = $scope;
     this.$state = $state;
     this.$stateParams = $stateParams;
@@ -150,6 +152,10 @@ class AuthenticationController {
 
   async postLoginSteps() {
     await this.StateManager.initialize();
+
+    const isAdmin = this.Authentication.isAdmin();
+    this.$analytics.setUserRole(isAdmin ? 'admin' : 'standard-user');
+
     await this.checkForEndpointsAsync();
     await this.checkForLatestVersionAsync();
   }

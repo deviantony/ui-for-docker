@@ -4,7 +4,7 @@ import '@babel/polyfill';
 import angular from 'angular';
 
 import './matomo-setup';
-import './assets/js/angulartics-matomo';
+import analyticsModule from './angulartics.matomo';
 
 import './agent';
 import './azure/_module';
@@ -39,7 +39,7 @@ angular.module('portainer', [
   'rzModule',
   'moment-picker',
   'angulartics',
-  'angulartics.matomo',
+  analyticsModule,
 ]);
 
 if (require) {
