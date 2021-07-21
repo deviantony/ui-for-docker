@@ -95,7 +95,7 @@ func (handler *Handler) createKubernetesStackFromFileContent(w http.ResponseWrit
 	doCleanUp := true
 	defer handler.cleanUp(stack, &doCleanUp)
 
-	output, err := handler.deployKubernetesStack(endpoint, payload.StackFileContent, payload.ComposeFormat, payload.Namespace)
+	output, err := handler.deployKubernetesStack(r, endpoint, payload.StackFileContent, payload.ComposeFormat, payload.Namespace)
 	if err != nil {
 		return &httperror.HandlerError{StatusCode: http.StatusInternalServerError, Message: "Unable to deploy Kubernetes stack", Err: err}
 	}
@@ -139,7 +139,7 @@ func (handler *Handler) createKubernetesStackFromGitRepository(w http.ResponseWr
 		return &httperror.HandlerError{StatusCode: http.StatusInternalServerError, Message: "Failed to process manifest from Git repository", Err: err}
 	}
 
-	output, err := handler.deployKubernetesStack(endpoint, stackFileContent, payload.ComposeFormat, payload.Namespace)
+	output, err := handler.deployKubernetesStack(r, endpoint, stackFileContent, payload.ComposeFormat, payload.Namespace)
 	if err != nil {
 		return &httperror.HandlerError{StatusCode: http.StatusInternalServerError, Message: "Unable to deploy Kubernetes stack", Err: err}
 	}
@@ -155,7 +155,7 @@ func (handler *Handler) createKubernetesStackFromGitRepository(w http.ResponseWr
 	return response.JSON(w, resp)
 }
 
-func (handler *Handler) deployKubernetesStack(endpoint *portainer.Endpoint, stackConfig string, composeFormat bool, namespace string) (string, error) {
+func (handler *Handler) deployKubernetesStack(request *http.Request, endpoint *portainer.Endpoint, stackConfig string, composeFormat bool, namespace string) (string, error) {
 	handler.stackCreationMutex.Lock()
 	defer handler.stackCreationMutex.Unlock()
 
@@ -167,7 +167,7 @@ func (handler *Handler) deployKubernetesStack(endpoint *portainer.Endpoint, stac
 		stackConfig = string(convertedConfig)
 	}
 
-	return handler.KubernetesDeployer.Deploy(endpoint, stackConfig, namespace)
+	return handler.KubernetesDeployer.Deploy(request, endpoint, stackConfig, namespace)
 
 }
 

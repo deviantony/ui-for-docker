@@ -24,6 +24,7 @@ func (handler *Handler) proxyEdgeAgentWebsocketRequest(w http.ResponseWriter, r 
 
 	proxy.Director = func(incoming *http.Request, out http.Header) {
 		out.Set(portainer.PortainerAgentTargetHeader, params.nodeName)
+		out.Set(portainer.PortainerAgentKubernetesSATokenHeader, params.token)
 	}
 
 	handler.ReverseTunnelService.SetTunnelStatusToActive(params.endpoint.ID)
@@ -64,6 +65,7 @@ func (handler *Handler) proxyAgentWebsocketRequest(w http.ResponseWriter, r *htt
 		out.Set(portainer.PortainerAgentPublicKeyHeader, handler.SignatureService.EncodedPublicKey())
 		out.Set(portainer.PortainerAgentSignatureHeader, signature)
 		out.Set(portainer.PortainerAgentTargetHeader, params.nodeName)
+		out.Set(portainer.PortainerAgentKubernetesSATokenHeader, params.token)
 	}
 
 	proxy.ServeHTTP(w, r)
