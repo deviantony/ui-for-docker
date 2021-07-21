@@ -20,7 +20,13 @@ func (m *Migrator) migrateDBVersionToDB32() error {
 		return err
 	}
 
-	if err := m.updateVolumeResourceControlToDB32(); err != nil {
+	err = m.migrateAdminGroupSearchSettings()
+	if err != nil {
+		return err
+	}
+
+	err = m.updateVolumeResourceControlToDB32()
+	if err != nil {
 		return err
 	}
 
@@ -210,4 +216,15 @@ func findResourcesToUpdateForDB32(dockerID string, volumesData map[string]interf
 			toUpdate[resourceControl.ID] = fmt.Sprintf("%s_%s", volumeName, dockerID)
 		}
 	}
+}
+
+func (m *Migrator) migrateAdminGroupSearchSettings() error {
+	legacySettings, err := m.settingsService.Settings()
+	if err != nil {
+		return err
+	}
+	if legacySettings.LDAPSettings.AdminGroupSearchSettings == nil {
+		legacySettings.LDAPSettings.AdminGroupSearchSettings = []portainer.LDAPGroupSearchSettings{}
+	}
+	return m.settingsService.UpdateSettings(legacySettings)
 }

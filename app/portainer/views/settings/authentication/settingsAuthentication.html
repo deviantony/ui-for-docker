@@ -364,6 +364,104 @@
               </div>
             </div>
             <!-- !group-search-settings -->
+
+            <!-- admin group-search-settings -->
+            <div class="col-sm-12 form-section-title" style="float: initial;">
+              Auto-populate team admins
+            </div>
+
+            <div
+              ng-repeat="config in formValues.LDAPSettings.AdminGroupSearchSettings | limitTo: (1 - formValues.LDAPSettings.AdminGroupSearchSettings)"
+              style="display: block; margin-bottom: 10px;"
+            >
+              <div class="form-group" ng-if="$index > 0" style="margin-bottom: 10px;">
+                <span class="col-sm-12 text-muted small">
+                  Extra search configuration
+                </span>
+              </div>
+
+              <div class="form-group">
+                <label for="ldap_admin_group_basedn_{{ $index }}" class="col-sm-4 col-md-2 control-label text-left">
+                  Group Base DN
+                  <portainer-tooltip position="bottom" message="The distinguished name of the element from which the LDAP server will search for groups."></portainer-tooltip>
+                </label>
+                <div class="col-sm-8 col-md-4">
+                  <input type="text" class="form-control" id="ldap_admin_group_basedn_{{ $index }}" ng-model="config.GroupBaseDN" placeholder="dc=ldap,dc=domain,dc=tld" />
+                </div>
+
+                <label for="ldap_admin_group_att_{{ $index }}" class="col-sm-4 col-md-2 control-label text-left">
+                  Group Membership Attribute
+                  <portainer-tooltip position="bottom" message="LDAP attribute which denotes the group membership."></portainer-tooltip>
+                </label>
+                <div class="col-sm-8 col-md-4">
+                  <input type="text" class="form-control" id="ldap_admin_group_att_{{ $index }}" ng-model="config.GroupAttribute" placeholder="member" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="ldap_admin_group_filter_{{ $index }}" class="col-sm-4 col-md-2 control-label text-left">
+                  Group Filter
+                  <portainer-tooltip position="bottom" message="The LDAP search filter used to select group elements, optional."></portainer-tooltip>
+                </label>
+                <div ng-class="{ 'col-sm-7 col-md-9': $index, 'col-sm-8 col-md-10': !$index }">
+                  <input type="text" class="form-control" id="ldap_admin_group_filter_{{ $index }}" ng-model="config.GroupFilter" placeholder="(objectClass=account)" />
+                </div>
+                <div class="col-sm-1" ng-if="$index > 0">
+                  <button class="btn btn-sm btn-danger" type="button" ng-click="removeAdminGroupSearchConfiguration($index)">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 10px;">
+              <div class="col-sm-12">
+                <button class="label label-default interactive" style="border: 0;" ng-click="addAdminGroupSearchConfiguration()">
+                  <i class="fa fa-plus-circle" aria-hidden="true"></i> add group search configuration
+                </button>
+              </div>
+              <div class="col-sm-12" style="margin-top: 10px;">
+                <button class="btn btm-sm btn-primary" type="button" ng-click="searchAdminGroups()">
+                  Fetch Admin Group(s)
+                </button>
+                <span ng-if="groups && groups.length === 0" style="margin-left: 30px;">
+                  <i class="fa fa-exclamation-triangle text-warning" aria-hidden="true"></i> No groups found</span
+                >
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="col-sm-12">
+                <por-switch-field
+                  ng-model="formValues.LDAPSettings.AdminAutoPopulate"
+                  name="admin-auto-populate"
+                  label="Assign admin rights to group(s)"
+                  label-class="{{ state.enableAssignAdminGroup ? 'col-sm-2 small' : 'col-sm-2 small text-muted' }}"
+                  disabled="!state.enableAssignAdminGroup"
+                ></por-switch-field>
+              </div>
+            </div>
+
+            <div class="form-group" ng-if="formValues.LDAPSettings.AdminAutoPopulate">
+              <div class="col-sm-12">
+                <label for="group-access" class="control-label text-left">
+                  Select Group(s)
+                </label>
+                <span
+                  isteven-multi-select
+                  ng-if="state.enableAssignAdminGroup"
+                  input-model="groups"
+                  output-model="formValues.selectedAdminGroups"
+                  button-label="Name"
+                  item-label="Name"
+                  tick-property="selected"
+                  helper-elements="filter"
+                  search-property="Name"
+                  translation="{nothingSelected: 'Select one or more teams', search: 'Search...'}"
+                  style="margin-left: 20px;"
+                >
+                </span>
+              </div>
+            </div>
           </div>
 
           <div ng-if="isOauthEnabled()">

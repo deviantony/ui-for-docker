@@ -39,6 +39,9 @@ func (store *Store) Init() error {
 				GroupSearchSettings: []portainer.LDAPGroupSearchSettings{
 					portainer.LDAPGroupSearchSettings{},
 				},
+				AdminGroupSearchSettings: []portainer.LDAPGroupSearchSettings{
+					portainer.LDAPGroupSearchSettings{},
+				},
 			},
 			OAuthSettings: portainer.OAuthSettings{},
 

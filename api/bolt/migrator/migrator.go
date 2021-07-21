@@ -375,8 +375,7 @@ func (m *Migrator) Migrate() error {
 
 	// Portainer 2.9.0
 	if m.currentDBVersion < 32 {
-		err := m.migrateDBVersionToDB32()
-		if err != nil {
+		if err := m.migrateDBVersionToDB32(); err != nil {
 			return err
 		}
 	}

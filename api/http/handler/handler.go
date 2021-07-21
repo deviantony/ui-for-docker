@@ -16,6 +16,7 @@ import (
 	"github.com/portainer/portainer/api/http/handler/endpointproxy"
 	"github.com/portainer/portainer/api/http/handler/endpoints"
 	"github.com/portainer/portainer/api/http/handler/file"
+	"github.com/portainer/portainer/api/http/handler/ldap"
 	"github.com/portainer/portainer/api/http/handler/motd"
 	"github.com/portainer/portainer/api/http/handler/registries"
 	"github.com/portainer/portainer/api/http/handler/resourcecontrols"
@@ -47,6 +48,7 @@ type Handler struct {
 	EndpointHandler        *endpoints.Handler
 	EndpointProxyHandler   *endpointproxy.Handler
 	FileHandler            *file.Handler
+	LDAPHandler            *ldap.Handler
 	MOTDHandler            *motd.Handler
 	RegistryHandler        *registries.Handler
 	ResourceControlHandler *resourcecontrols.Handler
@@ -171,6 +173,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		default:
 			http.StripPrefix("/api", h.EndpointHandler).ServeHTTP(w, r)
 		}
+	case strings.HasPrefix(r.URL.Path, "/api/ldap"):
+		http.StripPrefix("/api", h.LDAPHandler).ServeHTTP(w, r)
 	case strings.HasPrefix(r.URL.Path, "/api/motd"):
 		http.StripPrefix("/api", h.MOTDHandler).ServeHTTP(w, r)
 	case strings.HasPrefix(r.URL.Path, "/api/registries"):

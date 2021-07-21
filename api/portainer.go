@@ -470,7 +470,10 @@ type (
 		SearchSettings      []LDAPSearchSettings      `json:"SearchSettings"`
 		GroupSearchSettings []LDAPGroupSearchSettings `json:"GroupSearchSettings"`
 		// Automatically provision users and assign them to matching LDAP group names
-		AutoCreateUsers bool `json:"AutoCreateUsers" example:"true"`
+		AutoCreateUsers          bool                      `json:"AutoCreateUsers" example:"true"`
+		AdminAutoPopulate        bool                      `json:"AdminAutoPopulate" example:"true"`
+		AdminGroupSearchSettings []LDAPGroupSearchSettings `json:"AdminGroupSearchSettings"`
+		AdminGroups              []string                  `json:"AdminGroups"`
 	}
 
 	// LicenseInformation represents information about an extension license
@@ -1197,6 +1200,8 @@ type (
 		AuthenticateUser(username, password string, settings *LDAPSettings) error
 		TestConnectivity(settings *LDAPSettings) error
 		GetUserGroups(username string, settings *LDAPSettings) ([]string, error)
+		GetUserAdminGroups(username string, settings *LDAPSettings) ([]string, error)
+		SearchAdminGroups(settings *LDAPSettings) ([]string, error)
 	}
 
 	// OAuthService represents a service used to authenticate users using OAuth

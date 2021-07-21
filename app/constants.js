@@ -12,6 +12,7 @@ angular
   .constant('API_ENDPOINT_REGISTRIES', 'api/registries')
   .constant('API_ENDPOINT_RESOURCE_CONTROLS', 'api/resource_controls')
   .constant('API_ENDPOINT_SETTINGS', 'api/settings')
+  .constant('API_ENDPOINT_LDAP', 'api/ldap')
   .constant('API_ENDPOINT_STACKS', 'api/stacks')
   .constant('API_ENDPOINT_STATUS', 'api/status')
   .constant('API_ENDPOINT_SUPPORT', 'api/support')
