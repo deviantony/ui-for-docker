@@ -1,0 +1,28 @@
+on:
+  pull_request:
+    branches: [develop, release/**]
+  workflow_dispatch:
+
+jobs:
+  client-dependencies:
+    name: client dependency check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+  server-dependencies:
+    name: server dependency check
+    runs-on: ubuntu-latest
+    env:
+      GO111MODULE: on
+      NANCY_VERSION: v1.0.11
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v2
+      - name: Download Nancy binary
+        run: curl -L "https://github.com/sonatype-nexus-community/nancy/releases/download/$NANCY_VERSION/nancy-$NANCY_VERSION-linux-amd64" -o nancy && chmod +x nancy
+      - name: Scan modules
+        run: cd api && go list -json -m all | ../nancy sleuth
