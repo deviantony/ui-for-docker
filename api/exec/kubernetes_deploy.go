@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/portainer/portainer/api/http/proxy/factory/kubernetes"
+	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/kubernetes/cli"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -20,27 +23,64 @@ import (
 
 // KubernetesDeployer represents a service to deploy resources inside a Kubernetes environment.
 type KubernetesDeployer struct {
-	binaryPath           string
-	dataStore            portainer.DataStore
-	reverseTunnelService portainer.ReverseTunnelService
-	signatureService     portainer.DigitalSignatureService
+	binaryPath                  string
+	dataStore                   portainer.DataStore
+	reverseTunnelService        portainer.ReverseTunnelService
+	signatureService            portainer.DigitalSignatureService
+	kubernetesClientFactory     *cli.ClientFactory
+	kubernetesTokenCacheManager *kubernetes.TokenCacheManager
 }
 
 // NewKubernetesDeployer initializes a new KubernetesDeployer service.
-func NewKubernetesDeployer(datastore portainer.DataStore, reverseTunnelService portainer.ReverseTunnelService, signatureService portainer.DigitalSignatureService, binaryPath string) *KubernetesDeployer {
+func NewKubernetesDeployer(kubernetesTokenCacheManager *kubernetes.TokenCacheManager, kubernetesClientFactory *cli.ClientFactory, datastore portainer.DataStore, reverseTunnelService portainer.ReverseTunnelService, signatureService portainer.DigitalSignatureService, binaryPath string) *KubernetesDeployer {
 	return &KubernetesDeployer{
-		binaryPath:           binaryPath,
-		dataStore:            datastore,
-		reverseTunnelService: reverseTunnelService,
-		signatureService:     signatureService,
+		binaryPath:                  binaryPath,
+		dataStore:                   datastore,
+		reverseTunnelService:        reverseTunnelService,
+		signatureService:            signatureService,
+		kubernetesClientFactory:     kubernetesClientFactory,
+		kubernetesTokenCacheManager: kubernetesTokenCacheManager,
 	}
+}
+
+func (deployer *KubernetesDeployer) getToken(request *http.Request, endpoint *portainer.Endpoint, setLocalAdminToken bool) (string, error) {
+	tokenData, err := security.RetrieveTokenData(request)
+	if err != nil {
+		return "", err
+	}
+
+	kubecli, err := deployer.kubernetesClientFactory.GetKubeClient(endpoint)
+	if err != nil {
+		return "", err
+	}
+
+	tokenCache := deployer.kubernetesTokenCacheManager.GetOrCreateTokenCache(int(endpoint.ID))
+
+	tokenManager, err := kubernetes.NewTokenManager(kubecli, deployer.dataStore, tokenCache, setLocalAdminToken)
+	if err != nil {
+		return "", err
+	}
+
+	if tokenData.Role == portainer.AdministratorRole {
+		return tokenManager.GetAdminServiceAccountToken(), nil
+	}
+
+	token, err := tokenManager.GetUserServiceAccountToken(int(tokenData.ID))
+	if err != nil {
+		return "", err
+	}
+
+	if token == "" {
+		return "", fmt.Errorf("can not get a valid user service account token")
+	}
+	return token, nil
 }
 
 // Deploy will deploy a Kubernetes manifest inside a specific namespace in a Kubernetes endpoint.
 // Otherwise it will use kubectl to deploy the manifest.
-func (deployer *KubernetesDeployer) Deploy(endpoint *portainer.Endpoint, stackConfig string, namespace string) (string, error) {
+func (deployer *KubernetesDeployer) Deploy(request *http.Request, endpoint *portainer.Endpoint, stackConfig string, namespace string) (string, error) {
 	if endpoint.Type == portainer.KubernetesLocalEnvironment {
-		token, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
+		token, err := deployer.getToken(request, endpoint, true);
 		if err != nil {
 			return "", err
 		}
@@ -53,7 +93,7 @@ func (deployer *KubernetesDeployer) Deploy(endpoint *portainer.Endpoint, stackCo
 		args := make([]string, 0)
 		args = append(args, "--server", endpoint.URL)
 		args = append(args, "--insecure-skip-tls-verify")
-		args = append(args, "--token", string(token))
+		args = append(args, "--token", token)
 		args = append(args, "--namespace", namespace)
 		args = append(args, "apply", "-f", "-")
 
@@ -139,8 +179,14 @@ func (deployer *KubernetesDeployer) Deploy(endpoint *portainer.Endpoint, stackCo
 		return "", err
 	}
 
+	token, err := deployer.getToken(request, endpoint, false);
+	if err != nil {
+		return "", err
+	}
+
 	req.Header.Set(portainer.PortainerAgentPublicKeyHeader, deployer.signatureService.EncodedPublicKey())
 	req.Header.Set(portainer.PortainerAgentSignatureHeader, signature)
+	req.Header.Set(portainer.PortainerAgentKubernetesSATokenHeader, token)
 
 	resp, err := httpCli.Do(req)
 	if err != nil {

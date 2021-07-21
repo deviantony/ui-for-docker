@@ -202,7 +202,7 @@ func (server *Server) Start() error {
 	userHandler.DataStore = server.DataStore
 	userHandler.CryptoService = server.CryptoService
 
-	var websocketHandler = websocket.NewHandler(requestBouncer)
+	var websocketHandler = websocket.NewHandler(server.KubernetesTokenCacheManager, requestBouncer)
 	websocketHandler.DataStore = server.DataStore
 	websocketHandler.SignatureService = server.SignatureService
 	websocketHandler.ReverseTunnelService = server.ReverseTunnelService
