@@ -1,0 +1,75 @@
+.shell-container {
+  display: flex;
+  justify-content: space-between;
+  color: #424242;
+  background: rgb(245, 245, 245);
+  border-top: 1px solid rgb(190, 190, 190);
+}
+
+.shell-item {
+  width: 150px;
+  font-weight: bold;
+  text-align: center;
+  font-size: 14px;
+}
+
+.shell-item-center {
+  flex-grow: 1;
+}
+
+ul.sidebar li .shell-item-center a {
+  border-left: 1px solid rgb(143, 143, 143);
+  padding: 0px 5px;
+  color: #424242;
+}
+
+ul.sidebar li .shell-item-center a:hover {
+  color: rgb(51, 122, 183);
+  text-decoration: underline;
+}
+
+.shell-item-center a {
+  font-size: 12px;
+}
+
+.shell-item-right {
+  height: 16px;
+  width: 180px;
+  text-align: right;
+  padding-right: 10px;
+}
+
+.shell-item-right i {
+  padding: 0px 5px;
+  cursor: pointer;
+  color: rgb(89, 89, 89);
+  font-size: 14px;
+}
+
+.shell-item-right i:hover {
+  color: rgb(51, 122, 183);
+}
+
+.shell-item + .shell-item {
+  margin-left: 20%;
+}
+
+.normal-kubectl-shell {
+  position: fixed;
+  background: #000;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 480px;
+  z-index: 1000;
+}
+
+.mini-kubectl-shell {
+  position: fixed;
+  background: #000;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 35px;
+  z-index: 1000;
+}

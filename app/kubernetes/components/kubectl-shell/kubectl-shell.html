@@ -1,0 +1,27 @@
+<button type="button" class="btn btn-xs btn-primary" ng-click="$ctrl.connectConsole()" ng-disabled="$ctrl.state.shell.connected">
+  <i class="fa fa-terminal" style="margin-right: 2px;"></i>
+  kubectl shell
+</button>
+
+<div ng-if="$ctrl.state.checked" class="{{ $ctrl.state.css }}-kubectl-shell">
+  <div class="shell-container">
+    <div class="shell-item"><i class="fas fa-terminal" style="margin-right: 5px;"></i>kubectl shell</div>
+    <div ng-if="$ctrl.state.isHTTPS" class="shell-item-center">
+      <a href="" ng-click="$ctrl.downloadKubeconfig()"><i class="fas fa-file-download" style="margin-right: 5px;"></i>Download Kubeconfig</a>
+    </div>
+    <div class="shell-item-right">
+      <i class="fas fa-redo-alt" ng-click="$ctrl.screenClear();"></i>
+      <i class="fas {{ $ctrl.state.icon }}" ng-click="$ctrl.miniRestore();"></i>
+      <i class="fas fa-times" ng-click="$ctrl.disconnect()"></i>
+    </div>
+  </div>
+  <div>
+    <div style="padding: 0px;">
+      <div>
+        <div id="terminal-container" class="terminal-container">
+          <div style="position: fixed; color: #fff;">Loading Terminal...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

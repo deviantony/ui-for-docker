@@ -12,7 +12,10 @@
       <li class="sidebar-list">
         <a ui-sref="portainer.home" ui-sref-active="active">Home <span class="menu-icon fa fa-home fa-fw"></span></a>
       </li>
-      <li class="sidebar-title endpoint-name" ng-if="applicationState.endpoint.name"> <span class="fa fa-plug space-right"></span>{{ applicationState.endpoint.name }} </li>
+      <li class="sidebar-title endpoint-name" ng-if="applicationState.endpoint.name">
+        <span class="fa fa-plug space-right"></span>{{ applicationState.endpoint.name }}
+        <kubectl-shell ng-if="applicationState.endpoint.mode && applicationState.endpoint.mode.provider === 'KUBERNETES'" class="kubectl-shell"></kubectl-shell>
+      </li>
       <kubernetes-sidebar-content
         ng-if="applicationState.endpoint.mode && applicationState.endpoint.mode.provider === 'KUBERNETES'"
         admin-access="isAdmin"

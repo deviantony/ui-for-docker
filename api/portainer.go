@@ -1,10 +1,13 @@
 package portainer
 
 import (
+	"context"
 	"io"
 	"time"
 
 	gittypes "github.com/portainer/portainer/api/git/types"
+	v1 "k8s.io/api/core/v1"
+	clientV1 "k8s.io/client-go/tools/clientcmd/api/v1"
 )
 
 type (
@@ -432,6 +435,14 @@ type (
 	KubernetesIngressClassConfig struct {
 		Name string `json:"Name"`
 		Type string `json:"Type"`
+	}
+
+	// KubernetesShellPod represents a Kubectl Shell details to facilitate pod exec functionality
+	KubernetesShellPod struct {
+		Namespace        string
+		PodName          string
+		ContainerName    string
+		ShellExecCommand string
 	}
 
 	// LDAPGroupSearchSettings represents settings used to search for groups in a LDAP server
@@ -1170,8 +1181,10 @@ type (
 
 	// KubeClient represents a service used to query a Kubernetes environment
 	KubeClient interface {
+		GetServiceAccount(tokendata *TokenData) (*v1.ServiceAccount, error)
 		SetupUserServiceAccount(userID int, teamIDs []int) error
 		GetServiceAccountBearerToken(userID int) (string, error)
+		CreateUserShellPod(ctx context.Context, serviceAccountName string) (*KubernetesShellPod, error)
 		StartExecProcess(namespace, podName, containerName string, command []string, stdin io.Reader, stdout io.Writer) error
 		NamespaceAccessPoliciesDeleteNamespace(namespace string) error
 		GetNamespaceAccessPolicies() (map[string]K8sNamespaceAccessPolicy, error)
@@ -1179,6 +1192,7 @@ type (
 		DeleteRegistrySecret(registry *Registry, namespace string) error
 		CreateRegistrySecret(registry *Registry, namespace string) error
 		IsRegistrySecret(namespace, secretName string) (bool, error)
+		GetKubeConfig(ctx context.Context, apiServerURL string, bearerToken string, tokenData *TokenData) (*clientV1.Config, error)
 	}
 
 	// KubernetesDeployer represents a service to deploy a manifest inside a Kubernetes endpoint
