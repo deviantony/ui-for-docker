@@ -33,7 +33,7 @@
         <span ng-hide="$ctrl.state.duplicationInProgress"> <i class="fa fa-clone space-right" aria-hidden="true"></i> Duplicate </span>
         <span ng-show="$ctrl.state.duplicationInProgress">Duplication in progress...</span>
       </button>
-      <div ng-if="$ctrl.yamlError"
+      <div ng-if="$ctrl.yamlError && $ctrl.isEndpointSelected()"
         ><span class="text-danger small">{{ $ctrl.yamlError }}</span></div
       >
     </div>

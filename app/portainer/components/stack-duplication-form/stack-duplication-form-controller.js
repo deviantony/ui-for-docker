@@ -18,6 +18,7 @@ angular.module('portainer.app').controller('StackDuplicationFormController', [
     ctrl.duplicateStack = duplicateStack;
     ctrl.migrateStack = migrateStack;
     ctrl.isMigrationButtonDisabled = isMigrationButtonDisabled;
+    ctrl.isEndpointSelected = isEndpointSelected;
 
     function isFormValidForMigration() {
       return ctrl.formValues.endpoint && ctrl.formValues.endpoint.Id;
@@ -61,6 +62,10 @@ angular.module('portainer.app').controller('StackDuplicationFormController', [
 
     function isTargetEndpointAndCurrentEquals() {
       return ctrl.formValues.endpoint && ctrl.formValues.endpoint.Id === ctrl.currentEndpointId;
+    }
+
+    function isEndpointSelected() {
+      return ctrl.formValues.endpoint && ctrl.formValues.endpoint.Id;
     }
   },
 ]);
