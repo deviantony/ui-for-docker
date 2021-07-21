@@ -60,7 +60,7 @@ func (factory *ProxyFactory) NewDockerComposeAgentProxy(endpoint *portainer.Endp
 		return nil, err
 	}
 
-	return proxyServer, err
+	return proxyServer, nil
 }
 
 func (proxy *ProxyServer) start() error {
