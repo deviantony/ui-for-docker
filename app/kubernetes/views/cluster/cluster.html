@@ -12,11 +12,14 @@
           <!-- resource-reservation -->
           <form class="form-horizontal" ng-if="ctrl.resourceReservation">
             <kubernetes-resource-reservation
-              cpu="ctrl.resourceReservation.CPU"
-              cpu-limit="ctrl.CPULimit"
-              memory="ctrl.resourceReservation.Memory"
-              memory-limit="ctrl.MemoryLimit"
               description="Resource reservation represents the total amount of resource assigned to all the applications inside the cluster."
+              cpu-reservation="ctrl.resourceReservation.CPU"
+              cpu-limit="ctrl.CPULimit"
+              memory-reservation="ctrl.resourceReservation.Memory"
+              memory-limit="ctrl.MemoryLimit"
+              display-usage="ctrl.isAdmin"
+              cpu-usage="ctrl.resourceUsage.CPU"
+              memory-usage="ctrl.resourceUsage.Memory"
             >
             </kubernetes-resource-reservation>
           </form>

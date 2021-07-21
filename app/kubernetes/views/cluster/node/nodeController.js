@@ -21,7 +21,9 @@ class KubernetesNodeController {
     KubernetesEventService,
     KubernetesPodService,
     KubernetesApplicationService,
-    KubernetesEndpointService
+    KubernetesEndpointService,
+    KubernetesMetricsService,
+    Authentication
   ) {
     this.$async = $async;
     this.$state = $state;
@@ -33,6 +35,8 @@ class KubernetesNodeController {
     this.KubernetesPodService = KubernetesPodService;
     this.KubernetesApplicationService = KubernetesApplicationService;
     this.KubernetesEndpointService = KubernetesEndpointService;
+    this.KubernetesMetricsService = KubernetesMetricsService;
+    this.Authentication = Authentication;
 
     this.onInit = this.onInit.bind(this);
     this.getNodesAsync = this.getNodesAsync.bind(this);
@@ -42,6 +46,7 @@ class KubernetesNodeController {
     this.getEndpointsAsync = this.getEndpointsAsync.bind(this);
     this.updateNodeAsync = this.updateNodeAsync.bind(this);
     this.drainNodeAsync = this.drainNodeAsync.bind(this);
+    this.getNodeUsageAsync = this.getNodeUsageAsync.bind(this);
   }
 
   selectTab(index) {
@@ -327,6 +332,22 @@ class KubernetesNodeController {
     return this.$async(this.getNodesAsync);
   }
 
+  async getNodeUsageAsync() {
+    try {
+      const nodeName = this.$transition$.params().name;
+      const node = await this.KubernetesMetricsService.getNode(nodeName);
+      this.resourceUsage = new KubernetesResourceReservation();
+      this.resourceUsage.CPU = KubernetesResourceReservationHelper.parseCPU(node.usage.cpu);
+      this.resourceUsage.Memory = KubernetesResourceReservationHelper.megaBytesValue(node.usage.memory);
+    } catch (err) {
+      this.Notifications.error('Failure', 'Unable to retrieve node resource usage', err);
+    }
+  }
+
+  getNodeUsage() {
+    return this.$async(this.getNodeUsageAsync);
+  }
+
   hasEventWarnings() {
     return this.state.eventWarningCount;
   }
@@ -375,6 +396,10 @@ class KubernetesNodeController {
       this.resourceReservation.Memory = KubernetesResourceReservationHelper.megaBytesValue(this.resourceReservation.Memory);
       this.memoryLimit = KubernetesResourceReservationHelper.megaBytesValue(this.node.Memory);
       this.state.isContainPortainer = _.find(this.applications, { ApplicationName: 'portainer' });
+
+      if (this.state.isAdmin) {
+        await this.getNodeUsage();
+      }
     } catch (err) {
       this.Notifications.error('Failure', err, 'Unable to retrieve applications');
     } finally {
@@ -388,6 +413,7 @@ class KubernetesNodeController {
 
   async onInit() {
     this.state = {
+      isAdmin: this.Authentication.isAdmin(),
       activeTab: 0,
       currentName: this.$state.$current.name,
       dataLoading: true,
@@ -402,9 +428,12 @@ class KubernetesNodeController {
       hasDuplicateLabelKeys: false,
       isDrainOperation: false,
       isContainPortainer: false,
+      useServerMetrics: false,
     };
 
     this.availabilities = KubernetesNodeAvailabilities;
+
+    this.state.useServerMetrics = this.endpoint.Kubernetes.Configuration.UseServerMetrics;
 
     this.state.activeTab = this.LocalStorage.getActiveTab('node');
 

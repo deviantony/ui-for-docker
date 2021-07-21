@@ -40,10 +40,13 @@
                   <kubernetes-resource-reservation
                     ng-if="ctrl.pool.Quota"
                     description="Resource reservation represents the total amount of resource assigned to all the applications deployed inside this namespace."
-                    cpu="ctrl.state.cpuUsed"
-                    memory="ctrl.state.memoryUsed"
+                    cpu-reservation="ctrl.state.resourceReservation.CPU"
+                    memory-reservation="ctrl.state.resourceReservation.Memory"
                     cpu-limit="ctrl.formValues.CpuLimit"
                     memory-limit="ctrl.formValues.MemoryLimit"
+                    display-usage="ctrl.state.useServerMetrics"
+                    cpu-usage="ctrl.state.resourceUsage.CPU"
+                    memory-usage="ctrl.state.resourceUsage.Memory"
                   >
                   </kubernetes-resource-reservation>
                 </div>

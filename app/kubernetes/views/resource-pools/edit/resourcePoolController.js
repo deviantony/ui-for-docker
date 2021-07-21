@@ -3,6 +3,7 @@ import _ from 'lodash-es';
 import filesizeParser from 'filesize-parser';
 import { KubernetesResourceQuotaDefaults } from 'Kubernetes/models/resource-quota/models';
 import KubernetesResourceReservationHelper from 'Kubernetes/helpers/resourceReservationHelper';
+import { KubernetesResourceReservation } from 'Kubernetes/models/resource-reservation/models';
 import KubernetesEventHelper from 'Kubernetes/helpers/eventHelper';
 import {
   KubernetesResourcePoolFormValues,
@@ -27,6 +28,7 @@ class KubernetesResourcePoolController {
     EndpointService,
     ModalService,
     KubernetesNodeService,
+    KubernetesMetricsService,
     KubernetesResourceQuotaService,
     KubernetesResourcePoolService,
     KubernetesEventService,
@@ -45,6 +47,7 @@ class KubernetesResourcePoolController {
       EndpointService,
       ModalService,
       KubernetesNodeService,
+      KubernetesMetricsService,
       KubernetesResourceQuotaService,
       KubernetesResourcePoolService,
       KubernetesEventService,
@@ -240,6 +243,8 @@ class KubernetesResourcePoolController {
           app.Memory = resourceReservation.Memory;
           return app;
         });
+
+        await this.getResourceUsage(this.pool.Namespace.Name);
       } catch (err) {
         this.Notifications.error('Failure', err, 'Unable to retrieve applications.');
       } finally {
@@ -300,11 +305,26 @@ class KubernetesResourcePoolController {
   }
   /* #endregion */
 
+  async getResourceUsage(namespace) {
+    try {
+      const namespaceMetrics = await this.KubernetesMetricsService.getPods(namespace);
+      // extract resource usage of all containers within each pod of the namespace
+      const containerResourceUsageList = namespaceMetrics.items.flatMap((i) => i.containers.map((c) => c.usage));
+      const namespaceResourceUsage = containerResourceUsageList.reduce((total, u) => {
+        total.CPU += KubernetesResourceReservationHelper.parseCPU(u.cpu);
+        total.Memory += KubernetesResourceReservationHelper.megaBytesValue(u.memory);
+        return total;
+      }, new KubernetesResourceReservation());
+      this.state.resourceUsage = namespaceResourceUsage;
+    } catch (err) {
+      this.Notifications.error('Failure', 'Unable to retrieve namespace resource usage', err);
+    }
+  }
+
   /* #region  ON INIT */
   $onInit() {
     return this.$async(async () => {
       try {
-        const endpoint = this.endpoint;
         this.isAdmin = this.Authentication.isAdmin();
 
         this.state = {
@@ -312,9 +332,8 @@ class KubernetesResourcePoolController {
           sliderMaxMemory: 0,
           sliderMaxCpu: 0,
           cpuUsage: 0,
-          cpuUsed: 0,
           memoryUsage: 0,
-          memoryUsed: 0,
+          resourceReservation: { CPU: 0, Memory: 0 },
           activeTab: 0,
           currentName: this.$state.$current.name,
           showEditorTab: false,
@@ -323,7 +342,8 @@ class KubernetesResourcePoolController {
           ingressesLoading: true,
           viewReady: false,
           eventWarningCount: 0,
-          canUseIngress: endpoint.Kubernetes.Configuration.IngressClasses.length,
+          canUseIngress: this.endpoint.Kubernetes.Configuration.IngressClasses.length,
+          useServerMetrics: this.endpoint.Kubernetes.Configuration.UseServerMetrics,
           duplicates: {
             ingressHosts: new KubernetesFormValidationReferences(),
           },
@@ -352,8 +372,8 @@ class KubernetesResourcePoolController {
           this.formValues = KubernetesResourceQuotaConverter.quotaToResourcePoolFormValues(quota);
           this.formValues.EndpointId = this.endpoint.Id;
 
-          this.state.cpuUsed = quota.CpuLimitUsed;
-          this.state.memoryUsed = KubernetesResourceReservationHelper.megaBytesValue(quota.MemoryLimitUsed);
+          this.state.resourceReservation.CPU = quota.CpuLimitUsed;
+          this.state.resourceReservation.Memory = KubernetesResourceReservationHelper.megaBytesValue(quota.MemoryLimitUsed);
         }
 
         this.isEditable = !this.KubernetesNamespaceHelper.isSystemNamespace(this.pool.Namespace.Name);
@@ -366,7 +386,7 @@ class KubernetesResourcePoolController {
 
         if (this.state.canUseIngress) {
           await this.getIngresses();
-          const ingressClasses = endpoint.Kubernetes.Configuration.IngressClasses;
+          const ingressClasses = this.endpoint.Kubernetes.Configuration.IngressClasses;
           this.formValues.IngressClasses = KubernetesIngressConverter.ingressClassesToFormValues(ingressClasses, this.ingresses);
           _.forEach(this.formValues.IngressClasses, (ic) => {
             if (ic.Hosts.length === 0) {
