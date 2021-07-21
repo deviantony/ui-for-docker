@@ -33,7 +33,23 @@ func (payload *updateStackGitPayload) Validate(r *http.Request) error {
 	return nil
 }
 
-// PUT request on /api/stacks/:id/git?endpointId=<endpointId>
+// @id StackUpdateGit
+// @summary Redeploy a stack
+// @description Pull and redeploy a stack via Git
+// @description **Access policy**: restricted
+// @tags stacks
+// @security jwt
+// @accept json
+// @produce json
+// @param id path int true "Stack identifier"
+// @param endpointId query int false "Stacks created before version 1.18.0 might not have an associated endpoint identifier. Use this optional parameter to set the endpoint identifier used by the stack."
+// @param body body updateStackGitPayload true "Git configs for pull and redeploy a stack"
+// @success 200 {object} portainer.Stack "Success"
+// @failure 400 "Invalid request"
+// @failure 403 "Permission denied"
+// @failure 404 "Not found"
+// @failure 500 "Server error"
+// @router /stacks/{id}/git [put]
 func (handler *Handler) stackUpdateGit(w http.ResponseWriter, r *http.Request) *httperror.HandlerError {
 	stackID, err := request.RetrieveNumericRouteVariableValue(r, "id")
 	if err != nil {

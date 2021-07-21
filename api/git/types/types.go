@@ -1,7 +1,10 @@
 package gittypes
 
 type RepoConfig struct {
-	URL            string
-	ReferenceName  string
-	ConfigFilePath string
+	// The repo url
+	URL string `example:"https://github.com/portainer/portainer-ee.git"`
+	// The reference name
+	ReferenceName string `example:"refs/heads/branch_name"`
+	// Path to where the config file is in this url/refName
+	ConfigFilePath string `example:"docker-compose.yml"`
 }
