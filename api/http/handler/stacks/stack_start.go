@@ -26,7 +26,7 @@ import (
 // @success 200 {object} portainer.Stack "Success"
 // @failure 400 "Invalid request"
 // @failure 403 "Permission denied"
-// @failure 404 " not found"
+// @failure 404 "Not found"
 // @failure 500 "Server error"
 // @router /stacks/{id}/start [post]
 func (handler *Handler) stackStart(w http.ResponseWriter, r *http.Request) *httperror.HandlerError {
