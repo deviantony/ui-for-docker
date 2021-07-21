@@ -53,33 +53,43 @@ function ImageHelperFactory() {
  */
 export function buildImageFullURI(imageModel) {
   if (!imageModel.UseRegistry) {
-    return imageModel.Image;
+    return ensureTag(imageModel.Image);
   }
 
-  let fullImageName = '';
+  const imageName = buildImageFullURIWithRegistry(imageModel);
 
+  return ensureTag(imageName);
+
+  function ensureTag(image, defaultTag = 'latest') {
+    return image.includes(':') ? image : `${image}:${defaultTag}`;
+  }
+}
+
+function buildImageFullURIWithRegistry(imageModel) {
   switch (imageModel.Registry.Type) {
     case RegistryTypes.GITLAB:
-      fullImageName = imageModel.Registry.URL + '/' + imageModel.Registry.Gitlab.ProjectPath + (imageModel.Image.startsWith(':') ? '' : '/') + imageModel.Image;
-      break;
-    case RegistryTypes.ANONYMOUS:
-      fullImageName = imageModel.Image;
-      break;
+      return buildImageURIForGitLab(imageModel);
     case RegistryTypes.QUAY:
-      fullImageName =
-        (imageModel.Registry.URL ? imageModel.Registry.URL + '/' : '') +
-        (imageModel.Registry.Quay.UseOrganisation ? imageModel.Registry.Quay.OrganisationName : imageModel.Registry.Username) +
-        '/' +
-        imageModel.Image;
-      break;
+      return buildImageURIForQuay(imageModel);
+    case RegistryTypes.ANONYMOUS:
+      return imageModel.Image;
     default:
-      fullImageName = imageModel.Registry.URL + '/' + imageModel.Image;
-      break;
+      return buildImageURIForOtherRegistry(imageModel);
   }
 
-  if (!imageModel.Image.includes(':')) {
-    fullImageName += ':latest';
+  function buildImageURIForGitLab(imageModel) {
+    const slash = imageModel.Image.startsWith(':') ? '' : '/';
+    return `${imageModel.Registry.URL}/${imageModel.Registry.Gitlab.ProjectPath}${slash}${imageModel.Image}`;
   }
 
-  return fullImageName;
+  function buildImageURIForQuay(imageModel) {
+    const name = imageModel.Registry.Quay.UseOrganisation ? imageModel.Registry.Quay.OrganisationName : imageModel.Registry.Username;
+    const url = imageModel.Registry.URL ? imageModel.Registry.URL + '/' : '';
+    return `${url}${name}/${imageModel.Image}`;
+  }
+
+  function buildImageURIForOtherRegistry(imageModel) {
+    const url = imageModel.Registry.URL ? imageModel.Registry.URL + '/' : '';
+    return url + imageModel.Image;
+  }
 }
