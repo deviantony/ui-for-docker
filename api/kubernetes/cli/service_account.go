@@ -17,7 +17,7 @@ func (kcl *KubeClient) GetServiceAccountBearerToken(userID int) (string, error) 
 // SetupUserServiceAccount will make sure that all the required resources are created inside the Kubernetes
 // cluster before creating a ServiceAccount and a ServiceAccountToken for the specified Portainer user.
 //It will also create required default RoleBinding and ClusterRoleBinding rules.
-func (kcl *KubeClient) SetupUserServiceAccount(userID int, teamIDs []int) error {
+func (kcl *KubeClient) SetupUserServiceAccount(userID int, teamIDs []int, restrictDefaultNamespace bool) error {
 	serviceAccountName := userServiceAccountName(userID, kcl.instanceID)
 
 	err := kcl.ensureRequiredResourcesExist()
@@ -25,20 +25,7 @@ func (kcl *KubeClient) SetupUserServiceAccount(userID int, teamIDs []int) error 
 		return err
 	}
 
-	err = kcl.ensureServiceAccountForUserExists(serviceAccountName)
-	if err != nil {
-		return err
-	}
-
-	return kcl.setupNamespaceAccesses(userID, teamIDs, serviceAccountName)
-}
-
-func (kcl *KubeClient) ensureRequiredResourcesExist() error {
-	return kcl.createPortainerUserClusterRole()
-}
-
-func (kcl *KubeClient) ensureServiceAccountForUserExists(serviceAccountName string) error {
-	err := kcl.createUserServiceAccount(portainerNamespace, serviceAccountName)
+	err = kcl.createUserServiceAccount(portainerNamespace, serviceAccountName)
 	if err != nil {
 		return err
 	}
@@ -53,7 +40,11 @@ func (kcl *KubeClient) ensureServiceAccountForUserExists(serviceAccountName stri
 		return err
 	}
 
-	return kcl.ensureNamespaceAccessForServiceAccount(serviceAccountName, defaultNamespace)
+	return kcl.setupNamespaceAccesses(userID, teamIDs, serviceAccountName, restrictDefaultNamespace)
+}
+
+func (kcl *KubeClient) ensureRequiredResourcesExist() error {
+	return kcl.createPortainerUserClusterRole()
 }
 
 func (kcl *KubeClient) createUserServiceAccount(namespace, serviceAccountName string) error {

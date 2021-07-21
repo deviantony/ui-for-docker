@@ -45,7 +45,7 @@ func (manager *tokenManager) getAdminServiceAccountToken() string {
 	return manager.adminToken
 }
 
-func (manager *tokenManager) getUserServiceAccountToken(userID int) (string, error) {
+func (manager *tokenManager) getUserServiceAccountToken(userID int, endpointID portainer.EndpointID) (string, error) {
 	manager.mutex.Lock()
 	defer manager.mutex.Unlock()
 
@@ -61,7 +61,13 @@ func (manager *tokenManager) getUserServiceAccountToken(userID int) (string, err
 			teamIds = append(teamIds, int(membership.TeamID))
 		}
 
-		err = manager.kubecli.SetupUserServiceAccount(userID, teamIds)
+		endpoint, err := manager.dataStore.Endpoint().Endpoint(endpointID)
+		if err != nil {
+			return "", err
+		}
+
+		restrictDefaultNamespace := endpoint.Kubernetes.Configuration.RestrictDefaultNamespace
+		err = manager.kubecli.SetupUserServiceAccount(userID, teamIds, restrictDefaultNamespace)
 		if err != nil {
 			return "", err
 		}

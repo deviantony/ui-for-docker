@@ -10,5 +10,6 @@ angular.module('portainer.kubernetes').component('kubernetesResourcePoolsDatatab
     reverseOrder: '<',
     removeAction: '<',
     refreshCallback: '<',
+    endpoint: '<',
   },
 });

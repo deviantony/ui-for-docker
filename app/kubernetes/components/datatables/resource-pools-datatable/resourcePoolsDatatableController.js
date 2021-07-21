@@ -18,7 +18,11 @@ angular.module('portainer.docker').controller('KubernetesResourcePoolsDatatableC
     };
 
     this.canManageAccess = function (item) {
-      return item.Namespace.Name !== 'default' && !this.isSystemNamespace(item);
+      if (!this.endpoint.Kubernetes.Configuration.RestrictDefaultNamespace) {
+        return item.Namespace.Name !== 'default' && !this.isSystemNamespace(item);
+      } else {
+        return !this.isSystemNamespace(item);
+      }
     };
 
     this.disableRemove = function (item) {

@@ -151,11 +151,17 @@ func (handler *Handler) endpointUpdate(w http.ResponseWriter, r *http.Request) *
 		}
 	}
 
+	updateAuthorizations := false
+
 	if payload.Kubernetes != nil {
+		if payload.Kubernetes.Configuration.RestrictDefaultNamespace !=
+			endpoint.Kubernetes.Configuration.RestrictDefaultNamespace {
+			updateAuthorizations = true
+		}
+
 		endpoint.Kubernetes = *payload.Kubernetes
 	}
 
-	updateAuthorizations := false
 	if payload.UserAccessPolicies != nil && !reflect.DeepEqual(payload.UserAccessPolicies, endpoint.UserAccessPolicies) {
 		updateAuthorizations = true
 		endpoint.UserAccessPolicies = payload.UserAccessPolicies

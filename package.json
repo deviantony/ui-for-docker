@@ -32,7 +32,7 @@
     "dev:client:prod": "grunt clean:client && webpack-dev-server --config=./webpack/webpack.production.js",
     "dev:nodl": "grunt clean:server && grunt clean:client && grunt build:server && grunt copy:assets && grunt start:client",
     "start:toolkit": "grunt start:toolkit",
-    "build:server:offline": "cd ./api/cmd/portainer && CGO_ENABLED=0 go build -a --installsuffix cgo --ldflags '-s' && mv -f portainer ../../../dist/portainer",
+    "build:server:offline": "cd ./api/cmd/portainer && CGO_ENABLED=0 go build --installsuffix cgo --ldflags '-s' && mv -f portainer ../../../dist/portainer",
     "clean:all": "grunt clean:all",
     "format": "prettier --loglevel warn --write \"**/*.{js,css,html}\""
   },

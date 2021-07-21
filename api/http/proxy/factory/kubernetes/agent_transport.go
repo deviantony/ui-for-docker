@@ -34,7 +34,7 @@ func NewAgentTransport(signatureService portainer.DigitalSignatureService, tlsCo
 
 // RoundTrip is the implementation of the the http.RoundTripper interface
 func (transport *agentTransport) RoundTrip(request *http.Request) (*http.Response, error) {
-	token, err := getRoundTripToken(request, transport.tokenManager)
+	token, err := transport.getRoundTripToken(request, transport.tokenManager)
 	if err != nil {
 		return nil, err
 	}

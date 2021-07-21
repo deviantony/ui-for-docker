@@ -107,6 +107,7 @@ class KubernetesConfigureController {
     endpoint.Kubernetes.Configuration.UseLoadBalancer = this.formValues.UseLoadBalancer;
     endpoint.Kubernetes.Configuration.UseServerMetrics = this.formValues.UseServerMetrics;
     endpoint.Kubernetes.Configuration.IngressClasses = ingressClasses;
+    endpoint.Kubernetes.Configuration.RestrictDefaultNamespace = this.formValues.RestrictDefaultNamespace;
   }
 
   transformFormValues() {
@@ -259,6 +260,7 @@ class KubernetesConfigureController {
       UseLoadBalancer: false,
       UseServerMetrics: false,
       IngressClasses: [],
+      RestrictDefaultNamespace: false,
     };
 
     try {
@@ -281,6 +283,7 @@ class KubernetesConfigureController {
 
       this.formValues.UseLoadBalancer = this.endpoint.Kubernetes.Configuration.UseLoadBalancer;
       this.formValues.UseServerMetrics = this.endpoint.Kubernetes.Configuration.UseServerMetrics;
+      this.formValues.RestrictDefaultNamespace = this.endpoint.Kubernetes.Configuration.RestrictDefaultNamespace;
       this.formValues.IngressClasses = _.map(this.endpoint.Kubernetes.Configuration.IngressClasses, (ic) => {
         ic.IsNew = false;
         ic.NeedsDeletion = false;

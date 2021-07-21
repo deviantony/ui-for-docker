@@ -145,11 +145,7 @@
                 <label class="control-label text-left">
                   Restrict access to the default namespace
                 </label>
-                <label class="switch" style="margin-left: 20px;"> <input type="checkbox" disabled /><i></i> </label>
-                <span class="text-muted small" style="margin-left: 15px;">
-                  <i class="fa fa-user" aria-hidden="true"></i>
-                  This feature is available in <a href="https://www.portainer.io/business-upsell?from=k8s-setup-default" target="_blank"> Portainer Business Edition</a>.
-                </span>
+                <label class="switch" style="margin-left: 20px;"> <input type="checkbox" ng-model="ctrl.formValues.RestrictDefaultNamespace" /><i></i> </label>
               </div>
             </div>
 

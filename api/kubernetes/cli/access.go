@@ -9,10 +9,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-type (
-	namespaceAccessPolicies map[string]portainer.K8sNamespaceAccessPolicy
-)
-
 // NamespaceAccessPoliciesDeleteNamespace removes stored policies associated with a given namespace
 func (kcl *KubeClient) NamespaceAccessPoliciesDeleteNamespace(ns string) error {
 	kcl.lock.Lock()
@@ -48,18 +44,8 @@ func (kcl *KubeClient) GetNamespaceAccessPolicies() (map[string]portainer.K8sNam
 	return policies, nil
 }
 
-func (kcl *KubeClient) setupNamespaceAccesses(userID int, teamIDs []int, serviceAccountName string) error {
-	configMap, err := kcl.cli.CoreV1().ConfigMaps(portainerNamespace).Get(portainerConfigMapName, metav1.GetOptions{})
-	if k8serrors.IsNotFound(err) {
-		return nil
-	} else if err != nil {
-		return err
-	}
-
-	accessData := configMap.Data[portainerConfigMapAccessPoliciesKey]
-
-	var accessPolicies namespaceAccessPolicies
-	err = json.Unmarshal([]byte(accessData), &accessPolicies)
+func (kcl *KubeClient) setupNamespaceAccesses(userID int, teamIDs []int, serviceAccountName string, restrictDefaultNamespace bool) error {
+	accessPolicies, err := kcl.GetNamespaceAccessPolicies()
 	if err != nil {
 		return err
 	}
@@ -70,20 +56,16 @@ func (kcl *KubeClient) setupNamespaceAccesses(userID int, teamIDs []int, service
 	}
 
 	for _, namespace := range namespaces.Items {
-		if namespace.Name == defaultNamespace {
-			continue
-		}
-
-		policies, ok := accessPolicies[namespace.Name]
-		if !ok {
-			err = kcl.removeNamespaceAccessForServiceAccount(serviceAccountName, namespace.Name)
+		if namespace.Name == defaultNamespace && !restrictDefaultNamespace {
+			err = kcl.ensureNamespaceAccessForServiceAccount(serviceAccountName, defaultNamespace)
 			if err != nil {
 				return err
 			}
 			continue
 		}
 
-		if !hasUserAccessToNamespace(userID, teamIDs, policies) {
+		policies, ok := accessPolicies[namespace.Name]
+		if !ok || !hasUserAccessToNamespace(userID, teamIDs, policies) {
 			err = kcl.removeNamespaceAccessForServiceAccount(serviceAccountName, namespace.Name)
 			if err != nil {
 				return err

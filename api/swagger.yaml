@@ -1003,6 +1003,8 @@ definitions:
         type: boolean
       UseServerMetrics:
         type: boolean
+      RestrictDefaultNamespace:
+        type: boolean
     type: object
   portainer.KubernetesData:
     properties:

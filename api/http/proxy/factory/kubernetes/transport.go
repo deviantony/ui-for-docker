@@ -87,7 +87,7 @@ func (transport *baseTransport) executeKubernetesRequest(request *http.Request) 
 // #region ROUND TRIP
 
 func (transport *baseTransport) prepareRoundTrip(request *http.Request) (string, error) {
-	token, err := getRoundTripToken(request, transport.tokenManager)
+	token, err := transport.getRoundTripToken(request, transport.tokenManager)
 	if err != nil {
 		return "", err
 	}
@@ -102,7 +102,7 @@ func (transport *baseTransport) RoundTrip(request *http.Request) (*http.Response
 	return transport.proxyKubernetesRequest(request)
 }
 
-func getRoundTripToken(request *http.Request, tokenManager *tokenManager) (string, error) {
+func (transport *baseTransport) getRoundTripToken(request *http.Request, tokenManager *tokenManager) (string, error) {
 	tokenData, err := security.RetrieveTokenData(request)
 	if err != nil {
 		return "", err
@@ -112,7 +112,7 @@ func getRoundTripToken(request *http.Request, tokenManager *tokenManager) (strin
 	if tokenData.Role == portainer.AdministratorRole {
 		token = tokenManager.getAdminServiceAccountToken()
 	} else {
-		token, err = tokenManager.getUserServiceAccountToken(int(tokenData.ID))
+		token, err = tokenManager.getUserServiceAccountToken(int(tokenData.ID), transport.endpoint.ID)
 		if err != nil {
 			log.Printf("Failed retrieving service account token: %v", err)
 			return "", err
