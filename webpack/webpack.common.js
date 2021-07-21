@@ -11,7 +11,7 @@ const projectRoot = path.resolve(__dirname, '..');
 
 module.exports = {
   entry: {
-    main: './app/__module.js',
+    main: './app',
   },
   output: {
     filename: '[name].[hash].js',
