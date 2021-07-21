@@ -1,9 +1,13 @@
-<div>
+<ng-form name="$ctrl.gitForm">
   <div class="col-sm-12 form-section-title">
     Git repository
   </div>
   <git-form-url-field value="$ctrl.model.RepositoryURL" on-change="($ctrl.onChangeURL)"></git-form-url-field>
   <git-form-ref-field value="$ctrl.model.RepositoryReferenceName" on-change="($ctrl.onChangeRefName)"></git-form-ref-field>
-  <git-form-compose-path-field value="$ctrl.model.ComposeFilePathInRepository" on-change="($ctrl.onChangeComposePath)"></git-form-compose-path-field>
+  <git-form-compose-path-field
+    value="$ctrl.model.ComposeFilePathInRepository"
+    on-change="($ctrl.onChangeComposePath)"
+    deploy-method="{{ $ctrl.deployMethod }}"
+  ></git-form-compose-path-field>
   <git-form-auth-fieldset model="$ctrl.model" on-change="($ctrl.onChange)"></git-form-auth-fieldset>
-</div>
+</ng-form>

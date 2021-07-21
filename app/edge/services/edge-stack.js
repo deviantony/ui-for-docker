@@ -25,15 +25,10 @@ angular.module('portainer.edge').factory('EdgeStackService', function EdgeStackS
   };
 
   service.updateStack = async function updateStack(id, stack) {
-    return EdgeStacks.update({ id }, stack);
+    return EdgeStacks.update({ id }, stack).$promise;
   };
 
-  service.createStackFromFileContent = async function createStackFromFileContent(name, stackFileContent, edgeGroups) {
-    var payload = {
-      Name: name,
-      StackFileContent: stackFileContent,
-      EdgeGroups: edgeGroups,
-    };
+  service.createStackFromFileContent = async function createStackFromFileContent(payload) {
     try {
       return await EdgeStacks.create({ method: 'string' }, payload).$promise;
     } catch (err) {
@@ -41,27 +36,28 @@ angular.module('portainer.edge').factory('EdgeStackService', function EdgeStackS
     }
   };
 
-  service.createStackFromFileUpload = async function createStackFromFileUpload(name, stackFile, edgeGroups) {
+  service.createStackFromFileUpload = async function createStackFromFileUpload(payload, file) {
     try {
-      return await FileUploadService.createEdgeStack(name, stackFile, edgeGroups);
+      return await FileUploadService.createEdgeStack(payload, file);
     } catch (err) {
       throw { msg: 'Unable to create the stack', err };
     }
   };
 
-  service.createStackFromGitRepository = async function createStackFromGitRepository(name, repositoryOptions, edgeGroups) {
-    var payload = {
-      Name: name,
-      RepositoryURL: repositoryOptions.RepositoryURL,
-      RepositoryReferenceName: repositoryOptions.RepositoryReferenceName,
-      ComposeFilePathInRepository: repositoryOptions.ComposeFilePathInRepository,
-      RepositoryAuthentication: repositoryOptions.RepositoryAuthentication,
-      RepositoryUsername: repositoryOptions.RepositoryUsername,
-      RepositoryPassword: repositoryOptions.RepositoryPassword,
-      EdgeGroups: edgeGroups,
-    };
+  service.createStackFromGitRepository = async function createStackFromGitRepository(payload, repositoryOptions) {
     try {
-      return await EdgeStacks.create({ method: 'repository' }, payload).$promise;
+      return await EdgeStacks.create(
+        { method: 'repository' },
+        {
+          ...payload,
+          RepositoryURL: repositoryOptions.RepositoryURL,
+          RepositoryReferenceName: repositoryOptions.RepositoryReferenceName,
+          FilePathInRepository: repositoryOptions.FilePathInRepository,
+          RepositoryAuthentication: repositoryOptions.RepositoryAuthentication,
+          RepositoryUsername: repositoryOptions.RepositoryUsername,
+          RepositoryPassword: repositoryOptions.RepositoryPassword,
+        }
+      ).$promise;
     } catch (err) {
       throw { msg: 'Unable to create the stack', err };
     }

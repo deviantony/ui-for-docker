@@ -1,0 +1,24 @@
+<div
+  class="box-selector-item"
+  tooltip-append-to-body="true"
+  tooltip-placement="bottom"
+  tooltip-class="portainer-tooltip"
+  tooltip-enable="$ctrl.tooltip"
+  uib-tooltip="{{ $ctrl.tooltip }}"
+>
+  <input
+    type="radio"
+    name="{{ $ctrl.radioName }}"
+    id="{{ $ctrl.option.id }}"
+    ng-checked="$ctrl.isChecked($ctrl.option.value)"
+    ng-value="$ctrl.option.value"
+    ng-disabled="$ctrl.disabled"
+  />
+  <label for="{{ $ctrl.option.id }}" ng-click="$ctrl.onChange($ctrl.option.value)" t>
+    <div class="boxselector_header">
+      <i ng-class="$ctrl.option.icon" aria-hidden="true" style="margin-right: 2px;"></i>
+      {{ $ctrl.option.label }}
+    </div>
+    <p ng-if="$ctrl.option.description">{{ $ctrl.option.description }}</p>
+  </label>
+</div>

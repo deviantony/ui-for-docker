@@ -188,16 +188,22 @@ type (
 	//EdgeStack represents an edge stack
 	EdgeStack struct {
 		// EdgeStack Identifier
-		ID           EdgeStackID                    `json:"Id" example:"1"`
-		Name         string                         `json:"Name"`
-		Status       map[EndpointID]EdgeStackStatus `json:"Status"`
-		CreationDate int64                          `json:"CreationDate"`
-		EdgeGroups   []EdgeGroupID                  `json:"EdgeGroups"`
-		ProjectPath  string                         `json:"ProjectPath"`
-		EntryPoint   string                         `json:"EntryPoint"`
-		Version      int                            `json:"Version"`
-		Prune        bool                           `json:"Prune"`
+		ID             EdgeStackID                    `json:"Id" example:"1"`
+		Name           string                         `json:"Name"`
+		Status         map[EndpointID]EdgeStackStatus `json:"Status"`
+		CreationDate   int64                          `json:"CreationDate"`
+		EdgeGroups     []EdgeGroupID                  `json:"EdgeGroups"`
+		ProjectPath    string                         `json:"ProjectPath"`
+		EntryPoint     string                         `json:"EntryPoint"`
+		Version        int                            `json:"Version"`
+		ManifestPath   string
+		DeploymentType EdgeStackDeploymentType
+
+		// Deprecated
+		Prune bool `json:"Prune"`
 	}
+
+	EdgeStackDeploymentType int
 
 	//EdgeStackID represents an edge stack id
 	EdgeStackID int
@@ -1423,6 +1429,13 @@ const (
 	CustomTemplatePlatformLinux
 	// CustomTemplatePlatformWindows represents a custom template for windows
 	CustomTemplatePlatformWindows
+)
+
+const (
+	// EdgeStackDeploymentCompose represent an edge stack deployed using a compose file
+	EdgeStackDeploymentCompose EdgeStackDeploymentType = iota
+	// EdgeStackDeploymentKubernetes represent an edge stack deployed using a kubernetes manifest file
+	EdgeStackDeploymentKubernetes
 )
 
 const (

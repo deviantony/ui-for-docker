@@ -8,11 +8,13 @@
   <div class="col-sm-10">
     <input
       type="text"
+      name="repoUrlField"
       class="form-control"
       ng-model="$ctrl.value"
       ng-change="$ctrl.onChange($ctrl.value)"
       id="stack_repository_url"
       placeholder="https://github.com/portainer/portainer-compose"
+      required
     />
   </div>
 </div>

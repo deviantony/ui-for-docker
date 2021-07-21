@@ -42,24 +42,17 @@ func (handler *Handler) edgeStackDelete(w http.ResponseWriter, r *http.Request) 
 		return &httperror.HandlerError{http.StatusInternalServerError, "Unable to remove the edge stack from the database", err}
 	}
 
-	endpoints, err := handler.DataStore.Endpoint().Endpoints()
+	relationConfig, err := fetchEndpointRelationsConfig(handler.DataStore)
 	if err != nil {
-		return &httperror.HandlerError{http.StatusInternalServerError, "Unable to retrieve endpoints from database", err}
+		return &httperror.HandlerError{http.StatusInternalServerError, "Unable to retrieve relations config from database", err}
 	}
 
-	endpointGroups, err := handler.DataStore.EndpointGroup().EndpointGroups()
+	relatedEndpointIds, err := edge.EdgeStackRelatedEndpoints(edgeStack.EdgeGroups, relationConfig.endpoints, relationConfig.endpointGroups, relationConfig.edgeGroups)
 	if err != nil {
-		return &httperror.HandlerError{http.StatusInternalServerError, "Unable to retrieve endpoint groups from database", err}
+		return &httperror.HandlerError{http.StatusInternalServerError, "Unable to retrieve edge stack related endpoints from database", err}
 	}
 
-	edgeGroups, err := handler.DataStore.EdgeGroup().EdgeGroups()
-	if err != nil {
-		return &httperror.HandlerError{http.StatusInternalServerError, "Unable to retrieve edge groups from database", err}
-	}
-
-	relatedEndpoints, err := edge.EdgeStackRelatedEndpoints(edgeStack.EdgeGroups, endpoints, endpointGroups, edgeGroups)
-
-	for _, endpointID := range relatedEndpoints {
+	for _, endpointID := range relatedEndpointIds {
 		relation, err := handler.DataStore.EndpointRelation().EndpointRelation(endpointID)
 		if err != nil {
 			return &httperror.HandlerError{http.StatusInternalServerError, "Unable to find endpoint relation in database", err}

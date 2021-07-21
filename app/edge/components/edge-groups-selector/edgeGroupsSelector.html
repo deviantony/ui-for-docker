@@ -1,4 +1,5 @@
-<ui-select multiple ng-model="$ctrl.model" close-on-select="false">
+<!-- on-select/on-remove are called with model because ui-select uses 2-way-binding -->
+<ui-select multiple ng-model="$ctrl.model" close-on-select="false" on-select="$ctrl.onChange($ctrl.model)" on-remove="$ctrl.onChange($ctrl.model)">
   <ui-select-match placeholder="Select one or multiple group(s)">
     <span>
       {{ $item.Name }}

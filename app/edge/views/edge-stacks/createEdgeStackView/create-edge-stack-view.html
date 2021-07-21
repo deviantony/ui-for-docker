@@ -1,0 +1,80 @@
+<rd-header>
+  <rd-header-title title-text="Create Edge stack"></rd-header-title>
+  <rd-header-content> <a ui-sref="edge.stacks">Edge Stacks</a> &gt; Create Edge stack </rd-header-content>
+</rd-header>
+
+<div class="row">
+  <div class="col-sm-12">
+    <rd-widget>
+      <rd-widget-body>
+        <form class="form-horizontal" name="$ctrl.form">
+          <!-- name-input -->
+          <div class="form-group">
+            <label for="stack_name" class="col-sm-1 control-label text-left">
+              Name
+            </label>
+            <div class="col-sm-11">
+              <input type="text" class="form-control" ng-model="$ctrl.formValues.Name" id="stack_name" name="nameField" placeholder="e.g. mystack" auto-focus required />
+            </div>
+          </div>
+          <!-- !name-input -->
+
+          <div class="col-sm-12 form-section-title">
+            Edge Groups
+          </div>
+          <div class="form-group" ng-if="$ctrl.edgeGroups">
+            <div class="col-sm-12">
+              <edge-groups-selector ng-if="!$ctrl.noGroups" model="$ctrl.formValues.Groups" on-change="($ctrl.onChangeGroups)" items="$ctrl.edgeGroups"></edge-groups-selector>
+            </div>
+            <div ng-if="$ctrl.noGroups" class="col-sm-12 small text-muted">
+              No Edge groups are available. Head over to the <a ui-sref="edge.groups">Edge groups view</a> to create one.
+            </div>
+          </div>
+
+          <edge-stack-deployment-type-selector
+            value="$ctrl.formValues.DeploymentType"
+            has-docker-endpoint="$ctrl.hasDockerEndpoint"
+            on-change="($ctrl.onChangeDeploymentType)"
+          ></edge-stack-deployment-type-selector>
+
+          <div class="form-group">
+            <div class="col-sm-12">
+              <div class="small text-muted space-right" ng-if="$ctrl.formValues.DeploymentType === 0 && $ctrl.hasKubeEndpoint()">
+                <i class="fa fa-exclamation-triangle orange-icon" aria-hidden="true"></i>
+                Portainer uses <a href="https://kompose.io/" target="_blank">Kompose</a> to convert your Compose manifest to a Kubernetes compliant manifest. Be wary that not all
+                the Compose format options are supported by Kompose at the moment.
+              </div>
+            </div>
+          </div>
+
+          <edge-stacks-docker-compose-form ng-if="$ctrl.formValues.DeploymentType == 0" form-values="$ctrl.formValues" state="$ctrl.state"></edge-stacks-docker-compose-form>
+
+          <edge-stacks-kube-manifest-form ng-if="$ctrl.formValues.DeploymentType == 1" form-values="$ctrl.formValues" state="$ctrl.state"></edge-stacks-kube-manifest-form>
+
+          <!-- actions -->
+          <div class="col-sm-12 form-section-title">
+            Actions
+          </div>
+          <div class="form-group">
+            <div class="col-sm-12">
+              <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                ng-disabled="$ctrl.state.actionInProgress || $ctrl.formIsInvalid()"
+                ng-click="$ctrl.createStack()"
+                button-spinner="$ctrl.state.actionInProgress"
+              >
+                <span ng-hide="$ctrl.state.actionInProgress">Deploy the stack</span>
+                <span ng-show="$ctrl.state.actionInProgress">Deployment in progress...</span>
+              </button>
+              <span class="text-danger" ng-if="$ctrl.state.formValidationError" style="margin-left: 5px;">
+                {{ $ctrl.state.formValidationError }}
+              </span>
+            </div>
+          </div>
+          <!-- !actions -->
+        </form>
+      </rd-widget-body>
+    </rd-widget>
+  </div>
+</div>

@@ -4,51 +4,69 @@
   </div>
   <div class="form-group">
     <div class="col-sm-12">
-      <edge-groups-selector model="$ctrl.model.EdgeGroups" items="$ctrl.edgeGroups"></edge-groups-selector>
+      <edge-groups-selector model="$ctrl.model.EdgeGroups" items="$ctrl.edgeGroups" on-change="($ctrl.onChangeGroups)"></edge-groups-selector>
     </div>
   </div>
 
-  <!-- web-editor -->
-  <div class="col-sm-12 form-section-title">
-    Web editor
-  </div>
-  <div class="form-group">
-    <span class="col-sm-12 text-muted small">
-      You can get more information about Compose file format in the
-      <a href="https://docs.docker.com/compose/compose-file/" target="_blank">
-        official documentation
-      </a>
-      .
-    </span>
-  </div>
-  <div class="form-group">
+  <div class="form-group" ng-if="!$ctrl.validateEndpointsForDeployment()">
     <div class="col-sm-12">
-      <code-editor
-        value="$ctrl.model.StackFileContent"
-        identifier="stack-creation-editor"
-        placeholder="# Define or paste the content of your docker-compose file here"
-        yml="true"
-        on-change="($ctrl.editorUpdate)"
-      ></code-editor>
+      <div class="small text-muted space-right text-warning">
+        <i class="fa fa-exclamation-triangle orange-icon" aria-hidden="true"></i>
+        One or more of the selected Edge group contains Edge Docker endpoints that cannot be used with a Kubernetes Edge stack.
+      </div>
     </div>
   </div>
-  <!-- !web-editor -->
 
-  <div class="col-sm-12 form-section-title">
-    Options
-  </div>
-  <div class="form-group">
+  <edge-stack-deployment-type-selector
+    value="$ctrl.model.DeploymentType"
+    has-docker-endpoint="$ctrl.hasDockerEndpoint"
+    on-change="($ctrl.onChangeDeploymentType)"
+  ></edge-stack-deployment-type-selector>
+
+  <div class="form-group" ng-if="$ctrl.model.DeploymentType === 0 && $ctrl.hasKubeEndpoint()">
     <div class="col-sm-12">
-      <label for="EnablePrune" class="control-label text-left">
-        Prune services
-        <portainer-tooltip position="bottom" message="Prune services that are not longer referenced in the stack file."></portainer-tooltip>
-      </label>
-      <label class="switch" style="margin-left: 20px;">
-        <input type="checkbox" name="EnablePrune" ng-model="$ctrl.model.Prune" />
-        <i></i>
-      </label>
+      <div class="small text-muted space-right">
+        <i class="fa fa-exclamation-triangle orange-icon" aria-hidden="true"></i>
+        Portainer uses <a href="https://kompose.io/" target="_blank">Kompose</a> to convert your Compose manifest to a Kubernetes compliant manifest. Be wary that not all the
+        Compose format options are supported by Kompose at the moment.
+      </div>
     </div>
   </div>
+
+  <web-editor-form
+    ng-if="$ctrl.model.DeploymentType === 0"
+    value="$ctrl.model.StackFileContent"
+    yml="true"
+    identifier="compose-editor"
+    placeholder="# Define or paste the content of your docker-compose file here"
+    on-change="($ctrl.onChangeComposeConfig)"
+  >
+    <editor-description>
+      <div>
+        You can get more information about Compose file format in the
+        <a href="https://docs.docker.com/compose/compose-file/" target="_blank">
+          official documentation
+        </a>
+        .
+      </div>
+    </editor-description>
+  </web-editor-form>
+
+  <web-editor-form
+    ng-if="$ctrl.model.DeploymentType === 1"
+    value="$ctrl.model.StackFileContent"
+    yml="true"
+    identifier="kube-manifest-editor"
+    placeholder="# Define or paste the content of your manifest here"
+    on-change="($ctrl.onChangeKubeManifest)"
+  >
+    <editor-description>
+      <p>
+        You can get more information about Kubernetes file format in the
+        <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/" target="_blank">official documentation</a>.
+      </p>
+    </editor-description>
+  </web-editor-form>
 
   <!-- actions -->
   <div class="col-sm-12 form-section-title">
@@ -59,9 +77,7 @@
       <button
         type="button"
         class="btn btn-primary btn-sm"
-        ng-disabled="$ctrl.actionInProgress
-                  || !$ctrl.model.EdgeGroups.length
-                  || !$ctrl.model.StackFileContent"
+        ng-disabled="$ctrl.actionInProgress || !$ctrl.isFormValid()"
         ng-click="$ctrl.submitAction()"
         button-spinner="$ctrl.actionInProgress"
       >

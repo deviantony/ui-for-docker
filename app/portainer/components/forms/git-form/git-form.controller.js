@@ -15,4 +15,8 @@ export default class GitFormController {
       });
     };
   }
+
+  $onInit() {
+    this.deployMethod = this.deployMethod || 'compose';
+  }
 }

@@ -1,0 +1,19 @@
+<ng-form class="file-upload-form" name="$ctrl.fileUploadForm">
+  <div class="col-sm-12 form-section-title">
+    Upload
+  </div>
+  <div class="form-group">
+    <span class="col-sm-12 text-muted small" ng-transclude="description"> </span>
+  </div>
+  <div class="form-group">
+    <div class="col-sm-12">
+      <button type="button" class="btn btn-sm btn-primary" ngf-select="$ctrl.onChange($file)" ng-model="$ctrl.file" ng-required="$ctrl.ngRequired" name="file">
+        Select file
+      </button>
+      <span class="space-left">
+        {{ $ctrl.file.name }}
+        <i class="fa fa-times red-icon" ng-if="!$ctrl.file" aria-hidden="true"></i>
+      </span>
+    </div>
+  </div>
+</ng-form>

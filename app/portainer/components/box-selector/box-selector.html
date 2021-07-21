@@ -1,0 +1,15 @@
+<div class="form-group"></div>
+
+<div class="form-group">
+  <div class="boxselector_wrapper">
+    <box-selector-item
+      ng-repeat="option in $ctrl.options"
+      radio-name="{{ $ctrl.radioName }}"
+      option="option"
+      on-change="($ctrl.change)"
+      is-checked="$ctrl.isChecked"
+      disabled="option.disabled()"
+      tooltip="option.tooltip()"
+    ></box-selector-item>
+  </div>
+</div>

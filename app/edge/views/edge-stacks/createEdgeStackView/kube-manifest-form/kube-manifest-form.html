@@ -1,0 +1,26 @@
+<div class="col-sm-12 form-section-title">
+  Build method
+</div>
+<box-selector radio-name="method" ng-model="$ctrl.state.Method" options="$ctrl.methodOptions" on-change="($ctrl.onChangeMethod)"></box-selector>
+
+<web-editor-form
+  ng-if="$ctrl.state.Method === 'editor'"
+  identifier="stack-creation-editor"
+  value="$ctrl.formValues.StackFileContent"
+  on-change="($ctrl.onChangeFileContent)"
+  yml="true"
+  placeholder="# Define or paste the content of your manifest here"
+  ng-required="true"
+>
+  <editor-description>
+    <kube-deploy-description></kube-deploy-description>
+  </editor-description>
+</web-editor-form>
+
+<file-upload-form ng-if="$ctrl.state.Method === 'upload'" file="$ctrl.formValues.StackFile" on-change="($ctrl.onChangeFile)" ng-required="true">
+  <file-upload-description>
+    <kube-deploy-description></kube-deploy-description>
+  </file-upload-description>
+</file-upload-form>
+
+<git-form ng-if="$ctrl.state.Method === 'repository'" deploy-method="kubernetes" model="$ctrl.formValues" on-change="($ctrl.onChangeFormValues)"></git-form>

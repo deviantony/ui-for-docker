@@ -1,0 +1,13 @@
+<ng-form name="$ctrl.webEditorForm">
+  <div class="col-sm-12 form-section-title">
+    Web editor
+  </div>
+  <div class="form-group">
+    <span class="col-sm-12 text-muted small" ng-transclude="description"> </span>
+  </div>
+  <div class="form-group">
+    <div class="col-sm-12">
+      <code-editor identifier="{{ $ctrl.identifier }}" placeholder="{{ $ctrl.placeholder }}" yml="$ctrl.yml" value="$ctrl.value" on-change="($ctrl.editorUpdate)"></code-editor>
+    </div>
+  </div>
+</ng-form>

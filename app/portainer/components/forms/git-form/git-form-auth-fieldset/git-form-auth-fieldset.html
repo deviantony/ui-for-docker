@@ -1,6 +1,6 @@
 <div class="form-group">
   <div class="col-sm-12">
-    <por-switch-field ng-model="$ctrl.model.RepositoryAuthentication" label="Authentication" on-change="($ctrl.onChangeAuth)"></por-switch-field>
+    <por-switch-field ng-model="$ctrl.model.RepositoryAuthentication" label="Authentication" name="authSwitch" on-change="($ctrl.onChangeAuth)"></por-switch-field>
   </div>
 </div>
 <div ng-if="$ctrl.model.RepositoryAuthentication">
@@ -20,6 +20,7 @@
         name="repository_username"
         placeholder="myGitUser"
         ng-change="$ctrl.onChangeUsername($ctrl.model.RepositoryUsername)"
+        ng-required="$ctrl.model.RepositoryAuthentication"
       />
     </div>
     <label for="repository_password" class="col-sm-1 control-label text-left">
@@ -33,6 +34,7 @@
         name="repository_password"
         placeholder="myPassword"
         ng-change="$ctrl.onChangePassword($ctrl.model.RepositoryPassword)"
+        ng-required="$ctrl.model.RepositoryAuthentication"
       />
     </div>
   </div>

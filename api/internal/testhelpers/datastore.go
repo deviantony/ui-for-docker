@@ -4,6 +4,7 @@ import (
 	"io"
 
 	portainer "github.com/portainer/portainer/api"
+	"github.com/portainer/portainer/api/bolt/errors"
 )
 
 type datastore struct {
@@ -108,5 +109,108 @@ func (s *stubEdgeJobService) GetNextIdentifier() int                     { retur
 func WithEdgeJobs(js []portainer.EdgeJob) datastoreOption {
 	return func(d *datastore) {
 		d.edgeJob = &stubEdgeJobService{jobs: js}
+	}
+}
+
+type stubEndpointRelationService struct {
+	relations []portainer.EndpointRelation
+}
+
+func (s *stubEndpointRelationService) EndpointRelations() ([]portainer.EndpointRelation, error) {
+	return s.relations, nil
+}
+func (s *stubEndpointRelationService) EndpointRelation(ID portainer.EndpointID) (*portainer.EndpointRelation, error) {
+	for _, relation := range s.relations {
+		if relation.EndpointID == ID {
+			return &relation, nil
+		}
+	}
+
+	return nil, errors.ErrObjectNotFound
+}
+func (s *stubEndpointRelationService) CreateEndpointRelation(EndpointRelation *portainer.EndpointRelation) error {
+	return nil
+}
+func (s *stubEndpointRelationService) UpdateEndpointRelation(ID portainer.EndpointID, relation *portainer.EndpointRelation) error {
+	for i, r := range s.relations {
+		if r.EndpointID == ID {
+			s.relations[i] = *relation
+		}
+	}
+
+	return nil
+}
+func (s *stubEndpointRelationService) DeleteEndpointRelation(ID portainer.EndpointID) error {
+	return nil
+}
+func (s *stubEndpointRelationService) GetNextIdentifier() int { return 0 }
+
+// WithEndpointRelations option will instruct datastore to return provided jobs
+func WithEndpointRelations(relations []portainer.EndpointRelation) datastoreOption {
+	return func(d *datastore) {
+		d.endpointRelation = &stubEndpointRelationService{relations: relations}
+	}
+}
+
+type stubEndpointService struct {
+	endpoints []portainer.Endpoint
+}
+
+func (s *stubEndpointService) Endpoint(ID portainer.EndpointID) (*portainer.Endpoint, error) {
+	for _, endpoint := range s.endpoints {
+		if endpoint.ID == ID {
+			return &endpoint, nil
+		}
+	}
+
+	return nil, errors.ErrObjectNotFound
+}
+
+func (s *stubEndpointService) Endpoints() ([]portainer.Endpoint, error) {
+	return s.endpoints, nil
+}
+
+func (s *stubEndpointService) CreateEndpoint(endpoint *portainer.Endpoint) error {
+	s.endpoints = append(s.endpoints, *endpoint)
+
+	return nil
+}
+
+func (s *stubEndpointService) UpdateEndpoint(ID portainer.EndpointID, endpoint *portainer.Endpoint) error {
+	for i, e := range s.endpoints {
+		if e.ID == ID {
+			s.endpoints[i] = *endpoint
+		}
+	}
+
+	return nil
+}
+
+func (s *stubEndpointService) DeleteEndpoint(ID portainer.EndpointID) error {
+	endpoints := []portainer.Endpoint{}
+
+	for _, endpoint := range s.endpoints {
+		if endpoint.ID != ID {
+			endpoints = append(endpoints, endpoint)
+		}
+	}
+
+	s.endpoints = endpoints
+
+	return nil
+}
+
+func (s *stubEndpointService) Synchronize(toCreate []*portainer.Endpoint, toUpdate []*portainer.Endpoint, toDelete []*portainer.Endpoint) error {
+	panic("not implemented")
+}
+
+func (s *stubEndpointService) GetNextIdentifier() int {
+	return len(s.endpoints)
+}
+
+// WithEndpoints option will instruct datastore to return provided endpoints
+func WithEndpoints(endpoints []portainer.Endpoint) datastoreOption {
+	return func(d *datastore) {
+		d.endpoint = &stubEndpointService{endpoints: endpoints}
 	}
 }

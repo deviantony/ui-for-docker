@@ -16,10 +16,10 @@ angular.module('portainer.app').factory('Notifications', [
 
     service.error = function (title, e, fallbackText) {
       var msg = fallbackText;
-      if (e.err && e.err.data && e.err.data.message) {
-        msg = e.err.data.message;
-      } else if (e.err && e.err.data && e.err.data.details) {
+      if (e.err && e.err.data && e.err.data.details) {
         msg = e.err.data.details;
+      } else if (e.err && e.err.data && e.err.data.message) {
+        msg = e.err.data.message;
       } else if (e.data && e.data.details) {
         msg = e.data.details;
       } else if (e.data && e.data.message) {
@@ -39,6 +39,9 @@ angular.module('portainer.app').factory('Notifications', [
       } else if (e.msg) {
         msg = e.msg;
       }
+
+      // eslint-disable-next-line no-console
+      console.error(e);
 
       if (msg !== 'Invalid JWT token') {
         toastr.error($sanitize(msg), $sanitize(title), { timeOut: 6000 });

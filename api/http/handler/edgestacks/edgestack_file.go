@@ -41,7 +41,12 @@ func (handler *Handler) edgeStackFile(w http.ResponseWriter, r *http.Request) *h
 		return &httperror.HandlerError{http.StatusInternalServerError, "Unable to find an edge stack with the specified identifier inside the database", err}
 	}
 
-	stackFileContent, err := handler.FileService.GetFileContent(path.Join(stack.ProjectPath, stack.EntryPoint))
+	fileName := stack.EntryPoint
+	if stack.DeploymentType == portainer.EdgeStackDeploymentKubernetes {
+		fileName = stack.ManifestPath
+	}
+
+	stackFileContent, err := handler.FileService.GetFileContent(path.Join(stack.ProjectPath, fileName))
 	if err != nil {
 		return &httperror.HandlerError{http.StatusInternalServerError, "Unable to retrieve Compose file from disk", err}
 	}

@@ -56,7 +56,7 @@ class AssoicatedEndpointsSelectorController {
 
   async getEndpointsAsync() {
     const { start, search, limit } = this.getPaginationData('available');
-    const query = { search, types: [4] };
+    const query = { search, types: [4, 7] };
 
     const response = await this.EndpointService.endpoints(start, limit, query);
 
@@ -73,7 +73,7 @@ class AssoicatedEndpointsSelectorController {
     let response = { value: [], totalCount: 0 };
     if (this.endpointIds.length > 0) {
       const { start, search, limit } = this.getPaginationData('associated');
-      const query = { search, types: [4], endpointIds: this.endpointIds };
+      const query = { search, types: [4, 7], endpointIds: this.endpointIds };
 
       response = await this.EndpointService.endpoints(start, limit, query);
     }

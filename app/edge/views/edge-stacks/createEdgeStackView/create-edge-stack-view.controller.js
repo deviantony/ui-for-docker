@@ -1,6 +1,4 @@
-import _ from 'lodash-es';
-
-export class CreateEdgeStackViewController {
+export default class CreateEdgeStackViewController {
   /* @ngInject */
   constructor($state, $window, ModalService, EdgeStackService, EdgeGroupService, EdgeTemplateService, Notifications, FormHelper, $async) {
     Object.assign(this, { $state, $window, ModalService, EdgeStackService, EdgeGroupService, EdgeTemplateService, Notifications, FormHelper, $async });
@@ -15,8 +13,9 @@ export class CreateEdgeStackViewController {
       RepositoryUsername: '',
       RepositoryPassword: '',
       Env: [],
-      ComposeFilePathInRepository: 'docker-compose.yml',
+      ComposeFilePathInRepository: '',
       Groups: [],
+      DeploymentType: 0,
     };
 
     this.state = {
@@ -25,25 +24,24 @@ export class CreateEdgeStackViewController {
       actionInProgress: false,
       StackType: null,
       isEditorDirty: false,
+      hasKubeEndpoint: false,
+      endpointTypes: [],
     };
 
     this.edgeGroups = null;
 
     this.createStack = this.createStack.bind(this);
-    this.createStackAsync = this.createStackAsync.bind(this);
     this.validateForm = this.validateForm.bind(this);
     this.createStackByMethod = this.createStackByMethod.bind(this);
     this.createStackFromFileContent = this.createStackFromFileContent.bind(this);
     this.createStackFromFileUpload = this.createStackFromFileUpload.bind(this);
     this.createStackFromGitRepository = this.createStackFromGitRepository.bind(this);
-    this.editorUpdate = this.editorUpdate.bind(this);
-    this.onChangeTemplate = this.onChangeTemplate.bind(this);
-    this.onChangeTemplateAsync = this.onChangeTemplateAsync.bind(this);
-    this.onChangeMethod = this.onChangeMethod.bind(this);
-    this.onChangeFormValues = this.onChangeFormValues.bind(this);
+    this.onChangeGroups = this.onChangeGroups.bind(this);
+    this.hasDockerEndpoint = this.hasDockerEndpoint.bind(this);
+    this.onChangeDeploymentType = this.onChangeDeploymentType.bind(this);
   }
 
-  async uiCanExit() {
+  uiCanExit() {
     if (this.state.Method === 'editor' && this.formValues.StackFileContent && this.state.isEditorDirty) {
       return this.ModalService.confirmWebEditorDiscard();
     }
@@ -57,13 +55,6 @@ export class CreateEdgeStackViewController {
       this.Notifications.error('Failure', err, 'Unable to retrieve Edge groups');
     }
 
-    try {
-      const templates = await this.EdgeTemplateService.edgeTemplates();
-      this.templates = _.map(templates, (template) => ({ ...template, label: `${template.title} - ${template.description}` }));
-    } catch (err) {
-      this.Notifications.error('Failure', err, 'Unable to retrieve Templates');
-    }
-
     this.$window.onbeforeunload = () => {
       if (this.state.Method === 'editor' && this.formValues.StackFileContent && this.state.isEditorDirty) {
         return '';
@@ -72,52 +63,54 @@ export class CreateEdgeStackViewController {
   }
 
   createStack() {
-    return this.$async(this.createStackAsync);
+    return this.$async(async () => {
+      const name = this.formValues.Name;
+      let method = this.state.Method;
+
+      if (method === 'template') {
+        method = 'editor';
+      }
+
+      if (!this.validateForm(method)) {
+        return;
+      }
+
+      this.state.actionInProgress = true;
+      try {
+        await this.createStackByMethod(name, method);
+
+        this.Notifications.success('Stack successfully deployed');
+        this.state.isEditorDirty = false;
+        this.$state.go('edge.stacks');
+      } catch (err) {
+        this.Notifications.error('Deployment error', err, 'Unable to deploy stack');
+      } finally {
+        this.state.actionInProgress = false;
+      }
+    });
   }
 
-  onChangeMethod() {
-    this.formValues.StackFileContent = '';
-    this.selectedTemplate = null;
+  onChangeGroups(groups) {
+    this.formValues.Groups = groups;
+
+    this.checkIfEndpointTypes(groups);
   }
 
-  onChangeTemplate(template) {
-    return this.$async(this.onChangeTemplateAsync, template);
-  }
+  checkIfEndpointTypes(groups) {
+    const edgeGroups = groups.map((id) => this.edgeGroups.find((e) => e.Id === id));
+    this.state.endpointTypes = edgeGroups.flatMap((group) => group.EndpointTypes);
 
-  async onChangeTemplateAsync(template) {
-    this.formValues.StackFileContent = '';
-    try {
-      const fileContent = await this.EdgeTemplateService.edgeTemplate(template);
-      this.formValues.StackFileContent = fileContent;
-    } catch (err) {
-      this.Notifications.error('Failure', err, 'Unable to retrieve Template');
+    if (this.hasDockerEndpoint() && this.formValues.DeploymentType == 1) {
+      this.onChangeDeploymentType(0);
     }
   }
 
-  async createStackAsync() {
-    const name = this.formValues.Name;
-    let method = this.state.Method;
+  hasKubeEndpoint() {
+    return this.state.endpointTypes.includes(7);
+  }
 
-    if (method === 'template') {
-      method = 'editor';
-    }
-
-    if (!this.validateForm(method)) {
-      return;
-    }
-
-    this.state.actionInProgress = true;
-    try {
-      await this.createStackByMethod(name, method);
-
-      this.Notifications.success('Stack successfully deployed');
-      this.state.isEditorDirty = false;
-      this.$state.go('edge.stacks');
-    } catch (err) {
-      this.Notifications.error('Deployment error', err, 'Unable to deploy stack');
-    } finally {
-      this.state.actionInProgress = false;
-    }
+  hasDockerEndpoint() {
+    return this.state.endpointTypes.includes(4);
   }
 
   validateForm(method) {
@@ -143,31 +136,53 @@ export class CreateEdgeStackViewController {
   }
 
   createStackFromFileContent(name) {
-    return this.EdgeStackService.createStackFromFileContent(name, this.formValues.StackFileContent, this.formValues.Groups);
+    const { StackFileContent, Groups, DeploymentType } = this.formValues;
+
+    return this.EdgeStackService.createStackFromFileContent({
+      name,
+      StackFileContent,
+      EdgeGroups: Groups,
+      DeploymentType,
+    });
   }
 
   createStackFromFileUpload(name) {
-    return this.EdgeStackService.createStackFromFileUpload(name, this.formValues.StackFile, this.formValues.Groups);
+    const { StackFile, Groups, DeploymentType } = this.formValues;
+    return this.EdgeStackService.createStackFromFileUpload(
+      {
+        Name: name,
+        EdgeGroups: Groups,
+        DeploymentType,
+      },
+      StackFile
+    );
   }
 
   createStackFromGitRepository(name) {
+    const { Groups, DeploymentType } = this.formValues;
     const repositoryOptions = {
       RepositoryURL: this.formValues.RepositoryURL,
       RepositoryReferenceName: this.formValues.RepositoryReferenceName,
-      ComposeFilePathInRepository: this.formValues.ComposeFilePathInRepository,
+      FilePathInRepository: this.formValues.ComposeFilePathInRepository,
       RepositoryAuthentication: this.formValues.RepositoryAuthentication,
       RepositoryUsername: this.formValues.RepositoryUsername,
       RepositoryPassword: this.formValues.RepositoryPassword,
     };
-    return this.EdgeStackService.createStackFromGitRepository(name, repositoryOptions, this.formValues.Groups);
+    return this.EdgeStackService.createStackFromGitRepository(
+      {
+        name,
+        EdgeGroups: Groups,
+        DeploymentType,
+      },
+      repositoryOptions
+    );
   }
 
-  onChangeFormValues(values) {
-    this.formValues = values;
+  onChangeDeploymentType(deploymentType) {
+    this.formValues.DeploymentType = deploymentType;
   }
 
-  editorUpdate(cm) {
-    this.formValues.StackFileContent = cm.getValue();
-    this.state.isEditorDirty = true;
+  formIsInvalid() {
+    return this.form.$invalid || !this.formValues.Groups.length || (['template', 'editor'].includes(this.state.Method) && !this.formValues.StackFileContent);
   }
 }

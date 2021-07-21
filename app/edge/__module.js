@@ -1,6 +1,8 @@
 import angular from 'angular';
 
-angular.module('portainer.edge', []).config(function config($stateRegistryProvider) {
+import edgeStackModule from './views/edge-stacks';
+
+angular.module('portainer.edge', [edgeStackModule]).config(function config($stateRegistryProvider) {
   const edge = {
     name: 'edge',
     url: '/edge',

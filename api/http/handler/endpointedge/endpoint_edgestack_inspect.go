@@ -1,6 +1,7 @@
 package endpointedge
 
 import (
+	"errors"
 	"net/http"
 	"path"
 
@@ -8,11 +9,11 @@ import (
 	"github.com/portainer/libhttp/request"
 	"github.com/portainer/libhttp/response"
 	portainer "github.com/portainer/portainer/api"
-	"github.com/portainer/portainer/api/bolt/errors"
+	bolterrors "github.com/portainer/portainer/api/bolt/errors"
+	endpointutils "github.com/portainer/portainer/api/internal/endpoint"
 )
 
 type configResponse struct {
-	Prune            bool
 	StackFileContent string
 	Name             string
 }
@@ -36,7 +37,7 @@ func (handler *Handler) endpointEdgeStackInspect(w http.ResponseWriter, r *http.
 	}
 
 	endpoint, err := handler.DataStore.Endpoint().Endpoint(portainer.EndpointID(endpointID))
-	if err == errors.ErrObjectNotFound {
+	if err == bolterrors.ErrObjectNotFound {
 		return &httperror.HandlerError{http.StatusNotFound, "Unable to find an endpoint with the specified identifier inside the database", err}
 	} else if err != nil {
 		return &httperror.HandlerError{http.StatusInternalServerError, "Unable to find an endpoint with the specified identifier inside the database", err}
@@ -53,19 +54,33 @@ func (handler *Handler) endpointEdgeStackInspect(w http.ResponseWriter, r *http.
 	}
 
 	edgeStack, err := handler.DataStore.EdgeStack().EdgeStack(portainer.EdgeStackID(edgeStackID))
-	if err == errors.ErrObjectNotFound {
+	if err == bolterrors.ErrObjectNotFound {
 		return &httperror.HandlerError{http.StatusNotFound, "Unable to find an edge stack with the specified identifier inside the database", err}
 	} else if err != nil {
 		return &httperror.HandlerError{http.StatusInternalServerError, "Unable to find an edge stack with the specified identifier inside the database", err}
 	}
 
-	stackFileContent, err := handler.FileService.GetFileContent(path.Join(edgeStack.ProjectPath, edgeStack.EntryPoint))
+	fileName := edgeStack.EntryPoint
+	if endpointutils.IsDockerEndpoint(endpoint) {
+		if fileName == "" {
+			return &httperror.HandlerError{http.StatusBadRequest, "Docker is not supported by this stack", errors.New("Docker is not supported by this stack")}
+		}
+	}
+
+	if endpointutils.IsKubernetesEndpoint(endpoint) {
+		fileName = edgeStack.ManifestPath
+
+		if fileName == "" {
+			return &httperror.HandlerError{http.StatusBadRequest, "Kubernetes is not supported by this stack", errors.New("Kubernetes is not supported by this stack")}
+		}
+	}
+
+	stackFileContent, err := handler.FileService.GetFileContent(path.Join(edgeStack.ProjectPath, fileName))
 	if err != nil {
 		return &httperror.HandlerError{http.StatusInternalServerError, "Unable to retrieve Compose file from disk", err}
 	}
 
 	return response.JSON(w, configResponse{
-		Prune:            edgeStack.Prune,
 		StackFileContent: string(stackFileContent),
 		Name:             edgeStack.Name,
 	})
