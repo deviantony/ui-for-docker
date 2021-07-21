@@ -74,6 +74,12 @@ func (handler *Handler) stackStop(w http.ResponseWriter, r *http.Request) *httpe
 		return &httperror.HandlerError{http.StatusBadRequest, "Stack is already inactive", errors.New("Stack is already inactive")}
 	}
 
+	// stop scheduler updates of the stack before stopping
+	if stack.AutoUpdate != nil && stack.AutoUpdate.JobID != "" {
+		handler.Scheduler.StopJob(stack.AutoUpdate.JobID)
+		stack.AutoUpdate.JobID = ""
+	}
+
 	err = handler.stopStack(stack, endpoint)
 	if err != nil {
 		return &httperror.HandlerError{http.StatusInternalServerError, "Unable to stop stack", err}

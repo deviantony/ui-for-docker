@@ -1,19 +1,17 @@
 package stacks
 
 import (
-	"errors"
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/docker/cli/cli/compose/loader"
 	"github.com/docker/cli/cli/compose/types"
+	"github.com/pkg/errors"
 	httperror "github.com/portainer/libhttp/error"
 	"github.com/portainer/libhttp/request"
 	"github.com/portainer/libhttp/response"
 	portainer "github.com/portainer/portainer/api"
 	bolterrors "github.com/portainer/portainer/api/bolt/errors"
-	gittypes "github.com/portainer/portainer/api/git/types"
 	"github.com/portainer/portainer/api/http/security"
 	"github.com/portainer/portainer/api/internal/authorization"
 	"github.com/portainer/portainer/api/internal/endpointutils"
@@ -129,7 +127,7 @@ func (handler *Handler) createComposeStack(w http.ResponseWriter, r *http.Reques
 		return handler.createComposeStackFromFileUpload(w, r, endpoint, userID)
 	}
 
-	return &httperror.HandlerError{http.StatusBadRequest, "Invalid value for query parameter: method. Value must be one of: string, repository or file", errors.New(request.ErrInvalidQueryParameter)}
+	return &httperror.HandlerError{StatusCode: http.StatusBadRequest, Message: "Invalid value for query parameter: method. Value must be one of: string, repository or file", Err: errors.New(request.ErrInvalidQueryParameter)}
 }
 
 func (handler *Handler) createSwarmStack(w http.ResponseWriter, r *http.Request, method string, endpoint *portainer.Endpoint, userID portainer.UserID) *httperror.HandlerError {
@@ -142,7 +140,7 @@ func (handler *Handler) createSwarmStack(w http.ResponseWriter, r *http.Request,
 		return handler.createSwarmStackFromFileUpload(w, r, endpoint, userID)
 	}
 
-	return &httperror.HandlerError{http.StatusBadRequest, "Invalid value for query parameter: method. Value must be one of: string, repository or file", errors.New(request.ErrInvalidQueryParameter)}
+	return &httperror.HandlerError{StatusCode: http.StatusBadRequest, Message: "Invalid value for query parameter: method. Value must be one of: string, repository or file", Err: errors.New(request.ErrInvalidQueryParameter)}
 }
 
 func (handler *Handler) createKubernetesStack(w http.ResponseWriter, r *http.Request, method string, endpoint *portainer.Endpoint) *httperror.HandlerError {
@@ -233,23 +231,4 @@ func (handler *Handler) decorateStackResponse(w http.ResponseWriter, stack *port
 
 	stack.ResourceControl = resourceControl
 	return response.JSON(w, stack)
-}
-
-func (handler *Handler) cloneAndSaveConfig(stack *portainer.Stack, projectPath, repositoryURL, refName, configFilePath string, auth bool, username, password string) error {
-	if !auth {
-		username = ""
-		password = ""
-	}
-
-	err := handler.GitService.CloneRepository(projectPath, repositoryURL, refName, username, password)
-	if err != nil {
-		return fmt.Errorf("unable to clone git repository: %w", err)
-	}
-
-	stack.GitConfig = &gittypes.RepoConfig{
-		URL:            repositoryURL,
-		ReferenceName:  refName,
-		ConfigFilePath: configFilePath,
-	}
-	return nil
 }

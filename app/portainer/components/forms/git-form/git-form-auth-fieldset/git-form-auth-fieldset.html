@@ -3,35 +3,36 @@
     <por-switch-field ng-model="$ctrl.model.RepositoryAuthentication" label="Authentication" on-change="($ctrl.onChangeAuth)"></por-switch-field>
   </div>
 </div>
+<div class="small text-warning" style="margin: 5px 0 15px 0;" ng-if="$ctrl.model.RepositoryAuthentication && $ctrl.showAuthExplanation">
+  <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+  <span class="text-muted">Enabling authentication will store the credentials and it is advisable to use a git service account</span>
+</div>
 <div ng-if="$ctrl.model.RepositoryAuthentication">
   <div class="form-group">
-    <span class="col-sm-12 text-muted small">
-      If your git account has 2FA enabled, you may receive an <code>authentication required</code> error when deploying your stack. In this case, you will need to provide a
-      personal-access token instead of your password.
-    </span>
-  </div>
-  <div class="form-group">
-    <label for="repository_username" class="col-sm-1 control-label text-left">Username</label>
-    <div class="col-sm-11 col-md-5">
+    <label for="repository_username" class="col-sm-2 control-label text-left">Username</label>
+    <div class="col-sm-3">
       <input
         type="text"
         class="form-control"
         ng-model="$ctrl.model.RepositoryUsername"
         name="repository_username"
-        placeholder="myGitUser"
+        placeholder="git username"
         ng-change="$ctrl.onChangeUsername($ctrl.model.RepositoryUsername)"
       />
     </div>
-    <label for="repository_password" class="col-sm-1 control-label text-left">
-      Password
+  </div>
+  <div class="form-group">
+    <label for="repository_password" class="col-sm-2 control-label text-left">
+      Personal Access Token
+      <portainer-tooltip position="bottom" message="Provide a personal access token or password"></portainer-tooltip>
     </label>
-    <div class="col-sm-11 col-md-5">
+    <div class="col-sm-3">
       <input
         type="password"
         class="form-control"
         ng-model="$ctrl.model.RepositoryPassword"
         name="repository_password"
-        placeholder="myPassword"
+        placeholder="personal access token"
         ng-change="$ctrl.onChangePassword($ctrl.model.RepositoryPassword)"
       />
     </div>

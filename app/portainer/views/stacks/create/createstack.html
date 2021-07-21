@@ -130,7 +130,14 @@
             </div>
           </div>
           <!-- !upload -->
-          <git-form ng-if="state.Method === 'repository'" model="formValues" on-change="(onChangeFormValues)"></git-form>
+          <git-form
+            ng-if="state.Method === 'repository'"
+            model="formValues"
+            on-change="(onChangeFormValues)"
+            additional-file="true"
+            auto-update="true"
+            show-auth-explanation="true"
+          ></git-form>
           <!-- custom-template -->
           <div ng-show="state.Method === 'template'">
             <div class="form-group">
@@ -207,7 +214,7 @@
               || (state.Method === 'editor' && (!formValues.StackFileContent || state.editorYamlValidationError))
               || (state.Method === 'upload' && (!formValues.StackFile || state.uploadYamlValidationError))
               || (state.Method === 'template' && (!formValues.StackFileContent || !selectedTemplate || state.editorYamlValidationError))
-              || (state.Method === 'repository' && ((!formValues.RepositoryURL || !formValues.ComposeFilePathInRepository) || (formValues.RepositoryAuthentication && (!formValues.RepositoryUsername || !formValues.RepositoryPassword))))
+              || (state.Method === 'repository' && ((!formValues.RepositoryURL || !formValues.ComposeFilePathInRepository) || (formValues.RepositoryAuthentication && !formValues.RepositoryPassword)))
               || !formValues.Name"
                 ng-click="deployStack()"
                 button-spinner="state.actionInProgress"

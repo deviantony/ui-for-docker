@@ -3,6 +3,7 @@ package stacks
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"path"
 	"strconv"
@@ -13,7 +14,9 @@ import (
 	"github.com/portainer/libhttp/request"
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/filesystem"
+	gittypes "github.com/portainer/portainer/api/git/types"
 	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/stacks"
 )
 
 type swarmStackFromFileContentPayload struct {
@@ -119,7 +122,9 @@ type swarmStackFromGitRepositoryPayload struct {
 	// Password used in basic authentication. Required when RepositoryAuthentication is true.
 	RepositoryPassword string `example:"myGitPassword"`
 	// Path to the Stack file inside the Git repository
-	ComposeFilePathInRepository string `example:"docker-compose.yml" default:"docker-compose.yml"`
+	ComposeFile     string `example:"docker-compose.yml" default:"docker-compose.yml"`
+	AdditionalFiles []string
+	AutoUpdate      *portainer.StackAutoUpdate
 }
 
 func (payload *swarmStackFromGitRepositoryPayload) Validate(r *http.Request) error {
@@ -132,11 +137,14 @@ func (payload *swarmStackFromGitRepositoryPayload) Validate(r *http.Request) err
 	if govalidator.IsNull(payload.RepositoryURL) || !govalidator.IsURL(payload.RepositoryURL) {
 		return errors.New("Invalid repository URL. Must correspond to a valid URL format")
 	}
-	if payload.RepositoryAuthentication && (govalidator.IsNull(payload.RepositoryUsername) || govalidator.IsNull(payload.RepositoryPassword)) {
-		return errors.New("Invalid repository credentials. Username and password must be specified when authentication is enabled")
+	if govalidator.IsNull(payload.RepositoryReferenceName) {
+		payload.RepositoryReferenceName = defaultGitReferenceName
 	}
-	if govalidator.IsNull(payload.ComposeFilePathInRepository) {
-		payload.ComposeFilePathInRepository = filesystem.ComposeFileDefaultName
+	if payload.RepositoryAuthentication && govalidator.IsNull(payload.RepositoryPassword) {
+		return errors.New("Invalid repository credentials. Password must be specified when authentication is enabled")
+	}
+	if err := validateStackAutoUpdate(payload.AutoUpdate); err != nil {
+		return err
 	}
 	return nil
 }
@@ -145,29 +153,53 @@ func (handler *Handler) createSwarmStackFromGitRepository(w http.ResponseWriter,
 	var payload swarmStackFromGitRepositoryPayload
 	err := request.DecodeAndValidateJSONPayload(r, &payload)
 	if err != nil {
-		return &httperror.HandlerError{http.StatusBadRequest, "Invalid request payload", err}
+		return &httperror.HandlerError{StatusCode: http.StatusBadRequest, Message: "Invalid request payload", Err: err}
 	}
 
 	isUnique, err := handler.checkUniqueName(endpoint, payload.Name, 0, true)
 	if err != nil {
-		return &httperror.HandlerError{http.StatusInternalServerError, "Unable to check for name collision", err}
+		return &httperror.HandlerError{StatusCode: http.StatusInternalServerError, Message: "Unable to check for name collision", Err: err}
 	}
 	if !isUnique {
-		errorMessage := fmt.Sprintf("A stack with the name '%s' is already running", payload.Name)
-		return &httperror.HandlerError{http.StatusConflict, errorMessage, errors.New(errorMessage)}
+		return &httperror.HandlerError{StatusCode: http.StatusConflict, Message: fmt.Sprintf("A stack with the name '%s' already exists", payload.Name), Err: errStackAlreadyExists}
+	}
+
+	//make sure the webhook ID is unique
+	if payload.AutoUpdate != nil && payload.AutoUpdate.Webhook != "" {
+		isUnique, err := handler.checkUniqueWebhookID(payload.AutoUpdate.Webhook)
+		if err != nil {
+			return &httperror.HandlerError{StatusCode: http.StatusInternalServerError, Message: "Unable to check for webhook ID collision", Err: err}
+		}
+		if !isUnique {
+			return &httperror.HandlerError{StatusCode: http.StatusConflict, Message: fmt.Sprintf("Webhook ID: %s already exists", payload.AutoUpdate.Webhook), Err: errWebhookIDAlreadyExists}
+		}
 	}
 
 	stackID := handler.DataStore.Stack().GetNextIdentifier()
 	stack := &portainer.Stack{
-		ID:           portainer.StackID(stackID),
-		Name:         payload.Name,
-		Type:         portainer.DockerSwarmStack,
-		SwarmID:      payload.SwarmID,
-		EndpointID:   endpoint.ID,
-		EntryPoint:   payload.ComposeFilePathInRepository,
+		ID:              portainer.StackID(stackID),
+		Name:            payload.Name,
+		Type:            portainer.DockerSwarmStack,
+		SwarmID:         payload.SwarmID,
+		EndpointID:      endpoint.ID,
+		EntryPoint:      payload.ComposeFile,
+		AdditionalFiles: payload.AdditionalFiles,
+		AutoUpdate:      payload.AutoUpdate,
+		GitConfig: &gittypes.RepoConfig{
+			URL:            payload.RepositoryURL,
+			ReferenceName:  payload.RepositoryReferenceName,
+			ConfigFilePath: payload.ComposeFile,
+		},
 		Env:          payload.Env,
 		Status:       portainer.StackStatusActive,
 		CreationDate: time.Now().Unix(),
+	}
+
+	if payload.RepositoryAuthentication {
+		stack.GitConfig.Authentication = &gittypes.GitAuthentication{
+			Username: payload.RepositoryUsername,
+			Password: payload.RepositoryPassword,
+		}
 	}
 
 	projectPath := handler.FileService.GetStackProjectPath(strconv.Itoa(int(stack.ID)))
@@ -176,10 +208,16 @@ func (handler *Handler) createSwarmStackFromGitRepository(w http.ResponseWriter,
 	doCleanUp := true
 	defer handler.cleanUp(stack, &doCleanUp)
 
-	err = handler.cloneAndSaveConfig(stack, projectPath, payload.RepositoryURL, payload.RepositoryReferenceName, payload.ComposeFilePathInRepository, payload.RepositoryAuthentication, payload.RepositoryUsername, payload.RepositoryPassword)
+	err = handler.clone(projectPath, payload.RepositoryURL, payload.RepositoryReferenceName, payload.RepositoryAuthentication, payload.RepositoryUsername, payload.RepositoryPassword)
 	if err != nil {
 		return &httperror.HandlerError{StatusCode: http.StatusInternalServerError, Message: "Unable to clone git repository", Err: err}
 	}
+
+	commitId, err := handler.latestCommitID(payload.RepositoryURL, payload.RepositoryReferenceName, payload.RepositoryAuthentication, payload.RepositoryUsername, payload.RepositoryPassword)
+	if err != nil {
+		return &httperror.HandlerError{StatusCode: http.StatusInternalServerError, Message: "Unable to fetch git repository id", Err: err}
+	}
+	stack.GitConfig.ConfigHash = commitId
 
 	config, configErr := handler.createSwarmDeployConfig(r, stack, endpoint, false)
 	if configErr != nil {
@@ -188,14 +226,28 @@ func (handler *Handler) createSwarmStackFromGitRepository(w http.ResponseWriter,
 
 	err = handler.deploySwarmStack(config)
 	if err != nil {
-		return &httperror.HandlerError{http.StatusInternalServerError, err.Error(), err}
+		return &httperror.HandlerError{StatusCode: http.StatusInternalServerError, Message: err.Error(), Err: err}
+	}
+
+	if payload.AutoUpdate != nil && payload.AutoUpdate.Interval != "" {
+		d, err := time.ParseDuration(payload.AutoUpdate.Interval)
+		if err != nil {
+			return &httperror.HandlerError{StatusCode: http.StatusBadRequest, Message: "Unable to parse auto update interval", Err: err}
+		}
+		jobID := handler.Scheduler.StartJobEvery(d, func() {
+			if err := stacks.RedeployWhenChanged(stack.ID, handler.StackDeployer, handler.DataStore, handler.GitService); err != nil {
+				log.Printf("[ERROR] %s\n", err)
+			}
+		})
+
+		stack.AutoUpdate.JobID = jobID
 	}
 
 	stack.CreatedBy = config.user.Username
 
 	err = handler.DataStore.Stack().CreateStack(stack)
 	if err != nil {
-		return &httperror.HandlerError{http.StatusInternalServerError, "Unable to persist the stack inside the database", err}
+		return &httperror.HandlerError{StatusCode: http.StatusInternalServerError, Message: "Unable to persist the stack inside the database", Err: err}
 	}
 
 	doCleanUp = false
@@ -344,16 +396,17 @@ func (handler *Handler) deploySwarmStack(config *swarmStackDeploymentConfig) err
 	settings := &config.endpoint.SecuritySettings
 
 	if !settings.AllowBindMountsForRegularUsers && !isAdminOrEndpointAdmin {
-		composeFilePath := path.Join(config.stack.ProjectPath, config.stack.EntryPoint)
+		for _, file := range append([]string{config.stack.EntryPoint}, config.stack.AdditionalFiles...) {
+			path := path.Join(config.stack.ProjectPath, file)
+			stackContent, err := handler.FileService.GetFileContent(path)
+			if err != nil {
+				return err
+			}
 
-		stackContent, err := handler.FileService.GetFileContent(composeFilePath)
-		if err != nil {
-			return err
-		}
-
-		err = handler.isValidStackFile(stackContent, settings)
-		if err != nil {
-			return err
+			err = handler.isValidStackFile(stackContent, settings)
+			if err != nil {
+				return err
+			}
 		}
 	}
 

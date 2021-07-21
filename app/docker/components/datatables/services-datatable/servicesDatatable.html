@@ -56,7 +56,7 @@
           ng-model="$ctrl.state.textFilter"
           ng-change="$ctrl.onTextFilterChange()"
           placeholder="Search..."
-          auto-focus
+          focus-if="!$ctrl.notAutoFocus"
           ng-model-options="{ debounce: 300 }"
         />
       </div>

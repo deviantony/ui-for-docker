@@ -1,4 +1,4 @@
-package backup
+package filesystem
 
 import (
 	"errors"
@@ -8,7 +8,8 @@ import (
 	"strings"
 )
 
-func copyPath(path string, toDir string) error {
+// CopyPath copies file or directory defined by the path to the toDir path
+func CopyPath(path string, toDir string) error {
 	info, err := os.Stat(path)
 	if err != nil && errors.Is(err, os.ErrNotExist) {
 		// skip copy if file does not exist
@@ -20,17 +21,30 @@ func copyPath(path string, toDir string) error {
 		return copyFile(path, destination)
 	}
 
-	return copyDir(path, toDir)
+	return CopyDir(path, toDir, true)
 }
 
-func copyDir(fromDir, toDir string) error {
+// CopyDir copies contents of fromDir to toDir.
+// When keepParent is true, contents will be copied with their immediate parent dir,
+// i.e. given /from/dirA and /to/dirB with keepParent == true, result will be /to/dirB/dirA/<children>
+func CopyDir(fromDir, toDir string, keepParent bool) error {
 	cleanedSourcePath := filepath.Clean(fromDir)
 	parentDirectory := filepath.Dir(cleanedSourcePath)
 	err := filepath.Walk(cleanedSourcePath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		destination := filepath.Join(toDir, strings.TrimPrefix(path, parentDirectory))
+		var destination string
+		if keepParent {
+			destination = filepath.Join(toDir, strings.TrimPrefix(path, parentDirectory))
+		} else {
+			destination = filepath.Join(toDir, strings.TrimPrefix(path, cleanedSourcePath))
+		}
+
+		if destination == "" {
+			return nil
+		}
+
 		if info.IsDir() {
 			return nil // skip directory creations
 		}

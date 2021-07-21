@@ -78,6 +78,18 @@ func TestService_ClonePrivateRepository_Azure(t *testing.T) {
 	assert.FileExists(t, filepath.Join(dst, "README.md"))
 }
 
+func TestService_LatestCommitID_Azure(t *testing.T) {
+	ensureIntegrationTest(t)
+
+	pat := getRequiredValue(t, "AZURE_DEVOPS_PAT")
+	service := NewService()
+
+	repositoryUrl := "https://portainer.visualstudio.com/Playground/_git/dev_integration"
+	id, err := service.LatestCommitID(repositoryUrl, "refs/heads/main", "", pat)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, id, "cannot guarantee commit id, but it should be not empty")
+}
+
 func getRequiredValue(t *testing.T, name string) string {
 	value, ok := os.LookupEnv(name)
 	if !ok {

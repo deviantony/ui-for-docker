@@ -2,23 +2,30 @@ package stacks
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"sync"
 
 	"github.com/docker/docker/api/types"
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
 	httperror "github.com/portainer/libhttp/error"
 	portainer "github.com/portainer/portainer/api"
+	bolterrors "github.com/portainer/portainer/api/bolt/errors"
 	"github.com/portainer/portainer/api/docker"
 	"github.com/portainer/portainer/api/http/security"
 	"github.com/portainer/portainer/api/internal/authorization"
+	"github.com/portainer/portainer/api/scheduler"
+	"github.com/portainer/portainer/api/stacks"
 )
 
+const defaultGitReferenceName = "refs/heads/master"
+
 var (
-	errStackAlreadyExists = errors.New("A stack already exists with this name")
-	errStackNotExternal   = errors.New("Not an external stack")
+	errStackAlreadyExists     = errors.New("A stack already exists with this name")
+	errWebhookIDAlreadyExists = errors.New("A webhook ID already exists")
+	errStackNotExternal       = errors.New("Not an external stack")
 )
 
 // Handler is the HTTP handler used to handle stack operations.
@@ -34,6 +41,8 @@ type Handler struct {
 	SwarmStackManager   portainer.SwarmStackManager
 	ComposeStackManager portainer.ComposeStackManager
 	KubernetesDeployer  portainer.KubernetesDeployer
+	Scheduler           *scheduler.Scheduler
+	StackDeployer       stacks.StackDeployer
 }
 
 // NewHandler creates a handler to manage stack operations.
@@ -57,7 +66,9 @@ func NewHandler(bouncer *security.RequestBouncer) *Handler {
 	h.Handle("/stacks/{id}",
 		bouncer.AuthenticatedAccess(httperror.LoggerHandler(h.stackUpdate))).Methods(http.MethodPut)
 	h.Handle("/stacks/{id}/git",
-		bouncer.AuthenticatedAccess(httperror.LoggerHandler(h.stackUpdateGit))).Methods(http.MethodPut)
+		bouncer.AuthenticatedAccess(httperror.LoggerHandler(h.stackGitUpdate))).Methods(http.MethodPost)
+	h.Handle("/stacks/{id}/git/redeploy",
+		bouncer.AuthenticatedAccess(httperror.LoggerHandler(h.stackGitRedeploy))).Methods(http.MethodPut)
 	h.Handle("/stacks/{id}/file",
 		bouncer.AuthenticatedAccess(httperror.LoggerHandler(h.stackFile))).Methods(http.MethodGet)
 	h.Handle("/stacks/{id}/migrate",
@@ -66,6 +77,9 @@ func NewHandler(bouncer *security.RequestBouncer) *Handler {
 		bouncer.AuthenticatedAccess(httperror.LoggerHandler(h.stackStart))).Methods(http.MethodPost)
 	h.Handle("/stacks/{id}/stop",
 		bouncer.AuthenticatedAccess(httperror.LoggerHandler(h.stackStop))).Methods(http.MethodPost)
+	h.Handle("/stacks/webhook/{webhookID}",
+		httperror.LoggerHandler(h.webhookInvoke)).Methods(http.MethodPost)
+
 	return h
 }
 
@@ -158,4 +172,35 @@ func (handler *Handler) checkUniqueName(endpoint *portainer.Endpoint, name strin
 	}
 
 	return true, nil
+}
+
+func (handler *Handler) checkUniqueWebhookID(webhookID string) (bool, error) {
+	_, err := handler.DataStore.Stack().StackByWebhookID(webhookID)
+	if err == bolterrors.ErrObjectNotFound {
+		return true, nil
+	}
+	return false, err
+}
+
+func (handler *Handler) clone(projectPath, repositoryURL, refName string, auth bool, username, password string) error {
+	if !auth {
+		username = ""
+		password = ""
+	}
+
+	err := handler.GitService.CloneRepository(projectPath, repositoryURL, refName, username, password)
+	if err != nil {
+		return fmt.Errorf("unable to clone git repository: %w", err)
+	}
+
+	return nil
+}
+
+func (handler *Handler) latestCommitID(repositoryURL, refName string, auth bool, username, password string) (string, error) {
+	if !auth {
+		username = ""
+		password = ""
+	}
+
+	return handler.GitService.LatestCommitID(repositoryURL, refName, username, password)
 }

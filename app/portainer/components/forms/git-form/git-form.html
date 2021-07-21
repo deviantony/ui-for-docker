@@ -5,5 +5,7 @@
   <git-form-url-field value="$ctrl.model.RepositoryURL" on-change="($ctrl.onChangeURL)"></git-form-url-field>
   <git-form-ref-field value="$ctrl.model.RepositoryReferenceName" on-change="($ctrl.onChangeRefName)"></git-form-ref-field>
   <git-form-compose-path-field value="$ctrl.model.ComposeFilePathInRepository" on-change="($ctrl.onChangeComposePath)"></git-form-compose-path-field>
-  <git-form-auth-fieldset model="$ctrl.model" on-change="($ctrl.onChange)"></git-form-auth-fieldset>
+  <git-form-additional-files-panel ng-if="$ctrl.additionalFile" model="$ctrl.model" on-change="($ctrl.onChange)"></git-form-additional-files-panel>
+  <git-form-auth-fieldset model="$ctrl.model" on-change="($ctrl.onChange)" show-auth-explanation="$ctrl.showAuthExplanation"></git-form-auth-fieldset>
+  <git-form-auto-update-fieldset ng-if="$ctrl.autoUpdate" model="$ctrl.model" on-change="($ctrl.onChange)"></git-form-auto-update-fieldset>
 </div>

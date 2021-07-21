@@ -23,6 +23,10 @@ func (g *git) ClonePrivateRepositoryWithBasicAuth(repositoryURL, referenceName s
 	return g.ClonePublicRepository(repositoryURL, referenceName, destination)
 }
 
+func (g *git) LatestCommitID(repositoryURL, referenceName, username, password string) (string, error) {
+	return "", nil
+}
+
 func TestCloneAndConvertGitRepoFile(t *testing.T) {
 	dir, err := os.MkdirTemp("", "kube-create-stack")
 	assert.NoError(t, err, "failed to create a tmp dir")

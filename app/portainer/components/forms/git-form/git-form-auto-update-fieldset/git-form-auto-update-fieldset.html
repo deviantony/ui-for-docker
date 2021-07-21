@@ -1,0 +1,69 @@
+<ng-form name="autoUpdateForm">
+  <div class="form-group">
+    <div class="col-sm-12">
+      <por-switch-field name="autoUpdate" ng-model="$ctrl.model.RepositoryAutomaticUpdates" label="Automatic updates" on-change="($ctrl.onChangeAutoUpdate)"></por-switch-field>
+    </div>
+  </div>
+  <div class="small text-warning" style="margin: 5px 0 10px 0;" ng-if="$ctrl.model.RepositoryAutomaticUpdates">
+    <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+    <span class="text-muted">Any changes to this stack made locally in Portainer will be overriden by the definition in git and may cause service interruption.</span>
+  </div>
+  <div class="form-group" ng-if="$ctrl.model.RepositoryAutomaticUpdates">
+    <label for="repository_mechanism" class="col-sm-1 control-label text-left">
+      Mechanism
+    </label>
+    <div class="col-sm-11">
+      <div class="input-group col-sm-10 input-group-sm">
+        <div class="btn-group btn-group-sm">
+          <label class="btn btn-primary" ng-click="$ctrl.onChangeMechanism($ctrl.model.RepositoryMechanism)" ng-model="$ctrl.model.RepositoryMechanism" uib-btn-radio="'Interval'"
+            >Polling</label
+          >
+          <label class="btn btn-primary" ng-click="$ctrl.onChangeMechanism($ctrl.model.RepositoryMechanism)" ng-model="$ctrl.model.RepositoryMechanism" uib-btn-radio="'Webhook'"
+            >Webhook</label
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group" ng-if="$ctrl.model.RepositoryAutomaticUpdates && $ctrl.model.RepositoryMechanism === 'Webhook'">
+    <label for="repository_mechanism" class="col-sm-1 control-label text-left">
+      Webhook
+    </label>
+    <div class="col-sm-11">
+      <span class="text-muted"> {{ $ctrl.model.RepositoryWebhookURL | truncatelr }} </span>
+      <button type="button" class="btn btn-sm btn-primary btn-sm space-left" ng-if="$ctrl.model.RepositoryWebhookURL" ng-click="$ctrl.copyWebhook()">
+        <span><i class="fa fa-copy space-right" aria-hidden="true"></i>Copy link</span>
+      </button>
+      <span>
+        <i id="copyNotification" class="fa fa-check green-icon" aria-hidden="true" style="margin-left: 7px; display: none;"></i>
+      </span>
+    </div>
+  </div>
+  <div class="form-group" ng-if="$ctrl.model.RepositoryAutomaticUpdates && $ctrl.model.RepositoryMechanism === 'Interval'">
+    <label for="repository_fetch_interval" class="col-sm-1 control-label text-left">
+      Fetch interval
+    </label>
+    <div class="col-sm-11">
+      <input
+        type="text"
+        class="form-control"
+        ng-change="$ctrl.onChangeInterval($ctrl.model.RepositoryFetchInterval)"
+        ng-model="$ctrl.model.RepositoryFetchInterval"
+        name="repository_fetch_interval"
+        placeholder="5m"
+        required
+        interval-format
+      />
+    </div>
+  </div>
+  <div class="form-group col-md-12" ng-show="autoUpdateForm.repository_fetch_interval.$touched && autoUpdateForm.repository_fetch_interval.$invalid">
+    <div class="small text-warning">
+      <div ng-messages="autoUpdateForm.repository_fetch_interval.$error">
+        <p ng-message="required"> <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> This field is required.</p>
+        <p ng-message="invalidIntervalFormat"> <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Please enter a valid time interval.</p>
+        <p ng-message="minimumInterval"> <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Minimum interval is 1m</p>
+      </div>
+    </div>
+  </div>
+</ng-form>

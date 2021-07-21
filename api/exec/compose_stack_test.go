@@ -10,47 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_stackFilePath(t *testing.T) {
-	tests := []struct {
-		name     string
-		stack    *portainer.Stack
-		expected string
-	}{
-		// {
-		// 	name:     "should return empty result if stack is missing",
-		// 	stack:    nil,
-		// 	expected: "",
-		// },
-		// {
-		// 	name:     "should return empty result if stack don't have entrypoint",
-		// 	stack:    &portainer.Stack{},
-		// 	expected: "",
-		// },
-		{
-			name: "should allow file name and dir",
-			stack: &portainer.Stack{
-				ProjectPath: "dir",
-				EntryPoint:  "file",
-			},
-			expected: path.Join("dir", "file"),
-		},
-		{
-			name: "should allow file name only",
-			stack: &portainer.Stack{
-				EntryPoint: "file",
-			},
-			expected: "file",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := stackFilePath(tt.stack)
-			assert.Equal(t, tt.expected, result)
-		})
-	}
-}
-
 func Test_createEnvFile(t *testing.T) {
 	dir := t.TempDir()
 
@@ -60,11 +19,6 @@ func Test_createEnvFile(t *testing.T) {
 		expected     string
 		expectedFile bool
 	}{
-		// {
-		// 	name:     "should not add env file option if stack is missing",
-		// 	stack:    nil,
-		// 	expected: "",
-		// },
 		{
 			name: "should not add env file option if stack doesn't have env variables",
 			stack: &portainer.Stack{

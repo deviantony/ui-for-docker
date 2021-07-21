@@ -10,6 +10,7 @@ import (
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/archive"
 	"github.com/portainer/portainer/api/crypto"
+	"github.com/portainer/portainer/api/filesystem"
 	"github.com/portainer/portainer/api/http/offlinegate"
 )
 
@@ -32,7 +33,7 @@ func CreateBackupArchive(password string, gate *offlinegate.OfflineGate, datasto
 	}
 
 	for _, filename := range filesToBackup {
-		err := copyPath(filepath.Join(filestorePath, filename), backupDirPath)
+		err := filesystem.CopyPath(filepath.Join(filestorePath, filename), backupDirPath)
 		if err != nil {
 			return "", errors.Wrap(err, "Failed to create backup file")
 		}

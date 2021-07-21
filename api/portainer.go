@@ -721,8 +721,19 @@ type (
 		UpdateDate int64 `example:"1587399600"`
 		// The username which last updated this stack
 		UpdatedBy string `example:"bob"`
+		// Only applies when deploying stack with multiple files
+		AdditionalFiles []string `json:"AdditionalFiles"`
+		// The auto update settings of a git stack
+		AutoUpdate *StackAutoUpdate `json:"AutoUpdate"`
 		// The git config of this stack
 		GitConfig *gittypes.RepoConfig
+	}
+
+	//StackAutoUpdate represents the git auto sync config for stack deployment
+	StackAutoUpdate struct {
+		Interval string
+		Webhook  string //a UUID generated from client
+		JobID    string
 	}
 
 	// StackID represents a stack identifier (it must be composed of Name + "_" + SwarmID to create a unique identifier)
@@ -1158,6 +1169,7 @@ type (
 	// GitService represents a service for managing Git
 	GitService interface {
 		CloneRepository(destination string, repositoryURL, referenceName, username, password string) error
+		LatestCommitID(repositoryURL, referenceName, username, password string) (string, error)
 	}
 
 	// JWTService represents a service for managing JWT tokens
@@ -1264,6 +1276,8 @@ type (
 		UpdateStack(ID StackID, stack *Stack) error
 		DeleteStack(ID StackID) error
 		GetNextIdentifier() int
+		StackByWebhookID(ID string) (*Stack, error)
+		RefreshableStacks() ([]Stack, error)
 	}
 
 	// SnapshotService represents a service for managing endpoint snapshots

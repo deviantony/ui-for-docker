@@ -9,22 +9,56 @@
         .
       </p>
       <p>
-        Update <code>{{ $ctrl.model.ConfigFilePath }}</code> in git and pull from here to update the stack.
+        Update
+        <code
+          >{{ $ctrl.model.ConfigFilePath }}<span ng-if="$ctrl.stack.AdditionalFiles.length > 0">,{{ $ctrl.stack.AdditionalFiles.join(',') }}</span></code
+        >
+        in git and pull from here to update the stack.
       </p>
     </div>
   </div>
 
-  <git-form-ref-field value="$ctrl.formValues.RefName" on-change="($ctrl.onChangeRef)"></git-form-ref-field>
-  <git-form-auth-fieldset model="$ctrl.formValues" on-change="($ctrl.onChange)"></git-form-auth-fieldset>
+  <git-form-auto-update-fieldset model="$ctrl.formValues.AutoUpdate" on-change="($ctrl.onChange)"></git-form-auto-update-fieldset>
+  <div class="form-group">
+    <div class="col-sm-12">
+      <p>
+        <a class="small interactive" ng-click="$ctrl.state.showConfig = !$ctrl.state.showConfig">
+          <i ng-class="{ 'fa fa-minus space-right': $ctrl.state.showConfig, 'fa fa-plus space-right': !$ctrl.state.showConfig }" aria-hidden="true"></i>
+          {{ $ctrl.state.showConfig ? 'Hide' : 'Advanced' }} configuration
+        </a>
+      </p>
+    </div>
+  </div>
+  <git-form-ref-field ng-if="$ctrl.state.showConfig" value="$ctrl.formValues.RefName" on-change="($ctrl.onChangeRef)"></git-form-ref-field>
+  <git-form-auth-fieldset ng-if="$ctrl.state.showConfig" model="$ctrl.formValues" on-change="($ctrl.onChange)" show-auth-explanation="true"></git-form-auth-fieldset>
+  <environment-variables-panel
+    ng-model="$ctrl.formValues.Env"
+    explanation="These values will be used as substitutions in the stack file"
+    on-change="($ctrl.handleEnvVarChange)"
+  ></environment-variables-panel>
 
   <button
     class="btn btn-sm btn-primary"
     ng-click="$ctrl.submit()"
-    ng-disabled="$ctrl.isSubmitButtonDisabled()"
+    ng-if="!$ctrl.formValues.AutoUpdate.RepositoryAutomaticUpdates"
+    ng-disabled="$ctrl.isSubmitButtonDisabled() || !$ctrl.redeployGitForm.$valid"
+    style="margin-top: 7px; margin-left: 0;"
+    button-spinner="$ctrl.state.redeployInProgress"
     style="margin-top: 7px; margin-left: 0;"
     button-spinner="$ctrl.state.inProgress"
   >
-    <span ng-hide="$ctrl.state.inProgress"> <i class="fa fa-sync space-right" aria-hidden="true"></i> Pull and redeploy </span>
+    <span ng-hide="$ctrl.state.redeployInProgress"> <i class="fa fa-sync space-right" aria-hidden="true"></i> Pull and redeploy </span>
+    <span ng-show="$ctrl.state.redeployInProgress">In progress...</span>
+  </button>
+
+  <button
+    class="btn btn-sm btn-primary"
+    ng-click="$ctrl.saveGitSettings()"
+    ng-disabled="$ctrl.isSubmitButtonDisabled() || !$ctrl.redeployGitForm.$valid"
+    style="margin-top: 7px; margin-left: 0;"
+    button-spinner="$ctrl.state.inProgress"
+  >
+    <span ng-hide="$ctrl.state.inProgress"> Save settings </span>
     <span ng-show="$ctrl.state.inProgress">In progress...</span>
   </button>
 </form>

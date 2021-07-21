@@ -6,5 +6,8 @@ export const gitForm = {
   bindings: {
     model: '<',
     onChange: '<',
+    additionalFile: '<',
+    autoUpdate: '<',
+    showAuthExplanation: '<',
   },
 };

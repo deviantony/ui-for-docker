@@ -12,5 +12,6 @@ angular.module('portainer.docker').component('containersDatatable', {
     showAddAction: '<',
     offlineMode: '<',
     refreshCallback: '<',
+    notAutoFocus: '<',
   },
 });

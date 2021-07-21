@@ -125,7 +125,7 @@
           </uib-tab>
           <!-- !tab-info -->
           <!-- tab-file -->
-          <uib-tab index="1" select="showEditor()" ng-if="!external">
+          <uib-tab index="1" select="showEditor()" ng-if="!external && !stack.GitConfig">
             <uib-tab-heading> <i class="fa fa-pencil-alt space-right" aria-hidden="true"></i> Editor </uib-tab-heading>
             <form class="form-horizontal" ng-if="state.showEditorTab" style="margin-top: 10px;" name="stackUpdateForm">
               <div class="form-group">
@@ -185,7 +185,7 @@
                     <button
                       type="button"
                       class="btn btn-sm btn-primary"
-                      ng-disabled="state.actionInProgress || !stackUpdateForm.$valid || !stackFileContent || orphaned"
+                      ng-disabled="state.actionInProgress || stack.Status === 2 || !stackFileContent || orphaned"
                       ng-click="deployStack()"
                       button-spinner="state.actionInProgress"
                     >
@@ -214,6 +214,7 @@
       order-by="Status"
       show-host-column="false"
       show-add-action="false"
+      not-auto-focus="true"
     ></containers-datatable>
   </div>
 </div>
@@ -233,6 +234,7 @@
       show-task-logs-button="applicationState.endpoint.apiVersion >= 1.30"
       show-add-action="false"
       show-stack-column="false"
+      not-auto-focus="true"
     ></services-datatable>
   </div>
 </div>

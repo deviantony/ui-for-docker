@@ -1,11 +1,14 @@
 package stack
 
 import (
+	"strings"
+
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/bolt/errors"
 	"github.com/portainer/portainer/api/bolt/internal"
 
 	"github.com/boltdb/bolt"
+	pkgerrors "github.com/pkg/errors"
 )
 
 const (
@@ -132,4 +135,77 @@ func (service *Service) UpdateStack(ID portainer.StackID, stack *portainer.Stack
 func (service *Service) DeleteStack(ID portainer.StackID) error {
 	identifier := internal.Itob(int(ID))
 	return internal.DeleteObject(service.connection, BucketName, identifier)
+}
+
+// StackByWebhookID returns a pointer to a stack object by webhook ID.
+// It returns nil, errors.ErrObjectNotFound if there's no stack associated with the webhook ID.
+func (service *Service) StackByWebhookID(id string) (*portainer.Stack, error) {
+	if id == "" {
+		return nil, pkgerrors.New("webhook ID can't be empty string")
+	}
+	var stack portainer.Stack
+	found := false
+
+	err := service.connection.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(BucketName))
+		cursor := bucket.Cursor()
+
+		for k, v := cursor.First(); k != nil; k, v = cursor.Next() {
+			var t struct {
+				AutoUpdate *struct {
+					WebhookID string `json:"Webhook"`
+				} `json:"AutoUpdate"`
+			}
+
+			err := internal.UnmarshalObject(v, &t)
+			if err != nil {
+				return err
+			}
+
+			if t.AutoUpdate != nil && strings.EqualFold(t.AutoUpdate.WebhookID, id) {
+				found = true
+				err := internal.UnmarshalObject(v, &stack)
+				if err != nil {
+					return err
+				}
+				break
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	if !found {
+		return nil, errors.ErrObjectNotFound
+	}
+
+	return &stack, nil
+}
+
+// RefreshableStacks returns stacks that are configured for a periodic update
+func (service *Service) RefreshableStacks() ([]portainer.Stack, error) {
+	stacks := make([]portainer.Stack, 0)
+	err := service.connection.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(BucketName))
+		cursor := bucket.Cursor()
+
+		var stack portainer.Stack
+		for k, v := cursor.First(); k != nil; k, v = cursor.Next() {
+			err := internal.UnmarshalObject(v, &stack)
+			if err != nil {
+				return err
+			}
+
+			if stack.AutoUpdate != nil && stack.AutoUpdate.Interval != "" {
+				stacks = append(stacks, stack)
+			}
+		}
+
+		return nil
+	})
+
+	return stacks, err
 }

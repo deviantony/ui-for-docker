@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	wrapper "github.com/portainer/docker-compose-wrapper"
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/bolt"
 	"github.com/portainer/portainer/api/chisel"
@@ -30,6 +29,8 @@ import (
 	"github.com/portainer/portainer/api/ldap"
 	"github.com/portainer/portainer/api/libcompose"
 	"github.com/portainer/portainer/api/oauth"
+	"github.com/portainer/portainer/api/scheduler"
+	"github.com/portainer/portainer/api/stacks"
 )
 
 func initCLI() *portainer.CLIFlags {
@@ -80,12 +81,8 @@ func initDataStore(dataStorePath string, fileService portainer.FileService) port
 func initComposeStackManager(assetsPath string, dataStorePath string, reverseTunnelService portainer.ReverseTunnelService, proxyManager *proxy.Manager) portainer.ComposeStackManager {
 	composeWrapper, err := exec.NewComposeStackManager(assetsPath, dataStorePath, proxyManager)
 	if err != nil {
-		if err == wrapper.ErrBinaryNotFound {
-			log.Printf("[INFO] [message: docker-compose binary not found, falling back to libcompose]")
-			return libcompose.NewComposeStackManager(dataStorePath, reverseTunnelService)
-		}
-
-		log.Fatalf("failed initalizing compose stack manager; err=%s", err)
+		log.Printf("[INFO] [main,compose] [message: falling-back to libcompose] [error: %s]", err)
+		return libcompose.NewComposeStackManager(dataStorePath, reverseTunnelService)
 	}
 
 	return composeWrapper
@@ -470,6 +467,10 @@ func buildServer(flags *portainer.CLIFlags) portainer.Server {
 		log.Fatalf("failed starting license service: %s", err)
 	}
 
+	scheduler := scheduler.NewScheduler(shutdownCtx)
+	stackDeployer := stacks.NewStackDeployer(swarmStackManager, composeStackManager)
+	stacks.StartStackSchedules(scheduler, stackDeployer, dataStore, gitService)
+
 	return &http.Server{
 		AuthorizationService:        authorizationService,
 		ReverseTunnelService:        reverseTunnelService,
@@ -495,8 +496,10 @@ func buildServer(flags *portainer.CLIFlags) portainer.Server {
 		SSLKey:                      *flags.SSLKey,
 		DockerClientFactory:         dockerClientFactory,
 		KubernetesClientFactory:     kubernetesClientFactory,
+		Scheduler:                   scheduler,
 		ShutdownCtx:                 shutdownCtx,
 		ShutdownTrigger:             shutdownTrigger,
+		StackDeployer:               stackDeployer,
 	}
 }
 

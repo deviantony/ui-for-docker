@@ -1,0 +1,20 @@
+<ng-form class="env-item form-horizontal" name="$ctrl.{{ $ctrl.formName }}">
+  <div class="form-group col-sm-12">
+    <div class="form-inline" style="margin-top: 10px;">
+      <div class="input-group col-sm-5 input-group-sm">
+        <span class="input-group-addon">path</span>
+        <input type="text" name="name" class="form-control" ng-model="$ctrl.variable" ng-change="$ctrl.onChangePath($ctrl.variable)" required />
+      </div>
+      <button class="btn btn-sm btn-danger" type="button" ng-click="$ctrl.removeValue()">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div ng-show="$ctrl[$ctrl.formName].name.$invalid">
+      <div class="col-sm-12 small text-warning">
+        <div ng-messages="$ctrl[$ctrl.formName].name.$error">
+          <p ng-message="required"> <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Path is required. </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-form>

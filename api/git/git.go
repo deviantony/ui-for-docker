@@ -6,15 +6,25 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/transport/client"
 	githttp "github.com/go-git/go-git/v5/plumbing/transport/http"
+	"github.com/go-git/go-git/v5/storage/memory"
 )
+
+type fetchOptions struct {
+	repositoryUrl string
+	username      string
+	password      string
+	referenceName string
+}
 
 type cloneOptions struct {
 	repositoryUrl string
@@ -26,6 +36,7 @@ type cloneOptions struct {
 
 type downloader interface {
 	download(ctx context.Context, dst string, opt cloneOptions) error
+	latestCommitID(ctx context.Context, opt fetchOptions) (string, error)
 }
 
 type gitClient struct {
@@ -60,6 +71,34 @@ func (c gitClient) download(ctx context.Context, dst string, opt cloneOptions) e
 	}
 
 	return nil
+}
+
+func (c gitClient) latestCommitID(ctx context.Context, opt fetchOptions) (string, error) {
+	remote := git.NewRemote(memory.NewStorage(), &config.RemoteConfig{
+		Name: "origin",
+		URLs: []string{opt.repositoryUrl},
+	})
+
+	listOptions := &git.ListOptions{}
+	if opt.password != "" || opt.username != "" {
+		listOptions.Auth = &githttp.BasicAuth{
+			Username: opt.username,
+			Password: opt.password,
+		}
+	}
+
+	refs, err := remote.List(listOptions)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to list repository refs")
+	}
+
+	for _, ref := range refs {
+		if strings.EqualFold(ref.Name().String(), opt.referenceName) {
+			return ref.Hash().String(), nil
+		}
+	}
+
+	return "", errors.Errorf("could not find ref %q in the repository", opt.referenceName)
 }
 
 // Service represents a service for managing Git.
@@ -107,4 +146,20 @@ func (service *Service) cloneRepository(destination string, options cloneOptions
 	}
 
 	return service.git.download(context.TODO(), destination, options)
+}
+
+// LatestCommitID returns SHA1 of the latest commit of the specified reference
+func (service *Service) LatestCommitID(repositoryURL, referenceName, username, password string) (string, error) {
+	options := fetchOptions{
+		repositoryUrl: repositoryURL,
+		username:      username,
+		password:      password,
+		referenceName: referenceName,
+	}
+
+	if isAzureUrl(options.repositoryUrl) {
+		return service.azure.latestCommitID(context.TODO(), options)
+	}
+
+	return service.git.latestCommitID(context.TODO(), options)
 }

@@ -11,6 +11,7 @@ import (
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/archive"
 	"github.com/portainer/portainer/api/crypto"
+	"github.com/portainer/portainer/api/filesystem"
 	"github.com/portainer/portainer/api/http/offlinegate"
 )
 
@@ -59,7 +60,7 @@ func extractArchive(r io.Reader, destinationDirPath string) error {
 
 func restoreFiles(srcDir string, destinationDir string) error {
 	for _, filename := range filesToRestore {
-		err := copyPath(filepath.Join(srcDir, filename), destinationDir)
+		err := filesystem.CopyPath(filepath.Join(srcDir, filename), destinationDir)
 		if err != nil {
 			return err
 		}

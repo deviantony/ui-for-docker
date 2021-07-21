@@ -105,7 +105,19 @@ func Test_cloneRepository(t *testing.T) {
 	})
 
 	assert.NoError(t, err)
-	assert.Equal(t, 3, getCommitHistoryLength(t, err, dir), "cloned repo has incorrect depth")
+	assert.Equal(t, 4, getCommitHistoryLength(t, err, dir), "cloned repo has incorrect depth")
+}
+
+func Test_latestCommitID(t *testing.T) {
+	service := Service{git: gitClient{preserveGitDirectory: true}} // no need for http client since the test access the repo via file system.
+
+	repositoryURL := bareRepoDir
+	referenceName := "refs/heads/main"
+
+	id, err := service.LatestCommitID(repositoryURL, referenceName, "", "")
+
+	assert.NoError(t, err)
+	assert.Equal(t, "68dcaa7bd452494043c64252ab90db0f98ecf8d2", id)
 }
 
 func getCommitHistoryLength(t *testing.T, err error, dir string) int {
@@ -135,6 +147,10 @@ type testDownloader struct {
 func (t *testDownloader) download(_ context.Context, _ string, _ cloneOptions) error {
 	t.called = true
 	return nil
+}
+
+func (t *testDownloader) latestCommitID(_ context.Context, _ fetchOptions) (string, error) {
+	return "", nil
 }
 
 func Test_cloneRepository_azure(t *testing.T) {

@@ -11,17 +11,18 @@ import (
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/http/proxy"
 	"github.com/portainer/portainer/api/http/proxy/factory"
+	"github.com/portainer/portainer/api/internal/stackutils"
 )
 
 // ComposeStackManager is a wrapper for docker-compose binary
 type ComposeStackManager struct {
 	wrapper      *wrapper.ComposeWrapper
-	configPath   string
+	dataPath     string
 	proxyManager *proxy.Manager
 }
 
 // NewComposeStackManager returns a docker-compose wrapper if corresponding binary present, otherwise nil
-func NewComposeStackManager(binaryPath string, configPath string, proxyManager *proxy.Manager) (*ComposeStackManager, error) {
+func NewComposeStackManager(binaryPath string, dataPath string, proxyManager *proxy.Manager) (*ComposeStackManager, error) {
 	wrap, err := wrapper.NewComposeWrapper(binaryPath)
 	if err != nil {
 		return nil, err
@@ -30,13 +31,8 @@ func NewComposeStackManager(binaryPath string, configPath string, proxyManager *
 	return &ComposeStackManager{
 		wrapper:      wrap,
 		proxyManager: proxyManager,
-		configPath:   configPath,
+		dataPath:     dataPath,
 	}, nil
-}
-
-// NormalizeStackName returns a new stack name with unsupported characters replaced
-func (w *ComposeStackManager) NormalizeStackName(name string) string {
-	return name
 }
 
 // ComposeSyntaxMaxVersion returns the maximum supported version of the docker compose syntax
@@ -60,9 +56,8 @@ func (w *ComposeStackManager) Up(stack *portainer.Stack, endpoint *portainer.End
 		return err
 	}
 
-	filePath := stackFilePath(stack)
-
-	_, err = w.wrapper.Up([]string{filePath}, url, stack.Name, envFilePath, w.configPath)
+	filePaths := stackutils.GetStackFilePaths(stack)
+	_, err = w.wrapper.Up(filePaths, url, stack.Name, envFilePath, w.dataPath)
 	return err
 }
 
@@ -76,14 +71,15 @@ func (w *ComposeStackManager) Down(stack *portainer.Stack, endpoint *portainer.E
 		defer proxy.Close()
 	}
 
-	filePath := stackFilePath(stack)
+	filePaths := stackutils.GetStackFilePaths(stack)
 
-	_, err = w.wrapper.Down([]string{filePath}, url, stack.Name)
+	_, err = w.wrapper.Down(filePaths, url, stack.Name)
 	return err
 }
 
-func stackFilePath(stack *portainer.Stack) string {
-	return path.Join(stack.ProjectPath, stack.EntryPoint)
+// NormalizeStackName returns the passed stack name, for interface implementation only
+func (w *ComposeStackManager) NormalizeStackName(name string) string {
+	return name
 }
 
 func (w *ComposeStackManager) fetchEndpointProxy(endpoint *portainer.Endpoint) (string, *factory.ProxyServer, error) {

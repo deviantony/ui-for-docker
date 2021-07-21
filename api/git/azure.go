@@ -2,15 +2,17 @@ package git
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/portainer/portainer/api/archive"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+
+	"github.com/pkg/errors"
+	"github.com/portainer/portainer/api/archive"
 )
 
 const (
@@ -37,7 +39,7 @@ type azureDownloader struct {
 
 func NewAzureDownloader(client *http.Client) *azureDownloader {
 	return &azureDownloader{
-		client: client,
+		client:  client,
 		baseUrl: "https://dev.azure.com",
 	}
 }
@@ -98,6 +100,57 @@ func (a *azureDownloader) downloadZipFromAzureDevOps(ctx context.Context, option
 		return "", errors.WithMessage(err, "failed to save HTTP response to a file")
 	}
 	return zipFile.Name(), nil
+}
+
+func (a *azureDownloader) latestCommitID(ctx context.Context, options fetchOptions) (string, error) {
+	config, err := parseUrl(options.repositoryUrl)
+	if err != nil {
+		return "", errors.WithMessage(err, "failed to parse url")
+	}
+
+	refsUrl, err := a.buildRefsUrl(config, options.referenceName)
+	if err != nil {
+		return "", errors.WithMessage(err, "failed to build azure refs url")
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "GET", refsUrl, nil)
+	if options.username != "" || options.password != "" {
+		req.SetBasicAuth(options.username, options.password)
+	} else if config.username != "" || config.password != "" {
+		req.SetBasicAuth(config.username, config.password)
+	}
+
+	if err != nil {
+		return "", errors.WithMessage(err, "failed to create a new HTTP request")
+	}
+
+	resp, err := a.client.Do(req)
+	if err != nil {
+		return "", errors.WithMessage(err, "failed to make an HTTP request")
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("failed to get repository refs with a status \"%v\"", resp.Status)
+	}
+
+	var refs struct {
+		Value []struct {
+			Name     string `json:"name"`
+			ObjectId string `json:"objectId"`
+		}
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&refs); err != nil {
+		return "", errors.Wrap(err, "could not parse Azure Refs response")
+	}
+
+	for _, ref := range refs.Value {
+		if strings.EqualFold(ref.Name, options.referenceName) {
+			return ref.ObjectId, nil
+		}
+	}
+
+	return "", errors.Errorf("could not find ref %q in the repository", options.referenceName)
 }
 
 func parseUrl(rawUrl string) (*azureOptions, error) {
@@ -187,6 +240,27 @@ func (a *azureDownloader) buildDownloadUrl(config *azureOptions, referenceName s
 	q.Set("versionDescriptor.version", formatReferenceName(referenceName))
 	q.Set("$format", "zip")
 	q.Set("recursionLevel", "full")
+	q.Set("api-version", "6.0")
+	u.RawQuery = q.Encode()
+
+	return u.String(), nil
+}
+
+func (a *azureDownloader) buildRefsUrl(config *azureOptions, referenceName string) (string, error) {
+	rawUrl := fmt.Sprintf("%s/%s/%s/_apis/git/repositories/%s/refs",
+		a.baseUrl,
+		url.PathEscape(config.organisation),
+		url.PathEscape(config.project),
+		url.PathEscape(config.repository))
+	u, err := url.Parse(rawUrl)
+
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to parse refs url path %s", rawUrl)
+	}
+
+	// filterContains=main&api-version=6.0
+	q := u.Query()
+	q.Set("filterContains", formatReferenceName(referenceName))
 	q.Set("api-version", "6.0")
 	u.RawQuery = q.Encode()
 

@@ -381,5 +381,11 @@ func (m *Migrator) Migrate() error {
 		}
 	}
 
+	if m.currentDBVersion < 33 {
+		if err := m.migrateDBVersionTo33(); err != nil {
+			return err
+		}
+	}
+
 	return m.versionService.StoreDBVersion(portainer.DBVersion)
 }

@@ -326,12 +326,18 @@ angular.module('portainer.app').factory('StackService', [
         Name: name,
         RepositoryURL: repositoryOptions.RepositoryURL,
         RepositoryReferenceName: repositoryOptions.RepositoryReferenceName,
-        ComposeFilePathInRepository: repositoryOptions.ComposeFilePathInRepository,
+        ComposeFile: repositoryOptions.ComposeFilePathInRepository,
+        AdditionalFiles: repositoryOptions.AdditionalFiles,
         RepositoryAuthentication: repositoryOptions.RepositoryAuthentication,
         RepositoryUsername: repositoryOptions.RepositoryUsername,
         RepositoryPassword: repositoryOptions.RepositoryPassword,
         Env: env,
       };
+
+      if (repositoryOptions.AutoUpdate) {
+        payload.AutoUpdate = repositoryOptions.AutoUpdate;
+      }
+
       return Stack.create({ method: 'repository', type: 2, endpointId: endpointId }, payload).$promise;
     };
 
@@ -346,12 +352,18 @@ angular.module('portainer.app').factory('StackService', [
             SwarmID: swarm.Id,
             RepositoryURL: repositoryOptions.RepositoryURL,
             RepositoryReferenceName: repositoryOptions.RepositoryReferenceName,
-            ComposeFilePathInRepository: repositoryOptions.ComposeFilePathInRepository,
+            ComposeFile: repositoryOptions.ComposeFilePathInRepository,
+            AdditionalFiles: repositoryOptions.AdditionalFiles,
             RepositoryAuthentication: repositoryOptions.RepositoryAuthentication,
             RepositoryUsername: repositoryOptions.RepositoryUsername,
             RepositoryPassword: repositoryOptions.RepositoryPassword,
             Env: env,
           };
+
+          if (repositoryOptions.AutoUpdate) {
+            payload.AutoUpdate = repositoryOptions.AutoUpdate;
+          }
+
           return Stack.create({ method: 'repository', type: 1, endpointId: endpointId }, payload).$promise;
         })
         .then(function success(data) {
@@ -404,6 +416,31 @@ angular.module('portainer.app').factory('StackService', [
         }
       ).$promise;
     }
+
+    service.updateGitStackSettings = function (id, endpointId, env, gitConfig) {
+      // prepare auto update
+      const autoUpdate = {};
+
+      if (gitConfig.AutoUpdate.RepositoryAutomaticUpdates) {
+        if (gitConfig.AutoUpdate.RepositoryMechanism === 'Interval') {
+          autoUpdate.Interval = gitConfig.AutoUpdate.RepositoryFetchInterval;
+        } else if (gitConfig.AutoUpdate.RepositoryMechanism === 'Webhook') {
+          autoUpdate.Webhook = gitConfig.AutoUpdate.RepositoryWebhookURL.split('/').reverse()[0];
+        }
+      }
+
+      return Stack.updateGitStackSettings(
+        { endpointId, id },
+        {
+          AutoUpdate: autoUpdate,
+          Env: env,
+          RepositoryReferenceName: gitConfig.RefName,
+          RepositoryAuthentication: gitConfig.RepositoryAuthentication,
+          RepositoryUsername: gitConfig.RepositoryUsername,
+          RepositoryPassword: gitConfig.RepositoryPassword,
+        }
+      ).$promise;
+    };
 
     return service;
   },
