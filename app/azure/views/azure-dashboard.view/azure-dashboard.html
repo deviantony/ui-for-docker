@@ -3,7 +3,7 @@
   <rd-header-content>Dashboard</rd-header-content>
 </rd-header>
 
-<div class="row" ng-if="subscriptions">
+<div class="row" ng-if="$ctrl.subscriptions">
   <div class="col-sm-12 col-md-6">
     <a ui-sref="azure.subscriptions">
       <rd-widget>
@@ -11,20 +11,20 @@
           <div class="widget-icon blue pull-left">
             <i class="fa fa-th-list"></i>
           </div>
-          <div class="title">{{ subscriptions.length }}</div>
+          <div class="title">{{ $ctrl.subscriptions.length }}</div>
           <div class="comment">Subscriptions</div>
         </rd-widget-body>
       </rd-widget>
     </a>
   </div>
-  <div class="col-sm-12 col-md-6" ng-if="resourceGroups">
+  <div class="col-sm-12 col-md-6" ng-if="$ctrl.resourceGroups">
     <a ui-sref="azure.resourceGroups">
       <rd-widget>
         <rd-widget-body>
           <div class="widget-icon blue pull-left">
             <i class="fa fa-th-list"></i>
           </div>
-          <div class="title">{{ resourceGroups.length }}</div>
+          <div class="title">{{ $ctrl.resourceGroups.length }}</div>
           <div class="comment">Resource groups</div>
         </rd-widget-body>
       </rd-widget>

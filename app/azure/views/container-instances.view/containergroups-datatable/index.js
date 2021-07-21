@@ -1,5 +1,5 @@
-angular.module('portainer.azure').component('containergroupsDatatable', {
-  templateUrl: './containerGroupsDatatable.html',
+export const containergroupsDatatable = {
+  templateUrl: './containergroups-datatable.html',
   controller: 'GenericDatatableController',
   bindings: {
     titleText: '@',
@@ -10,4 +10,4 @@ angular.module('portainer.azure').component('containergroupsDatatable', {
     reverseOrder: '<',
     removeAction: '<',
   },
-});
+};

@@ -7,7 +7,7 @@
   <div class="col-sm-12">
     <rd-widget>
       <rd-widget-body>
-        <form class="form-horizontal" autocomplete="off" name="aciForm">
+        <form class="form-horizontal" autocomplete="off" name="$ctrl.aciForm">
           <div class="col-sm-12 form-section-title">
             Azure settings
           </div>
@@ -18,9 +18,9 @@
               <select
                 class="form-control"
                 name="azure_subscription"
-                ng-model="state.selectedSubscription"
-                ng-options="subscription.Name for subscription in subscriptions"
-                ng-change="changeSubscription()"
+                ng-model="$ctrl.state.selectedSubscription"
+                ng-options="subscription.Name for subscription in $ctrl.subscriptions"
+                ng-change="$ctrl.changeSubscription()"
               ></select>
             </div>
           </div>
@@ -32,8 +32,8 @@
               <select
                 class="form-control"
                 name="azure_resourcegroup"
-                ng-model="state.selectedResourceGroup"
-                ng-options="resourceGroup.Name for resourceGroup in resourceGroups"
+                ng-model="$ctrl.state.selectedResourceGroup"
+                ng-options="resourceGroup.Name for resourceGroup in $ctrl.resourceGroups"
               ></select>
             </div>
           </div>
@@ -42,7 +42,7 @@
           <div class="form-group">
             <label for="azure_location" class="col-sm-1 control-label text-left">Location</label>
             <div class="col-sm-11">
-              <select class="form-control" name="azure_location" ng-model="model.Location" ng-options="location for location in locations"></select>
+              <select class="form-control" name="azure_location" ng-model="$ctrl.model.Location" ng-options="location for location in $ctrl.locations"></select>
             </div>
           </div>
           <!-- !location-input -->
@@ -53,12 +53,12 @@
           <div class="form-group">
             <label for="container_name" class="col-sm-1 control-label text-left">Name</label>
             <div class="col-sm-11">
-              <input type="text" class="form-control" ng-model="model.Name" name="container_name" placeholder="e.g. myContainer" required />
+              <input type="text" class="form-control" ng-model="$ctrl.model.Name" name="container_name" placeholder="e.g. myContainer" required />
             </div>
           </div>
-          <div class="form-group" ng-show="aciForm.container_name.$invalid">
+          <div class="form-group" ng-show="$ctrl.aciForm.container_name.$invalid">
             <div class="col-sm-12 small text-warning">
-              <div ng-messages="aciForm.container_name.$error">
+              <div ng-messages="$ctrl.aciForm.container_name.$error">
                 <p ng-message="required"> <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Name is required. </p>
               </div>
             </div>
@@ -68,12 +68,12 @@
           <div class="form-group">
             <label for="image_name" class="col-sm-1 control-label text-left">Image</label>
             <div class="col-sm-11">
-              <input type="text" class="form-control" ng-model="model.Image" name="image_name" placeholder="e.g. nginx:alpine" required />
+              <input type="text" class="form-control" ng-model="$ctrl.model.Image" name="image_name" placeholder="e.g. nginx:alpine" required />
             </div>
           </div>
-          <div class="form-group" ng-show="aciForm.image_name.$invalid">
+          <div class="form-group" ng-show="$ctrl.aciForm.image_name.$invalid">
             <div class="col-sm-12 small text-warning">
-              <div ng-messages="aciForm.image_name.$error">
+              <div ng-messages="$ctrl.aciForm.image_name.$error">
                 <p ng-message="required"> <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Image is required. </p>
               </div>
             </div>
@@ -83,7 +83,7 @@
           <div class="form-group">
             <label for="container_os" class="col-sm-1 control-label text-left">OS</label>
             <div class="col-sm-11">
-              <select class="form-control" ng-model="model.OSType" name="container_os">
+              <select class="form-control" ng-model="$ctrl.model.OSType" name="container_os">
                 <option value="Linux">Linux</option>
                 <option value="Windows">Windows</option>
               </select>
@@ -94,13 +94,13 @@
           <div class="form-group">
             <div class="col-sm-12">
               <label class="control-label text-left">Port mapping</label>
-              <span class="label label-default interactive" style="margin-left: 10px;" ng-click="addPortBinding()">
+              <span class="label label-default interactive" style="margin-left: 10px;" ng-click="$ctrl.addPortBinding()">
                 <i class="fa fa-plus-circle" aria-hidden="true"></i> map additional port
               </span>
             </div>
             <!-- port-mapping-input-list -->
             <div class="col-sm-12 form-inline" style="margin-top: 10px;">
-              <div ng-repeat="binding in model.Ports" style="margin-top: 2px;">
+              <div ng-repeat="binding in $ctrl.model.Ports" style="margin-top: 2px;">
                 <!-- host-port -->
                 <div class="input-group col-sm-4 input-group-sm">
                   <span class="input-group-addon">host</span>
@@ -122,7 +122,7 @@
                     <label class="btn btn-primary" ng-model="binding.protocol" uib-btn-radio="'TCP'">TCP</label>
                     <label class="btn btn-primary" ng-model="binding.protocol" uib-btn-radio="'UDP'">UDP</label>
                   </div>
-                  <button class="btn btn-sm btn-danger" type="button" ng-click="removePortBinding($index)">
+                  <button class="btn btn-sm btn-danger" type="button" ng-click="$ctrl.removePortBinding($index)">
                     <i class="fa fa-trash" aria-hidden="true"></i>
                   </button>
                 </div>
@@ -145,7 +145,7 @@
           <div class="form-group">
             <label for="container_cpu" class="col-sm-1 control-label text-left">CPU</label>
             <div class="col-sm-11">
-              <input type="number" class="form-control" ng-model="model.CPU" name="container_cpu" placeholder="1" />
+              <input type="number" class="form-control" ng-model="$ctrl.model.CPU" name="container_cpu" placeholder="1" />
             </div>
           </div>
           <!-- !cpu-input -->
@@ -153,12 +153,12 @@
           <div class="form-group">
             <label for="container_memory" class="col-sm-1 control-label text-left">Memory</label>
             <div class="col-sm-11">
-              <input type="number" class="form-control" ng-model="model.Memory" name="container_memory" placeholder="1" />
+              <input type="number" class="form-control" ng-model="$ctrl.model.Memory" name="container_memory" placeholder="1" />
             </div>
           </div>
           <!-- !memory-input -->
           <!-- access-control -->
-          <por-access-control-form form-data="model.AccessControlData"></por-access-control-form>
+          <por-access-control-form form-data="$ctrl.model.AccessControlData"></por-access-control-form>
           <!-- !access-control -->
           <!-- actions -->
           <div class="col-sm-12 form-section-title">
@@ -166,11 +166,17 @@
           </div>
           <div class="form-group">
             <div class="col-sm-12">
-              <button type="button" class="btn btn-primary btn-sm" ng-disabled="state.actionInProgress" ng-click="create()" button-spinner="state.actionInProgress">
-                <span ng-hide="state.actionInProgress">Deploy the container</span>
-                <span ng-show="state.actionInProgress">Deployment in progress...</span>
+              <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                ng-disabled="$ctrl.state.actionInProgress || $ctrl.aciForm.$invalid"
+                ng-click="$ctrl.create()"
+                button-spinner="$ctrl.state.actionInProgress"
+              >
+                <span ng-hide="$ctrl.state.actionInProgress">Deploy the container</span>
+                <span ng-show="$ctrl.state.actionInProgress">Deployment in progress...</span>
               </button>
-              <span class="text-danger" ng-if="state.formValidationError" style="margin-left: 5px;">{{ state.formValidationError }}</span>
+              <span class="text-danger" ng-if="$ctrl.state.formValidationError" style="margin-left: 5px;">{{ $ctrl.state.formValidationError }}</span>
             </div>
           </div>
           <!-- !actions -->

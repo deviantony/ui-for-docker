@@ -1,4 +1,4 @@
-class ContainerInstanceDetailsController {
+export default class ContainerInstanceDetailsController {
   /* @ngInject */
   constructor($state, AzureService, ContainerGroupService, Notifications, ResourceGroupService, SubscriptionService) {
     Object.assign(this, { $state, AzureService, ContainerGroupService, Notifications, ResourceGroupService, SubscriptionService });
@@ -32,5 +32,3 @@ function parseId(id) {
 
   return { subscriptionId, resourceGroupId, containerGroupId };
 }
-
-export default ContainerInstanceDetailsController;
