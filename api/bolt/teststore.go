@@ -1,4 +1,4 @@
-package bolttest
+package bolt
 
 import (
 	"io/ioutil"
@@ -6,13 +6,12 @@ import (
 	"os"
 
 	"github.com/pkg/errors"
-	"github.com/portainer/portainer/api/bolt"
 	"github.com/portainer/portainer/api/filesystem"
 )
 
 var errTempDir = errors.New("can't create a temp dir")
 
-func MustNewTestStore(init bool) (*bolt.Store, func()) {
+func MustNewTestStore(init bool) (*Store, func()) {
 	store, teardown, err := NewTestStore(init)
 	if err != nil {
 		if !errors.Is(err, errTempDir) {
@@ -24,7 +23,7 @@ func MustNewTestStore(init bool) (*bolt.Store, func()) {
 	return store, teardown
 }
 
-func NewTestStore(init bool) (*bolt.Store, func(), error) {
+func NewTestStore(init bool) (*Store, func(), error) {
 	// Creates unique temp directory in a concurrency friendly manner.
 	dataStorePath, err := ioutil.TempDir("", "boltdb")
 	if err != nil {
@@ -36,7 +35,7 @@ func NewTestStore(init bool) (*bolt.Store, func(), error) {
 		return nil, nil, err
 	}
 
-	store, err := bolt.NewStore(dataStorePath, fileService)
+	store, err := NewStore(dataStorePath, fileService)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -60,7 +59,7 @@ func NewTestStore(init bool) (*bolt.Store, func(), error) {
 	return store, teardown, nil
 }
 
-func teardown(store *bolt.Store, dataStorePath string) {
+func teardown(store *Store, dataStorePath string) {
 	err := store.Close()
 	if err != nil {
 		log.Fatalln(err)

@@ -15,6 +15,7 @@ const (
 	versionKey  = "DB_VERSION"
 	instanceKey = "INSTANCE_ID"
 	editionKey  = "EDITION"
+	updatingKey = "DB_UPDATING"
 )
 
 // Service represents a service to manage stored versions.
@@ -81,6 +82,21 @@ func (service *Service) StoreDBVersion(version int) error {
 		data := []byte(strconv.Itoa(version))
 		return bucket.Put([]byte(versionKey), data)
 	})
+}
+
+// IsUpdating retrieves the database updating status.
+func (service *Service) IsUpdating() (bool, error) {
+	isUpdating, err := service.getKey(updatingKey)
+	if err != nil {
+		return false, err
+	}
+
+	return strconv.ParseBool(string(isUpdating))
+}
+
+// StoreIsUpdating store the database updating status.
+func (service *Service) StoreIsUpdating(isUpdating bool) error {
+	return service.setKey(updatingKey, strconv.FormatBool(isUpdating))
 }
 
 // InstanceID retrieves the stored instance ID.

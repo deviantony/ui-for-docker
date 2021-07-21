@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/portainer/portainer/api"
+	portainer "github.com/portainer/portainer/api"
 
 	"os"
 	"path/filepath"
@@ -42,6 +42,7 @@ func (*Service) ParseFlags(version string) (*portainer.CLIFlags, error) {
 		TLSCacert:                 kingpin.Flag("tlscacert", "Path to the CA").Default(defaultTLSCACertPath).String(),
 		TLSCert:                   kingpin.Flag("tlscert", "Path to the TLS certificate file").Default(defaultTLSCertPath).String(),
 		TLSKey:                    kingpin.Flag("tlskey", "Path to the TLS key").Default(defaultTLSKeyPath).String(),
+		Rollback:                  kingpin.Flag("rollback", "Rollback the database store to the previous version").Bool(),
 		SSL:                       kingpin.Flag("ssl", "Secure Portainer instance using SSL").Default(defaultSSL).Bool(),
 		SSLCert:                   kingpin.Flag("sslcert", "Path to the SSL certificate used to secure the Portainer instance").Default(defaultSSLCertPath).String(),
 		SSLKey:                    kingpin.Flag("sslkey", "Path to the SSL key used to secure the Portainer instance").Default(defaultSSLKeyPath).String(),

@@ -54,7 +54,7 @@ func initFileService(dataStorePath string) portainer.FileService {
 	return fileService
 }
 
-func initDataStore(dataStorePath string, fileService portainer.FileService) portainer.DataStore {
+func initDataStore(dataStorePath string, rollback bool, fileService portainer.FileService) portainer.DataStore {
 	store, err := bolt.NewStore(dataStorePath, fileService)
 	if err != nil {
 		log.Fatalf("failed creating data store: %v", err)
@@ -63,6 +63,17 @@ func initDataStore(dataStorePath string, fileService portainer.FileService) port
 	err = store.Open()
 	if err != nil {
 		log.Fatalf("failed opening store: %v", err)
+	}
+
+	if rollback {
+		err := store.Rollback(false)
+		if err != nil {
+			log.Fatalf("failed rolling back: %s", err)
+		}
+
+		log.Println("Exiting rollback")
+		os.Exit(0)
+		return nil
 	}
 
 	err = store.Init()
@@ -354,7 +365,7 @@ func buildServer(flags *portainer.CLIFlags) portainer.Server {
 
 	fileService := initFileService(*flags.Data)
 
-	dataStore := initDataStore(*flags.Data, fileService)
+	dataStore := initDataStore(*flags.Data, *flags.Rollback, fileService)
 
 	if err := dataStore.CheckCurrentEdition(); err != nil {
 		log.Fatal(err)

@@ -108,6 +108,66 @@ func (service *Service) GetStackProjectPath(stackIdentifier string) string {
 	return path.Join(service.fileStorePath, ComposeStorePath, stackIdentifier)
 }
 
+// Copy copies the file on fromFilePath to toFilePath
+// if toFilePath exists func will fail unless deleteIfExists is true
+func (service *Service) Copy(fromFilePath string, toFilePath string, deleteIfExists bool) error {
+	exists, err := service.FileExists(fromFilePath)
+	if err != nil {
+		return err
+	}
+
+	if !exists {
+		return errors.New("File doesn't exist")
+	}
+
+	finput, err := os.Open(fromFilePath)
+	if err != nil {
+		return err
+	}
+
+	defer finput.Close()
+
+	exists, err = service.FileExists(toFilePath)
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		if !deleteIfExists {
+			return errors.New("Destination file exists")
+		}
+
+		err := os.Remove(toFilePath)
+		if err != nil {
+			return err
+		}
+	}
+
+	foutput, err := os.Create(toFilePath)
+	if err != nil {
+		return err
+	}
+
+	defer foutput.Close()
+
+	buf := make([]byte, 1024)
+	for {
+		n, err := finput.Read(buf)
+		if err != nil && err != io.EOF {
+			return err
+		}
+		if n == 0 {
+			break
+		}
+
+		if _, err := foutput.Write(buf[:n]); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // StoreStackFileFromBytes creates a subfolder in the ComposeStorePath and stores a new file from bytes.
 // It returns the path to the folder where the file is stored.
 func (service *Service) StoreStackFileFromBytes(stackIdentifier, fileName string, data []byte) (string, error) {
